@@ -1,6 +1,6 @@
 apply plugin: 'java'
 
-task client(type: Jar) {
+task clientJar(type: Jar) {
 	manifest {
         attributes 'Implementation-Title': 'Activity Streamer Client', 
         	'Main-Class': 'activitystreamer.Client'
@@ -10,7 +10,7 @@ task client(type: Jar) {
     with jar
 }
 
-task server(type: Jar) {
+task serverJar(type: Jar) {
 	manifest {
         attributes 'Implementation-Title': 'Activity Streamer Server',  
         	'Main-Class': 'activitystreamer.Server'
