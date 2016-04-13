@@ -1,5 +1,25 @@
 apply plugin: 'java'
 
+task client(type: Jar) {
+	manifest {
+        attributes 'Implementation-Title': 'Activity Streamer Client', 
+        	'Main-Class': 'activitystreamer.Client'
+    }
+    baseName = 'Client'
+    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+    with jar
+}
+
+task server(type: Jar) {
+	manifest {
+        attributes 'Implementation-Title': 'Activity Streamer Server',  
+        	'Main-Class': 'activitystreamer.Server'
+    }
+    baseName = 'Server'
+    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+    with jar
+}
+
 repositories {
     mavenCentral()
 }
