@@ -38,6 +38,7 @@ public class Server {
         options.addOption("lh", true, "local hostname");
         options.addOption("a", true, "activity interval in milliseconds");
         options.addOption("s", true, "secret for the server to use");
+        options.addOption("d", true, "debug mode, use static secret");
 
 
         // build the parser
@@ -50,10 +51,16 @@ public class Server {
             help(options);
         }
 
+        if (!cmd.hasOption("d")) {
+          log.info("DEBUG MODE ACTIVE: Using static secret");
+          Settings.setSecret("abc123");
+        }
+
         if (cmd.hasOption("lp")) {
             try {
                 int port = Integer.parseInt(cmd.getOptionValue("lp"));
                 Settings.setLocalPort(port);
+                log.info("Setting local port to: " + port);
             } catch (NumberFormatException e) {
                 log.info("-lp requires a port number, parsed: " + cmd.getOptionValue("lp"));
                 help(options);
@@ -62,6 +69,11 @@ public class Server {
 
         if (cmd.hasOption("rh")) {
             Settings.setRemoteHostname(cmd.getOptionValue("rh"));
+        } else {
+            if (!cmd.hasOption("d")) {
+                Settings.setSecret(Settings.nextSecret());
+                log.info("Initial server, generating secret: " + Settings.getSecret());
+            }
         }
 
         if (cmd.hasOption("rp")) {
@@ -95,7 +107,12 @@ public class Server {
         }
 
         if (cmd.hasOption("s")) {
-            Settings.setSecret(cmd.getOptionValue("s"));
+            if (cmd.hasOption("rh")) {
+                Settings.setSecret(cmd.getOptionValue("s"));
+                log.info("Initializing server with secret " + Settings.getSecret());
+            } else {
+                log.warn("No remote host specified, makes no sense to set secret.");
+            }
         }
 
         log.info("starting server");

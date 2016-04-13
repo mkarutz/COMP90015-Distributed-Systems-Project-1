@@ -25,14 +25,26 @@ task(runclient, dependsOn: 'classes', type: JavaExec) {
 	classpath = sourceSets.main.runtimeClasspath
 }
 
+task(runserver0, dependsOn: 'classes', type: JavaExec) {
+	main = 'activitystreamer.Server'
+	classpath = sourceSets.main.runtimeClasspath
+	args(['-lp', '4035', '-d', ''])
+}
+
+task(runserver1, dependsOn: 'classes', type: JavaExec) {
+	main = 'activitystreamer.Server'
+	classpath = sourceSets.main.runtimeClasspath
+	args(['-rh', 'localhost', '-rp', '4035', '-d', '', '-lp', '4135'])
+}
+
 task(runserver, dependsOn: 'classes', type: JavaExec) {
 	main = 'activitystreamer.Server'
 	classpath = sourceSets.main.runtimeClasspath
-	args ["-lp 4035"]
+	args(['-lp', '4035', '-s', 'k9sij31p7o2c8o6u0qjdkc8puj'])
 }
 
 task test1(type: Exec) {
-	commandLine 'sh', 'scripts/script.sh'
+	commandLine 'sh', 'scripts/test-1.sh'
 }
 
 
