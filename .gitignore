@@ -26,6 +26,7 @@ local.properties
 
 # Gradle
 .gradle/
+build/
 
 # Eclipse Core
 .project
