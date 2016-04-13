@@ -1,6 +1,5 @@
 apply plugin: 'java'
 
-<<<<<<< 8b4c7011368e8dc3aed56b37e7e5c447bc7a37c2
 task clientJar(type: Jar) {
 	manifest {
         attributes 'Implementation-Title': 'Activity Streamer Client', 
@@ -21,7 +20,6 @@ task serverJar(type: Jar) {
     with jar
 }
 
-=======
 task(runclient, dependsOn: 'classes', type: JavaExec) {
 	main = 'activitystreamer.Client'
 	classpath = sourceSets.main.runtimeClasspath
@@ -33,8 +31,11 @@ task(runserver, dependsOn: 'classes', type: JavaExec) {
 	args ["-lp 4035"]
 }
 
+task test1(type: Exec) {
+	commandLine 'sh', 'scripts/script.sh'
+}
 
->>>>>>> Add tasks to gradle JavaExec
+
 repositories {
     mavenCentral()
 }
