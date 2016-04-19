@@ -67,14 +67,10 @@ public class Client {
             Settings.setUsername(cmd.getOptionValue("u"));
         }
 
-
         log.info("starting client");
 
 
-		/*
-		 * maybe change the line below to suit your program
-		 */
-
-        ClientSolution c = ClientSolution.getInstance();
+        ClientSolution c = new ClientSolution();
+		new Thread(c).start();
     }
 }

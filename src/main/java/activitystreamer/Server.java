@@ -1,6 +1,5 @@
 package activitystreamer;
 
-
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
@@ -13,7 +12,7 @@ import org.apache.commons.cli.ParseException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import activitystreamer.server.ControlSolution;
+import activitystreamer.server.Control;
 import activitystreamer.util.Settings;
 
 public class Server {
@@ -28,7 +27,6 @@ public class Server {
     }
 
     public static void main(String[] args) {
-
         log.info("reading command line options");
 
         Options options = new Options();
@@ -40,8 +38,6 @@ public class Server {
         options.addOption("s", true, "secret for the server to use");
         options.addOption("d", true, "debug mode, use static secret");
 
-
-        // build the parser
         CommandLineParser parser = new DefaultParser();
 
         CommandLine cmd = null;
@@ -117,15 +113,21 @@ public class Server {
 
         log.info("starting server");
 
+        Control c = new Control();
+        new Thread(c).start();
+        Runtime.getRuntime().addShutdownHook(new Thread(new ShutDownHook(c)));
+    }
 
-        final ControlSolution c = ControlSolution.getInstance();
-        // the following shutdown hook doesn't really work, it doesn't give us enough time to
-        // cleanup all of our connections before the jvm is terminated.
-        Runtime.getRuntime().addShutdownHook(new Thread() {
-            public void run() {
-                c.setTerm(true);
-                c.interrupt();
-            }
-        });
+    private static class ShutDownHook implements Runnable {
+        private Control c;
+
+        public ShutDownHook(Control c) {
+            this.c = c;
+        }
+
+        @Override
+        public void run() {
+            c.setTerm(true);
+        }
     }
 }

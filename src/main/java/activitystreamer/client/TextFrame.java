@@ -28,6 +28,7 @@ import com.google.gson.JsonParser;
 @SuppressWarnings("serial")
 public class TextFrame extends JFrame implements ActionListener {
     private static final Logger log = LogManager.getLogger();
+
     private JTextArea inputText;
     private JTextArea outputText;
     private JButton sendButton;
