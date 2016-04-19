@@ -7,28 +7,28 @@ import java.net.Socket;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import activitystreamer.util.Settings;
-
-public class Listener extends Thread {
-    private static final Logger log = LogManager.getLogger();
+public class Listener implements Runnable {
+    private Logger log = LogManager.getLogger();
     private ServerSocket serverSocket = null;
     private boolean term = false;
-    private int portnum;
+    private int port;
 
-    public Listener() throws IOException {
-        portnum = Settings.getLocalPort(); // keep our own copy in case it changes later
-        serverSocket = new ServerSocket(portnum);
-        start();
+	private IncomingConnectionHandler connectionHandler;
+
+    public Listener(IncomingConnectionHandler connectionHandler, int port)
+			throws IOException {
+        this.port = port;
+        serverSocket = new ServerSocket(port);
     }
 
     @Override
     public void run() {
-        log.info("listening for new connections on " + portnum);
+        log.info("listening for new connections on " + port);
         while (!term) {
             Socket clientSocket;
             try {
                 clientSocket = serverSocket.accept();
-                Control.getInstance().incomingConnection(clientSocket);
+                connectionHandler.incomingConnection(clientSocket);
             } catch (IOException e) {
                 log.info("received exception, shutting down");
                 term = true;
@@ -38,8 +38,5 @@ public class Listener extends Thread {
 
     public void setTerm(boolean term) {
         this.term = term;
-        if (term) interrupt();
     }
-
-
 }
