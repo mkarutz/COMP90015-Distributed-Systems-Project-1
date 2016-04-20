@@ -2,7 +2,7 @@ package activitystreamer.core.command;
 
 import com.google.gson.JsonObject;
 
-public class ActivityBroadcastCommand {
+public class ActivityBroadcastCommand implements ICommand {
     private final String command = "ACTIVITY_BROADCAST";
     private JsonObject activity;
 

@@ -1,6 +1,6 @@
 package activitystreamer.core.command;
 
-public class AuthenticateCommand {
+public class AuthenticateCommand implements ICommand {
     private final String command = "AUTHENTICATE";
     private String secret;
 

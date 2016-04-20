@@ -1,6 +1,6 @@
 package activitystreamer.core.command;
 
-public class InvalidMessageCommand {
+public class InvalidMessageCommand implements ICommand {
     private final String command = "INVALID_MESSAGE";
     private String info;
 

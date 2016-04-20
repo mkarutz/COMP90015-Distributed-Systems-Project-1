@@ -2,7 +2,7 @@ package activitystreamer.core.command;
 
 import java.net.InetAddress;
 
-public class RedirectCommand {
+public class RedirectCommand implements ICommand {
     private final String command = "REDIRECT";
     private InetAddress hostname;
     private int port;

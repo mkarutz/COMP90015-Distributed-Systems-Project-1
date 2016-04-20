@@ -1,6 +1,6 @@
 package activitystreamer.core.command;
 
-public class LoginFailedCommand {
+public class LoginFailedCommand implements ICommand {
     private final String command = "LOGIN_FAILED";
     private String info;
 

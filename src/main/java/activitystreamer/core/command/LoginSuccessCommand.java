@@ -1,6 +1,6 @@
 package activitystreamer.core.command;
 
-public class LoginSuccessCommand {
+public class LoginSuccessCommand implements ICommand {
     private final String command = "LOGIN_SUCCESS";
     private String info;
 
