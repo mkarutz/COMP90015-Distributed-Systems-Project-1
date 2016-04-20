@@ -83,7 +83,7 @@ public class Settings {
         Settings.localHostname = localHostname;
     }
 
-	
+
 	/*
      * some general helper functions
 	 */

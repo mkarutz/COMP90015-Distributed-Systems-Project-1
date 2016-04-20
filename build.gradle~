@@ -37,12 +37,6 @@ task(runserver1, dependsOn: 'classes', type: JavaExec) {
 	args(['-rh', 'localhost', '-rp', '4035', '-d', '', '-lp', '4135'])
 }
 
-task(runserver2, dependsOn: 'classes', type: JavaExec) {
-	main = 'activitystreamer.Server'
-	classpath = sourceSets.main.runtimeClasspath
-	args(['-rh', 'localhost', '-rp', '4135', '-d', '', '-lp', '4235'])
-}
-
 task(runserver, dependsOn: 'classes', type: JavaExec) {
 	main = 'activitystreamer.Server'
 	classpath = sourceSets.main.runtimeClasspath
@@ -62,5 +56,6 @@ dependencies {
     compile 'commons-cli:commons-cli:1.3.1'
     compile 'org.apache.logging.log4j:log4j-core:2.5'
     compile 'com.google.code.gson:gson:2.2.2'
+    compile 'com.googlecode.json-simple:json-simple:1.1'
     testCompile 'junit:junit:4.12'
 }
