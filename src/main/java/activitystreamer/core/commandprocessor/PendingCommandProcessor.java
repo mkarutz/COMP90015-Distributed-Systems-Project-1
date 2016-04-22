@@ -1,5 +1,10 @@
 package activitystreamer.core.commandprocessor;
 
+import java.util.List;
+import activitystreamer.core.command.*;
+import activitystreamer.core.commandhandler.*;
+import activitystreamer.server.*;
+
 /* Design pattern inspired by
    http://stackoverflow.com/questions/1477471/design-pattern-for-handling-multiple-message-types */
 

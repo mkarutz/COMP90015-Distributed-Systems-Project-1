@@ -6,9 +6,9 @@ import activitystreamer.server.Connection;
 public class AuthenticateCommandHandler implements ICommandHandler {
     @Override
     public boolean handleCommand(ICommand command, Connection conn) {
-        if (command is AuthenticateCommand) {
+        if (command instanceof AuthenticateCommand) {
             authCommand = (AuthenticateCommand)command;
-            if (Settings.getSecret().equals(authCommand.getSecret()) {
+            if (Settings.getSecret().equals(authCommand.getSecret())) {
                 /* Incoming server connection authenticated */
                 /* CHANGE STATE */
             } else {
