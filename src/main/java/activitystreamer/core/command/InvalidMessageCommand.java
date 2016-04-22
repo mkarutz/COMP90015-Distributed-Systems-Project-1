@@ -4,6 +4,10 @@ public class InvalidMessageCommand implements ICommand {
     private final String command = "INVALID_MESSAGE";
     private String info;
 
+    public InvalidMessageCommand(String msg){
+      
+    }
+
     public String getCommand() {
         return command;
     }

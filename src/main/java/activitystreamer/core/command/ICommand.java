@@ -1,5 +1,7 @@
 package activitystreamer.core.command;
 
-public interface ICommand {
+import com.google.gson.JsonObject;
 
+public interface ICommand {
+  
 }

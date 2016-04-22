@@ -14,7 +14,7 @@ public class ControlSolution extends Control {
     public ControlSolution() {
         super();
         initiateConnection();
-        start();
+        // start();
     }
 
     @Override

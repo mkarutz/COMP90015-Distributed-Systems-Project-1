@@ -8,6 +8,9 @@ import org.apache.logging.log4j.Logger;
 
 import activitystreamer.util.Settings;
 
+//added for pushCommand
+import activitystreamer.core.command.*;
+
 public class Connection implements Closeable {
     private static final Logger log = LogManager.getLogger();
     private BufferedReader in;
@@ -21,6 +24,13 @@ public class Connection implements Closeable {
         in = new BufferedReader(new InputStreamReader(new DataInputStream(socket.getInputStream())));
         out = new PrintWriter(new DataOutputStream(socket.getOutputStream()), true);
         open = true;
+    }
+
+
+    //pushCommand method added just to get it to build
+    //used in PendingCommandProcessor
+    public void pushCommand(ICommand cmd){
+
     }
 
     public String readLine() throws IOException {

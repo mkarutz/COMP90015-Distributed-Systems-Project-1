@@ -22,6 +22,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.google.gson.JsonParseException;
 
 @SuppressWarnings("serial")
 public class TextFrame extends JFrame implements ActionListener {
@@ -77,14 +78,13 @@ public class TextFrame extends JFrame implements ActionListener {
 
     public void setOutputText(final JsonObject obj) {
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
-        JsonParser jp = new JsonParser();
-        JsonElement je = jp.parse(obj.toJSONString());
-        String prettyJsonString = gson.toJson(je);
+        String prettyJsonString = gson.toJson(obj);
         outputText.setText(prettyJsonString);
         outputText.revalidate();
         outputText.repaint();
     }
 
+//ClientSolution class commented out
     @Override
     public void actionPerformed(ActionEvent e) {
         if (e.getSource() == sendButton) {
@@ -92,13 +92,15 @@ public class TextFrame extends JFrame implements ActionListener {
             JsonObject obj;
             try {
                 obj = (JsonObject) parser.parse(msg);
-                ClientSolution.getInstance().sendActivityObject(obj);
-            } catch (ParseException e1) {
+                // ClientSolution.getInstance().sendActivityObject(obj);
+                /*TODO*/
+            } catch (JsonParseException e1) {
                 log.error("invalid JSON object entered into input text field, data not sent");
             }
 
         } else if (e.getSource() == disconnectButton) {
-            ClientSolution.getInstance().disconnect();
+            // ClientSolution.getInstance().disconnect();
+            /*TODO*/
         }
     }
 }

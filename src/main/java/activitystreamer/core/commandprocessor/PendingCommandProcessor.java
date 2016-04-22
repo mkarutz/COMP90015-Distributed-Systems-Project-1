@@ -1,6 +1,7 @@
 package activitystreamer.core.commandprocessor;
 
 import java.util.List;
+import java.util.ArrayList;
 import activitystreamer.core.command.*;
 import activitystreamer.core.commandhandler.*;
 import activitystreamer.server.*;
@@ -9,7 +10,7 @@ import activitystreamer.server.*;
    http://stackoverflow.com/questions/1477471/design-pattern-for-handling-multiple-message-types */
 
 public class PendingCommandProcessor {
-    private List<ICommandHandler> handlers = new List<ICommandHandler>();
+    private List<ICommandHandler> handlers = new ArrayList<ICommandHandler>();
     private Connection connectionHandle;
 
     public PendingCommandProcessor(Connection connectionHandle) {
@@ -21,10 +22,10 @@ public class PendingCommandProcessor {
         handlers.add(new ActivityMessageCommandHandler());
     }
 
-    public void processCommand(ICommand msg) {
-        boolean handled;
+    public void processCommand(ICommand msg,Connection conn) {
+        boolean handled=false;
         for (ICommandHandler h : handlers) {
-            if (h.handleCommand(msg)) {
+            if (h.handleCommand(msg,conn)) {
                 handled = true;
                 break;
             }
@@ -35,7 +36,7 @@ public class PendingCommandProcessor {
         if (!handled) {
             ICommand invalidCommand = new InvalidMessageCommand("Command type was invalid for the current command processor.");
             connectionHandle.pushCommand(invalidCommand);
-            connectionHandle.closeConnection();
+            connectionHandle.close();
         }
     }
 }
