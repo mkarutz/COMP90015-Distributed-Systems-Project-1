@@ -1,11 +1,11 @@
 package activitystreamer.core.command;
 
 public class AuthenticateCommand implements ICommand {
-    private final String command = "AUTHENTICATE";
     private String secret;
 
-    public String getCommand() {
-        return command;
+    @Override
+    public boolean equals(Object obj) {
+        return obj instanceof AuthenticateCommand && secret.equals(((AuthenticateCommand) obj).getSecret());
     }
 
     public String getSecret() {

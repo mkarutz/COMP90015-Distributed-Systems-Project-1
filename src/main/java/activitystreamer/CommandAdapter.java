@@ -11,7 +11,7 @@ public class CommandAdapter implements JsonSerializer<ICommand>, JsonDeserialize
     Map<String, Class<? extends ICommand>> commandTypeMap;
     Map<Class<? extends ICommand>, String> typeCommandMap;
 
-    private static final String COMMAND_NAME_FIELD = "COMMAND";
+    private static final String COMMAND_NAME_FIELD = "command";
 
     public CommandAdapter() {
         commandTypeMap = new HashMap<>();
@@ -43,20 +43,32 @@ public class CommandAdapter implements JsonSerializer<ICommand>, JsonDeserialize
     @Override
     public ICommand deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
             throws JsonParseException {
+        if (!json.isJsonObject()) {
+            throw new JsonParseException("No JSON object.");
+        }
+
         JsonObject jsonObject =  json.getAsJsonObject();
-        JsonPrimitive prim = (JsonPrimitive) jsonObject.get(COMMAND_NAME_FIELD);
-        String className = prim.getAsString();
+
+        if (!jsonObject.has(COMMAND_NAME_FIELD)) {
+            throw new JsonParseException("No command field.");
+        }
+
+        String className = jsonObject.get(COMMAND_NAME_FIELD).getAsString();
 
         if (!commandTypeMap.containsKey(className)) {
-            throw new JsonParseException("Invalid command type.");
+            throw new JsonParseException("Invalid command field.");
         }
 
         Class<? extends ICommand> commandType = commandTypeMap.get(className);
+        jsonObject.remove(COMMAND_NAME_FIELD);
         return context.deserialize(jsonObject, commandType);
     }
 
     @Override
     public JsonElement serialize(ICommand src, Type typeOfSrc, JsonSerializationContext context) {
-        return context.serialize(src, typeOfSrc);
+        Class<? extends ICommand> type = src.getClass();
+        JsonObject json =  context.serialize(src, type).getAsJsonObject();
+        json.addProperty(COMMAND_NAME_FIELD, typeCommandMap.get(type));
+        return json;
     }
 }
