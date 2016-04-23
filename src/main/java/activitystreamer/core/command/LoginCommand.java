@@ -5,6 +5,18 @@ public class LoginCommand implements ICommand {
     private String username;
     private String secret;
 
+    public LoginCommand(String username, String secret) {
+        this.setUsername(username);
+        this.setSecret(secret);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        return obj instanceof LoginCommand &&
+            username.equals(((LoginCommand) obj).getUsername()) &&
+            secret.equals(((LoginCommand) obj).getSecret());
+    }
+
     public String getCommand() {
         return command;
     }

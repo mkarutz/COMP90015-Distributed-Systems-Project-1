@@ -10,6 +10,13 @@ public class RegisterCommand implements ICommand {
         this.setSecret(secret);
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        return obj instanceof RegisterCommand &&
+            username.equals(((RegisterCommand) obj).getUsername()) &&
+            secret.equals(((RegisterCommand) obj).getSecret());
+    }
+
     public void setUsername(String username) {
         this.username = username;
     }

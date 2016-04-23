@@ -4,8 +4,14 @@ public class InvalidMessageCommand implements ICommand {
     private final String command = "INVALID_MESSAGE";
     private String info;
 
-    public InvalidMessageCommand(String msg){
-      
+    public InvalidMessageCommand(String info){
+        this.info = info;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        return obj instanceof InvalidMessageCommand &&
+            info.equals(((InvalidMessageCommand) obj).getInfo());
     }
 
     public String getCommand() {

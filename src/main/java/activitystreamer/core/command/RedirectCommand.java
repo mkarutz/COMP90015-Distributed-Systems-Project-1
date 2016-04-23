@@ -7,6 +7,18 @@ public class RedirectCommand implements ICommand {
     private InetAddress hostname;
     private int port;
 
+    public RedirectCommand(InetAddress hostname, int port) {
+        this.hostname = hostname;
+        this.port = port;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        return obj instanceof RedirectCommand &&
+            hostname.equals(((RedirectCommand) obj).getHostname()) &&
+            port == (((RedirectCommand) obj).getPort());
+    }
+
     public String getCommand() {
         return command;
     }

@@ -10,8 +10,15 @@ public class LockRequestCommand implements ICommand {
         this.setSecret(secret);
     }
 
-    public void setUsername(String username) {
-        this.username = username;
+    @Override
+    public boolean equals(Object obj) {
+        return obj instanceof LockRequestCommand &&
+            username.equals(((LockRequestCommand) obj).getUsername()) &&
+            secret.equals(((LockRequestCommand) obj).getSecret());
+    }
+
+    public String getSecret() {
+        return secret;
     }
 
     public void setSecret(String secret) {
@@ -19,10 +26,10 @@ public class LockRequestCommand implements ICommand {
     }
 
     public String getUsername() {
-        return this.username;
+        return username;
     }
 
-    public String getSecret() {
-        return this.secret;
+    public void setUsername(String username) {
+        this.username = username;
     }
 }
