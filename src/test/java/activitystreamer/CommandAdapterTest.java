@@ -4,9 +4,6 @@ import activitystreamer.core.command.*;
 import com.google.gson.*;
 import org.junit.Test;
 import java.lang.reflect.Type;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Iterator;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import static org.mockito.Mockito.*;
@@ -19,6 +16,7 @@ public class CommandAdapterTest {
 
         Gson gson = new GsonBuilder()
                 .registerTypeAdapter(type, new CommandAdapter())
+                .registerTypeAdapter(JsonObject.class, new JsonObjectAdapter())
                 .create();
 
         String jsonActivity = "{\"foo\":\"bar\"}"; // Probably best to add an actual activity obj here
@@ -31,7 +29,7 @@ public class CommandAdapterTest {
 
         System.out.println(((ActivityBroadcastCommand)actual).getActivity().toString());
 
-        Assert.assertEquals(expected, actual);
+        assertEquals(expected, actual);
     }
 
     @Test
@@ -40,6 +38,7 @@ public class CommandAdapterTest {
 
         Gson gson = new GsonBuilder()
                 .registerTypeAdapter(type, new CommandAdapter())
+                .registerTypeAdapter(JsonObject.class, new JsonObjectAdapter())
                 .create();
 
         String jsonActivity = "{\"foo\":\"bar\"}"; // Probably best to add an actual activity obj here
@@ -50,7 +49,7 @@ public class CommandAdapterTest {
         JsonObject elem = new JsonParser().parse(msg).getAsJsonObject();
         ICommand actual = gson.fromJson(elem, type);
 
-        Assert.assertEquals(expected, actual);
+        assertEquals(expected, actual);
     }
 
     @Test
@@ -67,7 +66,7 @@ public class CommandAdapterTest {
         JsonObject elem = new JsonParser().parse(msg).getAsJsonObject();
         ICommand actual = gson.fromJson(elem, type);
 
-        Assert.assertEquals(expected, actual);
+        assertEquals(expected, actual);
     }
 
     @Test
@@ -84,7 +83,7 @@ public class CommandAdapterTest {
         JsonObject elem = new JsonParser().parse(msg).getAsJsonObject();
         ICommand actual = gson.fromJson(elem, type);
 
-        Assert.assertEquals(expected, actual);
+        assertEquals(expected, actual);
     }
 
     @Test
@@ -118,7 +117,7 @@ public class CommandAdapterTest {
         JsonObject elem = new JsonParser().parse(msg).getAsJsonObject();
         ICommand actual = gson.fromJson(elem, type);
 
-        Assert.assertEquals(expected, actual);
+        assertEquals(expected, actual);
     }
 
     @Test
@@ -135,7 +134,7 @@ public class CommandAdapterTest {
         JsonObject elem = new JsonParser().parse(msg).getAsJsonObject();
         ICommand actual = gson.fromJson(elem, type);
 
-        Assert.assertEquals(expected, actual);
+        assertEquals(expected, actual);
     }
 
     @Test
@@ -152,7 +151,7 @@ public class CommandAdapterTest {
         JsonObject elem = new JsonParser().parse(msg).getAsJsonObject();
         ICommand actual = gson.fromJson(elem, type);
 
-        Assert.assertEquals(expected, actual);
+        assertEquals(expected, actual);
     }
 
     @Test
@@ -169,7 +168,7 @@ public class CommandAdapterTest {
         JsonObject elem = new JsonParser().parse(msg).getAsJsonObject();
         ICommand actual = gson.fromJson(elem, type);
 
-        Assert.assertEquals(expected, actual);
+        assertEquals(expected, actual);
     }
 
     @Test
@@ -186,7 +185,7 @@ public class CommandAdapterTest {
         JsonObject elem = new JsonParser().parse(msg).getAsJsonObject();
         ICommand actual = gson.fromJson(elem, type);
 
-        Assert.assertEquals(expected, actual);
+        assertEquals(expected, actual);
     }
 
     @Test
@@ -203,7 +202,7 @@ public class CommandAdapterTest {
         JsonObject elem = new JsonParser().parse(msg).getAsJsonObject();
         ICommand actual = gson.fromJson(elem, type);
 
-        Assert.assertEquals(expected, actual);
+        assertEquals(expected, actual);
     }
 
     @Test
@@ -220,7 +219,7 @@ public class CommandAdapterTest {
         JsonObject elem = new JsonParser().parse(msg).getAsJsonObject();
         ICommand actual = gson.fromJson(elem, type);
 
-        Assert.assertEquals(expected, actual);
+        assertEquals(expected, actual);
     }
 
     @Test
@@ -237,7 +236,7 @@ public class CommandAdapterTest {
         JsonObject elem = new JsonParser().parse(msg).getAsJsonObject();
         ICommand actual = gson.fromJson(elem, type);
 
-        Assert.assertEquals(expected, actual);
+        assertEquals(expected, actual);
     }
 
     @Test
@@ -254,7 +253,7 @@ public class CommandAdapterTest {
         JsonObject elem = new JsonParser().parse(msg).getAsJsonObject();
         ICommand actual = gson.fromJson(elem, type);
 
-        Assert.assertEquals(expected, actual);
+        assertEquals(expected, actual);
     }
 
     @Test
@@ -271,7 +270,7 @@ public class CommandAdapterTest {
         JsonObject elem = new JsonParser().parse(msg).getAsJsonObject();
         ICommand actual = gson.fromJson(elem, type);
 
-        Assert.assertEquals(expected, actual);
+        assertEquals(expected, actual);
     }
 
     @Test
@@ -288,7 +287,7 @@ public class CommandAdapterTest {
         JsonObject elem = new JsonParser().parse(msg).getAsJsonObject();
         ICommand actual = gson.fromJson(elem, type);
 
-        Assert.assertEquals(expected, actual);
+        assertEquals(expected, actual);
     }
 
     @Test
@@ -305,7 +304,7 @@ public class CommandAdapterTest {
         JsonObject elem = new JsonParser().parse(msg).getAsJsonObject();
         ICommand actual = gson.fromJson(elem, type);
 
-        Assert.assertEquals(expected, actual);
+        assertEquals(expected, actual);
     }
 
 
