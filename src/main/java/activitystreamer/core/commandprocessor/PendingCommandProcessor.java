@@ -22,10 +22,10 @@ public class PendingCommandProcessor implements ICommandProcessor {
         handlers.add(new ActivityMessageCommandHandler());
     }
 
-    public void processCommand(ICommand msg, Connection conn) {
+    public void processCommand(ICommand command) {
         boolean handled=false;
         for (ICommandHandler h : handlers) {
-            if (h.handleCommand(msg,conn)) {
+            if (h.handleCommand(command, this.connectionHandle)) {
                 handled = true;
                 break;
             }

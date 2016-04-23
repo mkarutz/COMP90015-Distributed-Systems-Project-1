@@ -40,6 +40,15 @@ public class Connection implements Closeable {
                 .create();
     }
 
+    // Process connection
+    public void process() {
+        ICommand next;
+        while ((next = this.pullCommand()) != null) {
+            // There's a command to process, process it via command processor
+            this.processor.processCommand(next);
+        }
+    }
+
     // Send a command upstream
     public void pushCommand(ICommand cmd) {
         String json = this.gson.toJson(cmd, ICommand.class);
@@ -47,7 +56,7 @@ public class Connection implements Closeable {
     }
 
     // Receive a command downstream (or null if none)
-    public ICommand pullCommand(ICommand cmd) {
+    private ICommand pullCommand() {
         try {
             String line = this.readLine();
             if (line != null) {

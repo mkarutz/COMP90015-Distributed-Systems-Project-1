@@ -81,6 +81,10 @@ public class Control implements Runnable {
     }
 
     public boolean doActivity() {
+        // Process each connection
+        for (Connection connection : connections) {
+            connection.process();
+        }
         return false;
     }
 
