@@ -10,6 +10,26 @@ import static org.mockito.Mockito.*;
 import static org.junit.Assert.*;
 
 public class CommandAdapterTest {
+  @Test
+  public void testUnexpectedFieldAreIgnored() {
+      Class<ICommand> type = ICommand.class;
+
+      Gson gson = new GsonBuilder()
+              .registerTypeAdapter(type, new CommandAdapter())
+              .registerTypeAdapter(JsonObject.class, new JsonObjectAdapter())
+              .create();
+
+
+      AuthenticateCommand expected = new AuthenticateCommand("hvsdjhabvjdhvadsas3");
+
+      String msg = "{\"command\":\"AUTHENTICATE\",\"secret\":\"hvsdjhabvjdhvadsas3\",\"unexpected\":9000}";
+      JsonObject elem = new JsonParser().parse(msg).getAsJsonObject();
+      ICommand actual = gson.fromJson(elem, type);
+
+      // System.out.println(((ActivityBroadcastCommand)actual).getActivity().toString());
+
+      assertEquals(expected, actual);
+  }
     @Test
     public void testMissingFieldsAreNull() {
         Class<ICommand> type = ICommand.class;
