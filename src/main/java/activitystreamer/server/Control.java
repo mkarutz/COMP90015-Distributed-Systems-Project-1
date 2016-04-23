@@ -84,6 +84,7 @@ public class Control implements Runnable, IncomingConnectionHandler {
         log.debug("outgoing connection: " + Settings.socketAddress(s));
         Connection c = new Connection(s, new ServerCommandProcessor());
         connections.add(c);
+        new Thread(c).start();
         ICommand cmd = new AuthenticateCommand(Settings.getSecret());
         c.pushCommand(cmd);
         return c;
