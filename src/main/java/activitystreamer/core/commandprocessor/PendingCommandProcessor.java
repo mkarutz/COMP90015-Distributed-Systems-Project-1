@@ -9,7 +9,7 @@ import activitystreamer.server.*;
 /* Design pattern inspired by
    http://stackoverflow.com/questions/1477471/design-pattern-for-handling-multiple-message-types */
 
-public class PendingCommandProcessor {
+public class PendingCommandProcessor implements ICommandProcessor {
     private List<ICommandHandler> handlers = new ArrayList<ICommandHandler>();
     private Connection connectionHandle;
 
@@ -22,7 +22,7 @@ public class PendingCommandProcessor {
         handlers.add(new ActivityMessageCommandHandler());
     }
 
-    public void processCommand(ICommand msg,Connection conn) {
+    public void processCommand(ICommand msg, Connection conn) {
         boolean handled=false;
         for (ICommandHandler h : handlers) {
             if (h.handleCommand(msg,conn)) {

@@ -7,9 +7,12 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import activitystreamer.util.Settings;
+import activitystreamer.CommandAdapter;
 
-//added for pushCommand
 import activitystreamer.core.command.*;
+import activitystreamer.core.commandprocessor.*;
+
+import com.google.gson.*;
 
 public class Connection implements Closeable {
     private static final Logger log = LogManager.getLogger();
@@ -19,28 +22,55 @@ public class Connection implements Closeable {
     private Socket socket;
     private boolean term = false;
 
+    private ICommandProcessor processor;
+    private Gson              gson;
+
     Connection(Socket socket) throws IOException {
         this.socket = socket;
         in = new BufferedReader(new InputStreamReader(new DataInputStream(socket.getInputStream())));
         out = new PrintWriter(new DataOutputStream(socket.getOutputStream()), true);
         open = true;
+
+        // Start connection using a pending command processor
+        this.processor = new PendingCommandProcessor(this);
+
+        // Init gson parser
+        Gson gson = new GsonBuilder()
+                .registerTypeAdapter(ICommand.class, new CommandAdapter())
+                .create();
     }
 
-
-    //pushCommand method added just to get it to build
-    //used in PendingCommandProcessor
-    public void pushCommand(ICommand cmd){
-
+    // Send a command upstream
+    public void pushCommand(ICommand cmd) {
+        String json = this.gson.toJson(cmd, ICommand.class);
+        this.writeLine(json);
     }
 
-    public String readLine() throws IOException {
+    // Receive a command downstream (or null if none)
+    public ICommand pullCommand(ICommand cmd) {
+        try {
+            String line = this.readLine();
+            if (line != null) {
+                ICommand json = gson.fromJson(line, ICommand.class);
+                return json;
+            }
+        } catch (IOException e) {
+            log.error("bad downstream data exception: " + e);
+            this.close();
+        }
+        return null;
+    }
+
+    // Read raw line from connection
+    private String readLine() throws IOException {
         if (!open) {
             return null;
         }
         return in.readLine();
     }
 
-    public boolean writeLine(String msg) {
+    // Write raw line to connection
+    private boolean writeLine(String msg) {
         if (open) {
             out.println(msg);
             out.flush();
