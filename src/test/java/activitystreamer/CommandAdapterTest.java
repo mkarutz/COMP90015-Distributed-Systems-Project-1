@@ -22,13 +22,15 @@ public class CommandAdapterTest {
                 .registerTypeAdapter(type, new CommandAdapter())
                 .create();
 
-        String jsonActivity = "{}"; // Probably best to add an actual activity obj here
+        String jsonActivity = "{\"foo\":\"bar\"}"; // Probably best to add an actual activity obj here
         JsonObject jsonActivityObj = new JsonParser().parse(jsonActivity).getAsJsonObject();
         ActivityBroadcastCommand expected = new ActivityBroadcastCommand(jsonActivityObj);
 
-        String msg = "{\"command\":\"ACTIVITY_BROADCAST\",\"activity\":{}}";
+        String msg = "{\"command\":\"ACTIVITY_BROADCAST\",\"activity\":{\"foo\":\"bar\"}}";
         JsonObject elem = new JsonParser().parse(msg).getAsJsonObject();
         ICommand actual = gson.fromJson(elem, type);
+
+        System.out.println(((ActivityBroadcastCommand)actual).getActivity().toString());
 
         Assert.assertEquals(expected, actual);
     }
@@ -41,11 +43,11 @@ public class CommandAdapterTest {
                 .registerTypeAdapter(type, new CommandAdapter())
                 .create();
 
-        String jsonActivity = "{}"; // Probably best to add an actual activity obj here
+        String jsonActivity = "{\"foo\":\"bar\"}"; // Probably best to add an actual activity obj here
         JsonObject jsonActivityObj = new JsonParser().parse(jsonActivity).getAsJsonObject();
         ActivityMessageCommand expected = new ActivityMessageCommand("aaron", "fmnmpp3ai91qb3gc2bvs14g3ue", jsonActivityObj);
 
-        String msg = "{\"command\":\"ACTIVITY_MESSAGE\",\"username\":\"aaron\",\"secret\":\"fmnmpp3ai91qb3gc2bvs14g3ue\",\"activity\":{}}";
+        String msg = "{\"command\":\"ACTIVITY_MESSAGE\",\"username\":\"aaron\",\"secret\":\"fmnmpp3ai91qb3gc2bvs14g3ue\",\"activity\":{\"foo\":\"bar\"}}";
         JsonObject elem = new JsonParser().parse(msg).getAsJsonObject();
         ICommand actual = gson.fromJson(elem, type);
 
