@@ -2,7 +2,6 @@ package activitystreamer;
 
 import activitystreamer.core.command.*;
 import com.google.gson.*;
-import org.junit.Assert;
 import org.junit.Test;
 import java.lang.reflect.Type;
 import java.util.List;
@@ -102,7 +101,7 @@ public class CommandAdapterTest {
         JsonObject elem = new JsonParser().parse(msg).getAsJsonObject();
         ICommand actual = gson.fromJson(elem, type);
 
-        Assert.assertEquals(expected, actual);
+        assertEquals(expected, actual);
     }
 
     @Test
