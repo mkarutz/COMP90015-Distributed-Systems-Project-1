@@ -6,6 +6,6 @@ import activitystreamer.server.Connection;
 public class ServerCommandProcessor implements ICommandProcessor {
     @Override
     public void processCommand(Connection connection, ICommand command) {
-
+        System.out.println(command);
     }
 }

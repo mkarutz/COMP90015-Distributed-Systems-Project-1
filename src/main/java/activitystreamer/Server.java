@@ -47,7 +47,7 @@ public class Server {
             help(options);
         }
 
-        if (!cmd.hasOption("d")) {
+        if (cmd.hasOption("d")) {
           log.info("DEBUG MODE ACTIVE: Using static secret");
           Settings.setSecret("abc123");
         }
@@ -111,6 +111,7 @@ public class Server {
             }
         }
 
+        Settings.setId(Settings.nextSecret());
         log.info("starting server");
 
         Control c = new Control();

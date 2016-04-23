@@ -19,6 +19,7 @@ public class Listener implements Runnable {
 			throws IOException {
         this.port = port;
         serverSocket = new ServerSocket(port);
+        this.connectionHandler = connectionHandler;
     }
 
     @Override

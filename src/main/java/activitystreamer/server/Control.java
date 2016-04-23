@@ -10,6 +10,9 @@ import java.io.IOException;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
+import java.net.*;
+
+import activitystreamer.core.command.*;
 
 public class Control implements Runnable, IncomingConnectionHandler {
     private Logger log = LogManager.getLogger();
@@ -19,16 +22,17 @@ public class Control implements Runnable, IncomingConnectionHandler {
     private Listener listener;
 
     public Control() {
-        try {
-            listener = new Listener(this, Settings.getLocalPort());
-        } catch (IOException e1) {
-            log.fatal("failed to startup a listening thread: " + e1);
-            System.exit(-1);
-        }
+      try {
+        listener = new Listener(this, Settings.getLocalPort());
+      } catch (IOException e1) {
+        log.fatal("failed to startup a listening thread: " + e1);
+        System.exit(-1);
+      }
     }
 
 	@Override
     public void run() {
+        initiateConnection();
         new Thread(listener).start();
         log.info("using activity interval of " + Settings.getActivityInterval() + " milliseconds");
         while (!term) {
@@ -80,11 +84,27 @@ public class Control implements Runnable, IncomingConnectionHandler {
         log.debug("outgoing connection: " + Settings.socketAddress(s));
         Connection c = new Connection(s, new ServerCommandProcessor());
         connections.add(c);
+        ICommand cmd = new AuthenticateCommand(Settings.getSecret());
+        c.pushCommand(cmd);
         return c;
     }
 
     public void announce() {
         log.debug("Broadcasting announce message.");
+        try {
+            ServerAnnounceCommand cmd = new ServerAnnounceCommand(
+                Settings.getId(),
+                connections.size(),
+                InetAddress.getByName(Settings.getLocalHostname()),
+                Settings.getLocalPort()
+            );
+
+            for (Connection connection: connections){
+              // connection.pushCommand(cmd);
+            }
+        } catch (UnknownHostException | SecurityException e) {
+            return;
+        }
     }
 
     public final void setTerm(boolean t) {
