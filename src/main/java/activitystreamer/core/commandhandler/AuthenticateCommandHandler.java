@@ -17,8 +17,8 @@ public class AuthenticateCommandHandler implements ICommandHandler {
                 System.out.println("Secrets match!");
             } else {
                 System.out.println("Secrets do not match!");
-                // ICommand authFailCommand = new AuthenticationFailCommand("Secret was incorrect.");
-                // conn.pushCommand(authFailCommand);
+                ICommand authFailCommand = new AuthenticationFailCommand("Secret was incorrect.");
+                conn.pushCommand(authFailCommand);
             }
 
             return true;

@@ -2,7 +2,7 @@ apply plugin: 'java'
 
 task clientJar(type: Jar) {
 	manifest {
-        attributes 'Implementation-Title': 'Activity Streamer Client', 
+        attributes 'Implementation-Title': 'Activity Streamer Client',
         	'Main-Class': 'activitystreamer.Client'
     }
     baseName = 'Client'
@@ -12,7 +12,7 @@ task clientJar(type: Jar) {
 
 task serverJar(type: Jar) {
 	manifest {
-        attributes 'Implementation-Title': 'Activity Streamer Server',  
+        attributes 'Implementation-Title': 'Activity Streamer Server',
         	'Main-Class': 'activitystreamer.Server'
     }
     baseName = 'Server'
@@ -40,7 +40,7 @@ task(runserver1, dependsOn: 'classes', type: JavaExec) {
 task(runserver2, dependsOn: 'classes', type: JavaExec) {
 	main = 'activitystreamer.Server'
 	classpath = sourceSets.main.runtimeClasspath
-	args(['-rh', 'localhost', '-rp', '4135', '-d', '', '-lp', '4235'])
+	args(['-rh', 'localhost', '-rp', '4135', '-lp', '4235'])
 }
 
 task(runserver, dependsOn: 'classes', type: JavaExec) {

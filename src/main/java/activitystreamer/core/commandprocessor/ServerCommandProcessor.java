@@ -1,11 +1,18 @@
 package activitystreamer.core.commandprocessor;
 
-import activitystreamer.core.command.ICommand;
-import activitystreamer.server.Connection;
+import activitystreamer.core.command.*;
+import activitystreamer.core.commandhandler.*;
+import activitystreamer.server.*;
 
-public class ServerCommandProcessor implements ICommandProcessor {
-    @Override
-    public void processCommand(Connection connection, ICommand command) {
-        System.out.println(command);
+public class ServerCommandProcessor extends CommandProcessor {
+    public ServerCommandProcessor() {
+        super();
+        // Uncomment as we implement command handlers
+        //handlers.add(new ActivityBroadcastCommandHandler());
+        handlers.add(new AuthenticationFailCommandHandler());
+        //handlers.add(new LockAllowedCommandHandler());
+        //handlers.add(new LockDeniedCommandHandler());
+        //handlers.add(new LockRequestCommandHandler());
+        //handlers.add(new ServerAnnounceCommandHandler());
     }
 }

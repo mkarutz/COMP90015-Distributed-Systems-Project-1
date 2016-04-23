@@ -23,10 +23,10 @@ public class Connection implements Closeable, Runnable {
     private Socket socket;
     private boolean term = false;
 
-    private ICommandProcessor processor;
+    private CommandProcessor processor;
     private Gson gson;
 
-    Connection(Socket socket, ICommandProcessor processor) throws IOException {
+    Connection(Socket socket, CommandProcessor processor) throws IOException {
         this.socket = socket;
         this.processor = processor;
         this.gson = new GsonBuilder()
@@ -57,11 +57,13 @@ public class Connection implements Closeable, Runnable {
 
     public void pushCommand(ICommand cmd) {
         String json = this.gson.toJson(cmd, ICommand.class);
+        System.out.println("SENDING JSON: " + json);
         this.writeLine(json);
     }
 
     private ICommand pullCommand() throws IOException, JsonParseException {
         String line = this.readLine();
+        System.out.println("RECEIVING JSON: " + line);
         if (line == null) {
             term = true;
             return null;
