@@ -11,6 +11,23 @@ import static org.junit.Assert.*;
 
 public class CommandAdapterTest {
     @Test
+    public void testMissingFieldsAreNull() {
+        Class<ICommand> type = ICommand.class;
+
+        Gson gson = new GsonBuilder()
+                .registerTypeAdapter(type, new CommandAdapter())
+                .registerTypeAdapter(JsonObject.class, new JsonObjectAdapter())
+                .create();
+
+        String msg = "{\"command\":\"ACTIVITY_MESSAGE\"}";
+        ActivityMessageCommand actual = (ActivityMessageCommand) gson.fromJson(msg, type);
+
+        assertNull(actual.getActivity());
+        assertNull(actual.getSecret());
+        assertNull(actual.getUsername());
+    }
+
+    @Test
     public void testDeserializeActivityBroadcastCommand() {
         Class<ICommand> type = ICommand.class;
 

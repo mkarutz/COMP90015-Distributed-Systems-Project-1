@@ -3,6 +3,7 @@ package activitystreamer.server;
 import java.io.*;
 import java.net.Socket;
 
+import activitystreamer.JsonObjectAdapter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -14,7 +15,7 @@ import activitystreamer.core.commandprocessor.*;
 
 import com.google.gson.*;
 
-public class Connection implements Closeable {
+public class Connection implements Closeable, Runnable {
     private static final Logger log = LogManager.getLogger();
     private BufferedReader in;
     private PrintWriter out;
@@ -23,62 +24,58 @@ public class Connection implements Closeable {
     private boolean term = false;
 
     private ICommandProcessor processor;
-    private Gson              gson;
+    private Gson gson;
 
-    Connection(Socket socket) throws IOException {
+    Connection(Socket socket, ICommandProcessor processor) throws IOException {
         this.socket = socket;
+        this.processor = processor;
+        this.gson = new GsonBuilder()
+                .registerTypeAdapter(ICommand.class, new CommandAdapter())
+                .registerTypeAdapter(JsonObject.class, new JsonObjectAdapter())
+                .create();
+
         in = new BufferedReader(new InputStreamReader(new DataInputStream(socket.getInputStream())));
         out = new PrintWriter(new DataOutputStream(socket.getOutputStream()), true);
         open = true;
-
-        // Start connection using a pending command processor
-        this.processor = new PendingCommandProcessor(this);
-
-        // Init gson parser
-        Gson gson = new GsonBuilder()
-                .registerTypeAdapter(ICommand.class, new CommandAdapter())
-                .create();
     }
 
-    // Process connection
-    public void process() {
-        ICommand next;
-        while ((next = this.pullCommand()) != null) {
-            // There's a command to process, process it via command processor
-            this.processor.processCommand(next);
+    @Override
+    public void run() {
+        while (!term) {
+            try {
+                ICommand cmd = pullCommand();
+                processor.processCommand(this, cmd);
+            } catch (IOException e) {
+                log.error("I/O exception. Closing connection");
+                term = true;
+            } catch (JsonParseException e) {
+                log.error("Invalid message. Closing connection.");
+                term = true;
+            }
         }
     }
 
-    // Send a command upstream
     public void pushCommand(ICommand cmd) {
         String json = this.gson.toJson(cmd, ICommand.class);
         this.writeLine(json);
     }
 
-    // Receive a command downstream (or null if none)
-    private ICommand pullCommand() {
-        try {
-            String line = this.readLine();
-            if (line != null) {
-                ICommand json = gson.fromJson(line, ICommand.class);
-                return json;
-            }
-        } catch (IOException e) {
-            log.error("bad downstream data exception: " + e);
-            this.close();
+    private ICommand pullCommand() throws IOException, JsonParseException {
+        String line = this.readLine();
+        if (line == null) {
+            term = true;
+            return null;
         }
-        return null;
+        return gson.fromJson(line, ICommand.class);
     }
 
-    // Read raw line from connection
     private String readLine() throws IOException {
         if (!open) {
-            return null;
+            throw new IOException("Connection is closed.");
         }
         return in.readLine();
     }
 
-    // Write raw line to connection
     private boolean writeLine(String msg) {
         if (open) {
             out.println(msg);
@@ -94,6 +91,7 @@ public class Connection implements Closeable {
             log.info("closing connection " + Settings.socketAddress(socket));
             try {
                 open = false;
+                term = true;
                 in.close();
                 out.close();
             } catch (IOException e) {

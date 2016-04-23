@@ -1,5 +1,7 @@
 package activitystreamer.server;
 
+import activitystreamer.core.commandprocessor.PendingCommandProcessor;
+import activitystreamer.core.commandprocessor.ServerCommandProcessor;
 import activitystreamer.util.Settings;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -9,24 +11,25 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Control implements Runnable {
+public class Control implements Runnable, IncomingConnectionHandler {
     private Logger log = LogManager.getLogger();
     private List<Connection> connections = new ArrayList<Connection>();
     private boolean term = false;
 
     private Listener listener;
 
-//    public Control() {
-//        try {
-//            listener = new Listener();
-//        } catch (IOException e1) {
-//            log.fatal("failed to startup a listening thread: " + e1);
-//            System.exit(-1);
-//        }
-//    }
+    public Control() {
+        try {
+            listener = new Listener(this, Settings.getLocalPort());
+        } catch (IOException e1) {
+            log.fatal("failed to startup a listening thread: " + e1);
+            System.exit(-1);
+        }
+    }
 
 	@Override
     public void run() {
+        new Thread(listener).start();
         log.info("using activity interval of " + Settings.getActivityInterval() + " milliseconds");
         while (!term) {
             try {
@@ -36,8 +39,7 @@ public class Control implements Runnable {
                 break;
             }
             if (!term) {
-                log.debug("doing activity");
-                term = doActivity();
+                announce();
             }
         }
         log.info("closing " + connections.size() + " connections");
@@ -66,26 +68,23 @@ public class Control implements Runnable {
         if (!term) { connections.remove(con); }
     }
 
-    public synchronized Connection incomingConnection(Socket s) throws IOException {
+    @Override
+    public synchronized void incomingConnection(Socket s) throws IOException {
         log.debug("incomming connection: " + Settings.socketAddress(s));
-        Connection c = new Connection(s);
+        Connection c = new Connection(s, new PendingCommandProcessor());
         connections.add(c);
-        return c;
+        new Thread(c).start();
     }
 
     public synchronized Connection outgoingConnection(Socket s) throws IOException {
         log.debug("outgoing connection: " + Settings.socketAddress(s));
-        Connection c = new Connection(s);
+        Connection c = new Connection(s, new ServerCommandProcessor());
         connections.add(c);
         return c;
     }
 
-    public boolean doActivity() {
-        // Process each connection
-        for (Connection connection : connections) {
-            connection.process();
-        }
-        return false;
+    public void announce() {
+        log.debug("Broadcasting announce message.");
     }
 
     public final void setTerm(boolean t) {

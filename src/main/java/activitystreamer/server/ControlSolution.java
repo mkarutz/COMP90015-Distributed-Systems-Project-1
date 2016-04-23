@@ -40,7 +40,7 @@ public class ControlSolution extends Control {
     }
 
     @Override
-    public boolean doActivity() {
+    public boolean announce() {
         return false;
     }
 }
