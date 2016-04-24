@@ -22,6 +22,7 @@ public class Connection implements Closeable, Runnable {
     private boolean open = false;
     private Socket socket;
     private boolean term = false;
+    private boolean isRunning = true;
 
     private CommandProcessor processor;
     private Gson gson;
@@ -44,7 +45,9 @@ public class Connection implements Closeable, Runnable {
         while (!term) {
             try {
                 ICommand cmd = pullCommand();
-                processor.processCommand(this, cmd);
+                if (cmd != null) {
+                    processor.processCommand(this, cmd);
+                }
             } catch (IOException e) {
                 log.error("I/O exception. Closing connection");
                 term = true;
@@ -53,6 +56,7 @@ public class Connection implements Closeable, Runnable {
                 term = true;
             }
         }
+        isRunning = false;
     }
 
     public void pushCommand(ICommand cmd) {
@@ -85,6 +89,18 @@ public class Connection implements Closeable, Runnable {
             return true;
         }
         return false;
+    }
+
+    public synchronized void setCommandProcessor(CommandProcessor processor) {
+        this.processor = processor;
+    }
+
+    public CommandProcessor getCommandProcessor() {
+        return this.processor;
+    }
+
+    public boolean getIsRunning() {
+        return isRunning;
     }
 
     @Override

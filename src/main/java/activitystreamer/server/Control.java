@@ -1,7 +1,6 @@
 package activitystreamer.server;
 
-import activitystreamer.core.commandprocessor.PendingCommandProcessor;
-import activitystreamer.core.commandprocessor.ServerCommandProcessor;
+import activitystreamer.core.commandprocessor.*;
 import activitystreamer.util.Settings;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -43,6 +42,7 @@ public class Control implements Runnable, IncomingConnectionHandler {
                 break;
             }
             if (!term) {
+                garbageCollectConnections();
                 announce();
             }
         }
@@ -72,6 +72,19 @@ public class Control implements Runnable, IncomingConnectionHandler {
         if (!term) { connections.remove(con); }
     }
 
+    // Remove connections with no longer operating threads
+    private void garbageCollectConnections() {
+        List<Connection> toRemove = new ArrayList<Connection>();
+        for (Connection c : connections) {
+            if (!c.getIsRunning()) {
+                toRemove.add(c);
+            }
+        }
+        for (Connection c : toRemove) {
+            connections.remove(c);
+        }
+    }
+
     @Override
     public synchronized void incomingConnection(Socket s) throws IOException {
         log.debug("incomming connection: " + Settings.socketAddress(s));
@@ -92,6 +105,25 @@ public class Control implements Runnable, IncomingConnectionHandler {
 
     public void announce() {
         log.debug("Broadcasting announce message.");
+
+        // Obviously instanceof is bad design here, but...
+        // FOR DEBUG PURPOSES TO SEE LIST OF CONNECTIONS - should be eventually removed!
+        System.out.printf("\n================= CONNECTION STATUS =================\n");
+        String tf = "to:  ";
+        for (Connection c : connections) {
+            CommandProcessor cp = c.getCommandProcessor();
+            Socket socket = c.getSocket();
+            if (cp instanceof PendingCommandProcessor) {
+                System.out.printf("Connection " + tf + " PENDING  " + socket.getRemoteSocketAddress().toString() + "\n");
+            } else if (cp instanceof ServerCommandProcessor) {
+                System.out.printf("Connection " + tf + " SERVER   " + socket.getRemoteSocketAddress().toString() + "\n");
+            } else {
+                System.out.printf("Connection " + tf + " CLIENT   " + socket.getRemoteSocketAddress().toString() + "\n");
+            }
+            tf = "from:";
+        }
+        System.out.printf("=====================================================\n\n");
+
         try {
             ServerAnnounceCommand cmd = new ServerAnnounceCommand(
                 Settings.getId(),

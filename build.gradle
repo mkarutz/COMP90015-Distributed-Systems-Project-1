@@ -40,7 +40,13 @@ task(runserver1, dependsOn: 'classes', type: JavaExec) {
 task(runserver2, dependsOn: 'classes', type: JavaExec) {
 	main = 'activitystreamer.Server'
 	classpath = sourceSets.main.runtimeClasspath
-	args(['-rh', 'localhost', '-rp', '4135', '-lp', '4235'])
+	args(['-rh', 'localhost', '-rp', '4135', '-d', '', '-lp', '4235'])
+}
+
+task(runserver3, dependsOn: 'classes', type: JavaExec) {
+	main = 'activitystreamer.Server'
+	classpath = sourceSets.main.runtimeClasspath
+	args(['-rh', 'localhost', '-rp', '4135', '-d', '', '-lp', '4335'])
 }
 
 task(runserver, dependsOn: 'classes', type: JavaExec) {

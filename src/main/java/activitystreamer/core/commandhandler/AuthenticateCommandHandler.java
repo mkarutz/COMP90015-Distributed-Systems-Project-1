@@ -1,24 +1,29 @@
 package activitystreamer.core.commandhandler;
 
 import activitystreamer.core.command.*;
+import activitystreamer.core.commandprocessor.*;
 import activitystreamer.server.Connection;
 import activitystreamer.util.Settings;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class AuthenticateCommandHandler implements ICommandHandler {
+    private Logger log = LogManager.getLogger();
+
     @Override
     public boolean handleCommand(ICommand command, Connection conn) {
         if (command instanceof AuthenticateCommand) {
-            System.out.println("RECEIVED AUTHENTICATE COMMAND!");
-
             AuthenticateCommand authCommand = (AuthenticateCommand)command;
             if (Settings.getSecret().equals(authCommand.getSecret())) {
                 /* Incoming server connection authenticated */
-                /* CHANGE STATE */
-                System.out.println("Secrets match!");
+                log.info("Authentication for incoming connection successful");
+                // Dealing with a server connection
+                conn.setCommandProcessor(new ServerCommandProcessor());
             } else {
-                System.out.println("Secrets do not match!");
+                log.error("Authentication for incoming connection failed");
                 ICommand authFailCommand = new AuthenticationFailCommand("Secret was incorrect.");
                 conn.pushCommand(authFailCommand);
+                conn.close();
             }
 
             return true;
