@@ -1,6 +1,7 @@
 package activitystreamer.server;
 
 import activitystreamer.core.commandprocessor.*;
+import activitystreamer.server.services.*;
 import activitystreamer.util.Settings;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -20,7 +21,11 @@ public class Control implements Runnable, IncomingConnectionHandler {
 
     private Listener listener;
 
+    // Services maintained by server
+    private RemoteServerStateService rServerService = new RemoteServerStateService();
+
     public Control() {
+        rServerService.printDebugState();
       try {
         listener = new Listener(this, Settings.getLocalPort());
       } catch (IOException e1) {
@@ -81,6 +86,7 @@ public class Control implements Runnable, IncomingConnectionHandler {
             }
         }
         for (Connection c : toRemove) {
+            this.rServerService.removeStateByHostAndPort(c.getSocket().getInetAddress(), c.getSocket().getPort());
             connections.remove(c);
         }
     }
@@ -88,14 +94,14 @@ public class Control implements Runnable, IncomingConnectionHandler {
     @Override
     public synchronized void incomingConnection(Socket s) throws IOException {
         log.debug("incomming connection: " + Settings.socketAddress(s));
-        Connection c = new Connection(s, new PendingCommandProcessor());
+        Connection c = new Connection(s, new PendingCommandProcessor(rServerService));
         connections.add(c);
         new Thread(c).start();
     }
 
     public synchronized Connection outgoingConnection(Socket s) throws IOException {
         log.debug("outgoing connection: " + Settings.socketAddress(s));
-        Connection c = new Connection(s, new ServerCommandProcessor());
+        Connection c = new Connection(s, new ServerCommandProcessor(rServerService));
         connections.add(c);
         new Thread(c).start();
         ICommand cmd = new AuthenticateCommand(Settings.getSecret());
@@ -129,20 +135,18 @@ public class Control implements Runnable, IncomingConnectionHandler {
             }
         }
         System.out.printf("=====================================================\n\n");
+        this.rServerService.printDebugState();
+        System.out.printf("\n");
 
-        try {
+        for (Connection connection : connections){
             ServerAnnounceCommand cmd = new ServerAnnounceCommand(
                 Settings.getId(),
                 connections.size(),
-                InetAddress.getByName(Settings.getLocalHostname()),
+                connection.getSocket().getLocalAddress(),
                 Settings.getLocalPort()
             );
 
-            for (Connection connection: connections){
-              // connection.pushCommand(cmd);
-            }
-        } catch (UnknownHostException | SecurityException e) {
-            return;
+            connection.pushCommand(cmd);
         }
     }
 

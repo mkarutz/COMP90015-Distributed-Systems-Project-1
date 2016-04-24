@@ -3,9 +3,10 @@ package activitystreamer.core.commandprocessor;
 import activitystreamer.core.command.*;
 import activitystreamer.core.commandhandler.*;
 import activitystreamer.server.*;
+import activitystreamer.server.services.*;
 
 public class ServerCommandProcessor extends CommandProcessor {
-    public ServerCommandProcessor() {
+    public ServerCommandProcessor(RemoteServerStateService rServerService) {
         super();
         // Uncomment as we implement command handlers
         //handlers.add(new ActivityBroadcastCommandHandler());
@@ -13,6 +14,6 @@ public class ServerCommandProcessor extends CommandProcessor {
         //handlers.add(new LockAllowedCommandHandler());
         //handlers.add(new LockDeniedCommandHandler());
         //handlers.add(new LockRequestCommandHandler());
-        //handlers.add(new ServerAnnounceCommandHandler());
+        handlers.add(new ServerAnnounceCommandHandler(rServerService));
     }
 }
