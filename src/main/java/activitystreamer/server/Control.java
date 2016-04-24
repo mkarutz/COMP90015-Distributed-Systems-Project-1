@@ -114,17 +114,18 @@ public class Control implements Runnable, IncomingConnectionHandler {
             CommandProcessor cp = c.getCommandProcessor();
             Socket socket = c.getSocket();
             String rsa = socket.getRemoteSocketAddress().toString();
-            if (rsa.split("/")[0].equals("localhost")) {
+            String[] rsaSplit = rsa.split("/");
+            if (rsaSplit[0].equals("localhost")) {
                 tf = "to:  ";
             } else {
                 tf = "from:";
             }
             if (cp instanceof PendingCommandProcessor) {
-                System.out.printf("Connection " + tf + " PENDING  " + socket.getRemoteSocketAddress().toString() + "\n");
+                System.out.printf("Connection " + tf + " PENDING  /" + rsaSplit[1] + "\n");
             } else if (cp instanceof ServerCommandProcessor) {
-                System.out.printf("Connection " + tf + " SERVER   " + socket.getRemoteSocketAddress().toString() + "\n");
+                System.out.printf("Connection " + tf + " SERVER   /" + rsaSplit[1] + "\n");
             } else {
-                System.out.printf("Connection " + tf + " CLIENT   " + socket.getRemoteSocketAddress().toString() + "\n");
+                System.out.printf("Connection " + tf + " CLIENT   /" + rsaSplit[1] + "\n");
             }
         }
         System.out.printf("=====================================================\n\n");
