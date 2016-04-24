@@ -6,14 +6,15 @@ import activitystreamer.server.*;
 import activitystreamer.server.services.*;
 
 public class ServerCommandProcessor extends CommandProcessor {
-    public ServerCommandProcessor(RemoteServerStateService rServerService) {
+    public ServerCommandProcessor(RemoteServerStateService rServerService, UserAuthService rAuthService) {
         super();
-        // Uncomment as we implement command handlers
+
+        // Server specific command handlers
         handlers.add(new ActivityBroadcastCommandHandler());
         handlers.add(new AuthenticationFailCommandHandler());
-        //handlers.add(new LockAllowedCommandHandler());
-        //handlers.add(new LockDeniedCommandHandler());
-        //handlers.add(new LockRequestCommandHandler());
+        handlers.add(new LockAllowedCommandHandler(rAuthService));
+        handlers.add(new LockDeniedCommandHandler(rAuthService));
+        handlers.add(new LockRequestCommandHandler(rAuthService));
         handlers.add(new ServerAnnounceCommandHandler(rServerService));
     }
 }

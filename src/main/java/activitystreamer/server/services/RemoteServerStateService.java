@@ -4,6 +4,8 @@ package activitystreamer.server.services;
 import activitystreamer.server.ServerState;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.List;
+import java.util.ArrayList;
 import java.net.InetAddress;
 
 public class RemoteServerStateService {
@@ -20,6 +22,15 @@ public class RemoteServerStateService {
     public synchronized void updateState(String id, ServerState state) {
         states.put(id, state);
         statesLastTime.put(id, System.currentTimeMillis() / 1000L);
+    }
+
+    public List<String> getKnownServerIds() {
+        List<String> serverIds = new ArrayList<String>();
+        for (Map.Entry<String, ServerState> s : this.states.entrySet()) {
+            serverIds.add(s.getKey());
+        }
+
+        return serverIds;
     }
 
     /* // deprecated

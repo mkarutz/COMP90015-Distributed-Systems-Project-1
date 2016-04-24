@@ -17,7 +17,7 @@ public class LockAllowedCommand implements ICommand {
         return obj instanceof LockAllowedCommand &&
             username.equals(((LockAllowedCommand) obj).getUsername()) &&
             secret.equals(((LockAllowedCommand) obj).getSecret()) &&
-            server.equals(((LockAllowedCommand) obj).getServer());
+            server.equals(((LockAllowedCommand) obj).getServerId());
     }
 
     public String getSecret() {
@@ -36,11 +36,11 @@ public class LockAllowedCommand implements ICommand {
         this.username = username;
     }
 
-    public String getServer() {
+    public String getServerId() {
         return server;
     }
 
-    public void setServer(String server) {
+    public void setServerId(String server) {
         this.server = server;
     }
 }

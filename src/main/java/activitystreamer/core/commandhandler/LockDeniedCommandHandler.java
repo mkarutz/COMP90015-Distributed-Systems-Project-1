@@ -8,22 +8,22 @@ import activitystreamer.server.services.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-public class LockAllowedCommandHandler implements ICommandHandler {
+public class LockDeniedCommandHandler implements ICommandHandler {
     private Logger log = LogManager.getLogger();
 
     private UserAuthService rAuthService;
 
-    public LockAllowedCommandHandler(UserAuthService rAuthService) {
+    public LockDeniedCommandHandler(UserAuthService rAuthService) {
         this.rAuthService = rAuthService;
     }
 
     @Override
     public boolean handleCommand(ICommand command, Connection conn) {
-        if (command instanceof LockAllowedCommand) {
-            LockAllowedCommand lCommand = (LockAllowedCommand)command;
+        if (command instanceof LockDeniedCommand) {
+            LockDeniedCommand lCommand = (LockDeniedCommand)command;
 
-            // Register lock allowed with auth service
-            rAuthService.putLockAllowed(lCommand.getUsername(), lCommand.getSecret(), lCommand.getServerId());
+            // Register lock denied with auth service
+            rAuthService.putLockDenied(lCommand.getUsername(), lCommand.getSecret());
 
             // Broadcast out
             conn.getCommandBroadcaster().broadcastToServers(lCommand, conn);

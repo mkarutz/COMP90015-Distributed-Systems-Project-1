@@ -9,6 +9,7 @@ public class ActivityBroadcastCommandHandler implements ICommandHandler {
         if (command instanceof ActivityBroadcastCommand) {
             ActivityBroadcastCommand activityBroadcast = (ActivityBroadcastCommand)command;
             conn.getCommandBroadcaster().broadcastToAll(activityBroadcast, conn);
+            
             return true;
         } else {
             return false;

@@ -23,10 +23,12 @@ public class Control implements Runnable, IncomingConnectionHandler, ICommandBro
     private Listener listener;
 
     // Services maintained by server
-    private RemoteServerStateService rServerService = new RemoteServerStateService();
+    private RemoteServerStateService rServerService;
+    private UserAuthService          rAuthService;
 
     public Control() {
-        rServerService.printDebugState();
+        this.rServerService = new RemoteServerStateService();
+        this.rAuthService = new UserAuthService(this.rServerService);
         try {
             listener = new Listener(this, Settings.getLocalPort());
         } catch (IOException e1) {
@@ -95,14 +97,14 @@ public class Control implements Runnable, IncomingConnectionHandler, ICommandBro
     @Override
     public synchronized void incomingConnection(Socket s) throws IOException {
         log.debug("incomming connection: " + Settings.socketAddress(s));
-        Connection c = new Connection(s, new PendingCommandProcessor(rServerService), this);
+        Connection c = new Connection(s, new PendingCommandProcessor(rServerService, rAuthService), this);
         connections.add(c);
         new Thread(c).start();
     }
 
     public synchronized Connection outgoingConnection(Socket s) throws IOException {
         log.debug("outgoing connection: " + Settings.socketAddress(s));
-        Connection c = new Connection(s, new ServerCommandProcessor(rServerService), this);
+        Connection c = new Connection(s, new ServerCommandProcessor(rServerService, rAuthService), this);
         connections.add(c);
         new Thread(c).start();
         ICommand cmd = new AuthenticateCommand(Settings.getSecret());
