@@ -21,6 +21,8 @@ public class ServerAnnounceCommandHandler implements ICommandHandler {
     public boolean handleCommand(ICommand command, Connection conn) {
         if (command instanceof ServerAnnounceCommand) {
             ServerAnnounceCommand announceCommand = (ServerAnnounceCommand)command;
+            // Rebroadcast out
+            conn.getCommandBroadcaster().broadcastToAll(command, conn);
 
             ServerState ss = new ServerState(announceCommand.getHostname(), announceCommand.getPort(), announceCommand.getLoad());
             this.rServerService.updateState(announceCommand.getId(), ss);

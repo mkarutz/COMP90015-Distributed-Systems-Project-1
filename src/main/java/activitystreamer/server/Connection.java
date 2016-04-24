@@ -2,6 +2,7 @@ package activitystreamer.server;
 
 import java.io.*;
 import java.net.Socket;
+import java.util.Queue;
 
 import activitystreamer.JsonObjectAdapter;
 import org.apache.logging.log4j.LogManager;
@@ -23,17 +24,19 @@ public class Connection implements Closeable, Runnable {
     private Socket socket;
     private boolean term = false;
     private boolean isRunning = true;
+    private ICommandBroadcaster broadcaster;
 
     private CommandProcessor processor;
     private Gson gson;
 
-    Connection(Socket socket, CommandProcessor processor) throws IOException {
+    Connection(Socket socket, CommandProcessor processor, ICommandBroadcaster broadcaster) throws IOException {
         this.socket = socket;
         this.processor = processor;
         this.gson = new GsonBuilder()
                 .registerTypeAdapter(ICommand.class, new CommandAdapter())
                 .registerTypeAdapter(JsonObject.class, new JsonObjectAdapter())
                 .create();
+        this.broadcaster = broadcaster;
 
         in = new BufferedReader(new InputStreamReader(new DataInputStream(socket.getInputStream())));
         out = new PrintWriter(new DataOutputStream(socket.getOutputStream()), true);
@@ -57,6 +60,10 @@ public class Connection implements Closeable, Runnable {
             }
         }
         isRunning = false;
+    }
+
+    public ICommandBroadcaster getCommandBroadcaster() {
+        return this.broadcaster;
     }
 
     public void pushCommand(ICommand cmd) {

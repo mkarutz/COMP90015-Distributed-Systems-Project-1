@@ -1,6 +1,7 @@
 package activitystreamer.server;
 
 import activitystreamer.core.commandprocessor.*;
+import activitystreamer.core.command.ICommandBroadcaster;
 import activitystreamer.server.services.*;
 import activitystreamer.util.Settings;
 import org.apache.logging.log4j.LogManager;
@@ -14,7 +15,7 @@ import java.net.*;
 
 import activitystreamer.core.command.*;
 
-public class Control implements Runnable, IncomingConnectionHandler {
+public class Control implements Runnable, IncomingConnectionHandler, ICommandBroadcaster {
     private Logger log = LogManager.getLogger();
     private List<Connection> connections = new ArrayList<Connection>();
     private boolean term = false;
@@ -26,12 +27,12 @@ public class Control implements Runnable, IncomingConnectionHandler {
 
     public Control() {
         rServerService.printDebugState();
-      try {
-        listener = new Listener(this, Settings.getLocalPort());
-      } catch (IOException e1) {
-        log.fatal("failed to startup a listening thread: " + e1);
-        System.exit(-1);
-      }
+        try {
+            listener = new Listener(this, Settings.getLocalPort());
+        } catch (IOException e1) {
+            log.fatal("failed to startup a listening thread: " + e1);
+            System.exit(-1);
+        }
     }
 
 	@Override
@@ -86,7 +87,7 @@ public class Control implements Runnable, IncomingConnectionHandler {
             }
         }
         for (Connection c : toRemove) {
-            this.rServerService.removeStateByHostAndPort(c.getSocket().getInetAddress(), c.getSocket().getPort());
+            //this.rServerService.removeStateByHostAndPort(c.getSocket().getInetAddress(), c.getSocket().getPort());
             connections.remove(c);
         }
     }
@@ -94,19 +95,35 @@ public class Control implements Runnable, IncomingConnectionHandler {
     @Override
     public synchronized void incomingConnection(Socket s) throws IOException {
         log.debug("incomming connection: " + Settings.socketAddress(s));
-        Connection c = new Connection(s, new PendingCommandProcessor(rServerService));
+        Connection c = new Connection(s, new PendingCommandProcessor(rServerService), this);
         connections.add(c);
         new Thread(c).start();
     }
 
     public synchronized Connection outgoingConnection(Socket s) throws IOException {
         log.debug("outgoing connection: " + Settings.socketAddress(s));
-        Connection c = new Connection(s, new ServerCommandProcessor(rServerService));
+        Connection c = new Connection(s, new ServerCommandProcessor(rServerService), this);
         connections.add(c);
         new Thread(c).start();
         ICommand cmd = new AuthenticateCommand(Settings.getSecret());
         c.pushCommand(cmd);
         return c;
+    }
+
+    public void broadcastToAll(ICommand command, Connection exclude) {
+        for (Connection connection : connections) {
+            if (connection != exclude) {
+                connection.pushCommand(command);
+            }
+        }
+    }
+
+    public void broadcastToServers(ICommand command, Connection exclude) {
+        // TODO
+    }
+
+    public void broadcastToClients(ICommand command, Connection exclude) {
+        // TODO
     }
 
     public void announce() {
