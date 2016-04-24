@@ -109,10 +109,16 @@ public class Control implements Runnable, IncomingConnectionHandler {
         // Obviously instanceof is bad design here, but...
         // FOR DEBUG PURPOSES TO SEE LIST OF CONNECTIONS - should be eventually removed!
         System.out.printf("\n================= CONNECTION STATUS =================\n");
-        String tf = "to:  ";
+        String tf;
         for (Connection c : connections) {
             CommandProcessor cp = c.getCommandProcessor();
             Socket socket = c.getSocket();
+            String rsa = socket.getRemoteSocketAddress().toString();
+            if (rsa.split("/")[0].equals("localhost")) {
+                tf = "to:  ";
+            } else {
+                tf = "from:";
+            }
             if (cp instanceof PendingCommandProcessor) {
                 System.out.printf("Connection " + tf + " PENDING  " + socket.getRemoteSocketAddress().toString() + "\n");
             } else if (cp instanceof ServerCommandProcessor) {
@@ -120,7 +126,6 @@ public class Control implements Runnable, IncomingConnectionHandler {
             } else {
                 System.out.printf("Connection " + tf + " CLIENT   " + socket.getRemoteSocketAddress().toString() + "\n");
             }
-            tf = "from:";
         }
         System.out.printf("=====================================================\n\n");
 
