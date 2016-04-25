@@ -4,7 +4,7 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.List;
 import java.util.ArrayList;
-import activitystreamer.server.Connection;
+import activitystreamer.core.shared.Connection;
 
 public class UserAuthService {
 

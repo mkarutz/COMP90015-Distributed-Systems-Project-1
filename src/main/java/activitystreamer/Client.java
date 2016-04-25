@@ -65,6 +65,9 @@ public class Client {
 
         if (cmd.hasOption("u")) {
             Settings.setUsername(cmd.getOptionValue("u"));
+        } else {
+            Settings.setUsername("anonymous");
+            log.info("No username supplied, assuming anonymous.");
         }
 
         log.info("starting client");

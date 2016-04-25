@@ -1,6 +1,6 @@
 package activitystreamer.core.command;
 
-import activitystreamer.server.Connection;
+import activitystreamer.core.shared.Connection;
 
 public interface ICommandBroadcaster {
     public void broadcastToAll(ICommand command, Connection exclude);

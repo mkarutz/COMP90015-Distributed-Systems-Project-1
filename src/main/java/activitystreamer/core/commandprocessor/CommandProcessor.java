@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.ArrayList;
 import activitystreamer.core.command.*;
 import activitystreamer.core.commandhandler.*;
-import activitystreamer.server.*;
+import activitystreamer.core.shared.*;
 
 public abstract class CommandProcessor {
     protected List<ICommandHandler> handlers = new ArrayList<ICommandHandler>();

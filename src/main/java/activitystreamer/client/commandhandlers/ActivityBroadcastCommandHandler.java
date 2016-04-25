@@ -1,7 +1,8 @@
-package activitystreamer.core.commandhandler;
+package activitystreamer.client.commandhandlers;
 
 import activitystreamer.core.command.*;
-import activitystreamer.server.Connection;
+import activitystreamer.core.commandhandler.ICommandHandler;
+import activitystreamer.core.shared.Connection;
 
 public class ActivityBroadcastCommandHandler implements ICommandHandler {
     @Override
@@ -9,7 +10,7 @@ public class ActivityBroadcastCommandHandler implements ICommandHandler {
         if (command instanceof ActivityBroadcastCommand) {
             ActivityBroadcastCommand activityBroadcast = (ActivityBroadcastCommand)command;
             conn.getCommandBroadcaster().broadcastToAll(activityBroadcast, conn);
-            
+
             return true;
         } else {
             return false;

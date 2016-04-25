@@ -1,7 +1,9 @@
-package activitystreamer.core.commandhandler;
+package activitystreamer.server.commandhandlers;
 
 import activitystreamer.core.command.*;
-import activitystreamer.server.Connection;
+import activitystreamer.core.commandhandler.*;
+import activitystreamer.core.commandprocessor.*;
+import activitystreamer.core.shared.Connection;
 
 public class RegisterCommandHandler implements ICommandHandler {
     @Override

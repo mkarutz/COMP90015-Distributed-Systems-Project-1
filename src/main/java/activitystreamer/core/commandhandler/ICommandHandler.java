@@ -1,7 +1,7 @@
 package activitystreamer.core.commandhandler;
 
 import activitystreamer.core.command.ICommand;
-import activitystreamer.server.Connection;
+import activitystreamer.core.shared.Connection;
 import java.util.List;
 
 public interface ICommandHandler {

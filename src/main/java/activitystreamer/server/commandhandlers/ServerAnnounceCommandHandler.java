@@ -1,7 +1,9 @@
-package activitystreamer.core.commandhandler;
+package activitystreamer.server.commandhandlers;
 
 import activitystreamer.core.command.*;
+import activitystreamer.core.commandhandler.*;
 import activitystreamer.core.commandprocessor.*;
+import activitystreamer.core.shared.*;
 import activitystreamer.server.*;
 import activitystreamer.server.services.*;
 import activitystreamer.util.Settings;

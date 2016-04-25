@@ -1,8 +1,8 @@
-package activitystreamer.core.commandhandler;
+package activitystreamer.server.commandhandlers;
 
 import activitystreamer.core.command.AuthenticationFailCommand;
 import activitystreamer.core.command.ICommand;
-import activitystreamer.server.Connection;
+import activitystreamer.core.shared.*;
 import org.junit.Test;
 import static org.mockito.Mockito.*;
 import static org.junit.Assert.*;

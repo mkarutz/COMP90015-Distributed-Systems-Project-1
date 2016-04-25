@@ -1,4 +1,4 @@
-package activitystreamer.server;
+package activitystreamer.core.shared;
 
 import java.io.*;
 import java.net.Socket;
@@ -13,6 +13,7 @@ import activitystreamer.CommandAdapter;
 
 import activitystreamer.core.command.*;
 import activitystreamer.core.commandprocessor.*;
+import activitystreamer.server.commandprocessors.*;
 
 import com.google.gson.*;
 
@@ -29,7 +30,7 @@ public class Connection implements Closeable, Runnable {
     private CommandProcessor processor;
     private Gson gson;
 
-    Connection(Socket socket, CommandProcessor processor, ICommandBroadcaster broadcaster) throws IOException {
+    public Connection(Socket socket, CommandProcessor processor, ICommandBroadcaster broadcaster) throws IOException {
         this.socket = socket;
         this.processor = processor;
         this.gson = new GsonBuilder()

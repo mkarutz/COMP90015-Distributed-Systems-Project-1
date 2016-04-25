@@ -1,8 +1,10 @@
 package activitystreamer.server;
 
+import activitystreamer.core.shared.*;
 import activitystreamer.core.commandprocessor.*;
 import activitystreamer.core.command.ICommandBroadcaster;
 import activitystreamer.server.services.*;
+import activitystreamer.server.commandprocessors.*;
 import activitystreamer.util.Settings;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
