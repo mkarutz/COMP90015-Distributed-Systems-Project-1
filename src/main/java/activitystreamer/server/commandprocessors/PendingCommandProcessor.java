@@ -15,10 +15,12 @@ public class PendingCommandProcessor extends CommandProcessor {
     public PendingCommandProcessor(RemoteServerStateService rServerService, UserAuthService rAuthService) {
         super();
         incomingHandlers.add(new AuthenticateCommandHandler(rServerService, rAuthService));
-        incomingHandlers.add(new RegisterCommandHandler());
-        incomingHandlers.add(new LoginCommandHandler());
+        incomingHandlers.add(new RegisterCommandHandler(rAuthService));
+        incomingHandlers.add(new LoginCommandHandler(rAuthService));
         incomingHandlers.add(new ActivityMessageCommandHandler());
 
         outgoingHandlers.add(new AuthenticationFailCommandHandler());
+        outgoingHandlers.add(new LoginFailedCommandHandler());
+        outgoingHandlers.add(new LoginSuccessCommandHandler());
     }
 }

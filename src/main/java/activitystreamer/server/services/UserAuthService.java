@@ -54,7 +54,18 @@ public class UserAuthService {
         this.userLocalLockRequestMap = new HashMap<String, LocalLockRequest>();
     }
 
+    public boolean isUserRegistered(String username, String secret) {
+        if (userMap.containsKey(username)) {
+            if (userMap.get(username) == secret) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public void putLocalLockRequest(String username, String secret, Connection replyConnection) {
+        // TODO: Check that user is not already know locally!!
+        
         // Retrieve current list of server ids from remote server state service
         // These will be used to track which servers have registered lock allowed messages
         List<String> knownServerIds = rServerService.getKnownServerIds();

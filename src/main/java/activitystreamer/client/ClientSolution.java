@@ -45,6 +45,11 @@ public class ClientSolution implements Runnable {
     public void run() {
         initiateConnection();
         while (!term) {
+            // Pop any registered JSON activity objects and send to UI
+            JsonObject obj;
+            while ((obj = rClientRefService.popActivityJSON()) != null) {
+                textFrame.setOutputText(obj);
+            }
         }
     }
 
