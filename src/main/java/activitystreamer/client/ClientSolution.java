@@ -4,6 +4,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import activitystreamer.core.command.*;
 import activitystreamer.client.commandprocessors.*;
+import activitystreamer.client.services.*;
 import activitystreamer.core.shared.Connection;
 
 import com.google.gson.JsonObject;
@@ -18,7 +19,11 @@ public class ClientSolution implements Runnable {
 
     private Connection connection;
 
+    private ClientReflectionService rClientRefService;
+
     public ClientSolution() {
+        rClientRefService = new ClientReflectionService();
+
         // open the gui
         log.debug("opening the gui");
         textFrame = new TextFrame();
@@ -56,7 +61,7 @@ public class ClientSolution implements Runnable {
 
     public synchronized Connection outgoingConnection(Socket s) throws IOException {
         log.debug("outgoing connection: " + Settings.socketAddress(s));
-        connection = new Connection(s, new ServerCommandProcessor(), null);
+        connection = new Connection(s, new ServerCommandProcessor(rClientRefService), null);
         new Thread(connection).start();
         ICommand cmd = new LoginCommand(Settings.getUsername(), Settings.getSecret());
         connection.pushCommand(cmd);
