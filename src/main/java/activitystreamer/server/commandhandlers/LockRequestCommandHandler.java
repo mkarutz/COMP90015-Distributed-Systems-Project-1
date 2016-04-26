@@ -19,7 +19,7 @@ public class LockRequestCommandHandler implements ICommandHandler {
     }
 
     @Override
-    public boolean handleCommand(ICommand command, Connection conn) {
+    public boolean handleCommandIncoming(ICommand command, Connection conn) {
         if (command instanceof LockRequestCommand) {
             LockRequestCommand lCommand = (LockRequestCommand)command;
 
@@ -27,7 +27,18 @@ public class LockRequestCommandHandler implements ICommandHandler {
             rAuthService.putLockRequest(lCommand.getUsername(), lCommand.getSecret());
 
             // Broadcast out
-            conn.getCommandBroadcaster().broadcastToServers(lCommand, conn);
+            conn.getCommandBroadcaster().broadcast(lCommand, conn);
+
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    @Override
+    public boolean handleCommandOutgoing(ICommand command, Connection conn) {
+        if (command instanceof LockRequestCommand) {
+            conn.pushCommandDirect(command);
 
             return true;
         } else {

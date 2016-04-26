@@ -9,7 +9,7 @@ public class ServerCommandProcessor extends CommandProcessor {
     public ServerCommandProcessor(ClientReflectionService rClientRefService) {
         super();
 
-        handlers.add(new ActivityBroadcastCommandHandler(rClientRefService));
+        incomingHandlers.add(new ActivityBroadcastCommandHandler(rClientRefService));
         //handlers.add(new LoginFailedCommandHandler());
         //handlers.add(new LoginSuccessCommandHandler());
         //handlers.add(new RedirectCommandHandler());

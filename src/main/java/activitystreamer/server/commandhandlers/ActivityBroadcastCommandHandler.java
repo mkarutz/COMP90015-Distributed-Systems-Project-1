@@ -7,10 +7,21 @@ import activitystreamer.core.shared.Connection;
 
 public class ActivityBroadcastCommandHandler implements ICommandHandler {
     @Override
-    public boolean handleCommand(ICommand command, Connection conn) {
+    public boolean handleCommandIncoming(ICommand command, Connection conn) {
         if (command instanceof ActivityBroadcastCommand) {
             ActivityBroadcastCommand activityBroadcast = (ActivityBroadcastCommand)command;
-            conn.getCommandBroadcaster().broadcastToAll(activityBroadcast, conn);
+            conn.getCommandBroadcaster().broadcast(activityBroadcast, conn);
+
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    @Override
+    public boolean handleCommandOutgoing(ICommand command, Connection conn) {
+        if (command instanceof ActivityBroadcastCommand) {
+            conn.pushCommandDirect(command);
 
             return true;
         } else {

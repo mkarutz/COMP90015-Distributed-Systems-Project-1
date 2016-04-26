@@ -50,7 +50,7 @@ public class Connection implements Closeable, Runnable {
             try {
                 ICommand cmd = pullCommand();
                 if (cmd != null) {
-                    processor.processCommand(this, cmd);
+                    processor.processCommandIncoming(this, cmd);
                 }
             } catch (IOException e) {
                 log.error("I/O exception. Closing connection");
@@ -68,6 +68,11 @@ public class Connection implements Closeable, Runnable {
     }
 
     public void pushCommand(ICommand cmd) {
+        processor.processCommandOutgoing(this, cmd);
+    }
+
+    // Should only be called within command handlers
+    public void pushCommandDirect(ICommand cmd) {
         String json = this.gson.toJson(cmd, ICommand.class);
         System.out.println("SENDING JSON: " + json);
         this.writeLine(json);

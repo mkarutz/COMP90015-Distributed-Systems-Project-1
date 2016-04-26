@@ -14,9 +14,11 @@ import activitystreamer.server.services.*;
 public class PendingCommandProcessor extends CommandProcessor {
     public PendingCommandProcessor(RemoteServerStateService rServerService, UserAuthService rAuthService) {
         super();
-        handlers.add(new AuthenticateCommandHandler(rServerService, rAuthService));
-        handlers.add(new RegisterCommandHandler());
-        handlers.add(new LoginCommandHandler());
-        handlers.add(new ActivityMessageCommandHandler());
+        incomingHandlers.add(new AuthenticateCommandHandler(rServerService, rAuthService));
+        incomingHandlers.add(new RegisterCommandHandler());
+        incomingHandlers.add(new LoginCommandHandler());
+        incomingHandlers.add(new ActivityMessageCommandHandler());
+
+        outgoingHandlers.add(new AuthenticationFailCommandHandler());
     }
 }

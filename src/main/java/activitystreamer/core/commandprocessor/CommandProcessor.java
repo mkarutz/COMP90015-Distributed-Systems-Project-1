@@ -7,17 +7,20 @@ import activitystreamer.core.commandhandler.*;
 import activitystreamer.core.shared.*;
 
 public abstract class CommandProcessor {
-    protected List<ICommandHandler> handlers = new ArrayList<ICommandHandler>();
+    protected List<ICommandHandler> incomingHandlers = new ArrayList<ICommandHandler>();
+    protected List<ICommandHandler> outgoingHandlers = new ArrayList<ICommandHandler>();
 
     public CommandProcessor() {
         // All command processors handle invalid messages
-        handlers.add(new InvalidMessageCommandHandler());
+        InvalidMessageCommandHandler invalidMessageCommandHandler = new InvalidMessageCommandHandler();
+        incomingHandlers.add(invalidMessageCommandHandler);
+        outgoingHandlers.add(invalidMessageCommandHandler);
     }
 
-    public void processCommand(Connection connection, ICommand command) {
+    public void processCommandIncoming(Connection connection, ICommand command) {
         boolean handled = false;
-        for (ICommandHandler h : handlers) {
-            if (h.handleCommand(command, connection)) {
+        for (ICommandHandler h : incomingHandlers) {
+            if (h.handleCommandIncoming(command, connection)) {
                 handled = true;
                 break;
             }
@@ -27,6 +30,20 @@ public abstract class CommandProcessor {
             ICommand invalidCommand = new InvalidMessageCommand("Command type was invalid for the current command processor.");
             connection.pushCommand(invalidCommand);
             connection.close();
+        }
+    }
+
+    public void processCommandOutgoing(Connection connection, ICommand command) {
+        boolean handled = false;
+        for (ICommandHandler h : outgoingHandlers) {
+            if (h.handleCommandOutgoing(command, connection)) {
+                handled = true;
+                break;
+            }
+        }
+
+        if (!handled) {
+
         }
     }
 }

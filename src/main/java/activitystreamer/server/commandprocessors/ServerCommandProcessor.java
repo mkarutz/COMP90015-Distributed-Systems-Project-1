@@ -12,11 +12,25 @@ public class ServerCommandProcessor extends CommandProcessor {
         super();
 
         // Server specific command handlers
-        handlers.add(new ActivityBroadcastCommandHandler());
-        handlers.add(new AuthenticationFailCommandHandler());
-        handlers.add(new LockAllowedCommandHandler(rAuthService));
-        handlers.add(new LockDeniedCommandHandler(rAuthService));
-        handlers.add(new LockRequestCommandHandler(rAuthService));
-        handlers.add(new ServerAnnounceCommandHandler(rServerService));
+        ActivityBroadcastCommandHandler activityBroadcastCommandHandler = new ActivityBroadcastCommandHandler();
+        AuthenticationFailCommandHandler authenticationFailCommandHandler = new AuthenticationFailCommandHandler();
+        LockAllowedCommandHandler lockAllowedCommandHandler = new LockAllowedCommandHandler(rAuthService);
+        LockDeniedCommandHandler lockDeniedCommandHandler = new LockDeniedCommandHandler(rAuthService);
+        LockRequestCommandHandler lockRequestCommandHandler = new LockRequestCommandHandler(rAuthService);
+        ServerAnnounceCommandHandler serverAnnounceCommandHandler = new ServerAnnounceCommandHandler(rServerService);
+
+        incomingHandlers.add(activityBroadcastCommandHandler);
+        incomingHandlers.add(authenticationFailCommandHandler);
+        incomingHandlers.add(lockAllowedCommandHandler);
+        incomingHandlers.add(lockDeniedCommandHandler);
+        incomingHandlers.add(lockRequestCommandHandler);
+        incomingHandlers.add(serverAnnounceCommandHandler);
+
+        outgoingHandlers.add(activityBroadcastCommandHandler);
+        outgoingHandlers.add(new AuthenticateCommandHandler(rServerService, rAuthService));
+        outgoingHandlers.add(lockAllowedCommandHandler);
+        outgoingHandlers.add(lockDeniedCommandHandler);
+        outgoingHandlers.add(lockRequestCommandHandler);
+        outgoingHandlers.add(serverAnnounceCommandHandler);
     }
 }

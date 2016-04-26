@@ -12,11 +12,22 @@ public class AuthenticationFailCommandHandler implements ICommandHandler {
     private Logger log = LogManager.getLogger();
 
     @Override
-    public boolean handleCommand(ICommand command, Connection conn) {
+    public boolean handleCommandIncoming(ICommand command, Connection conn) {
         if (command instanceof AuthenticationFailCommand) {
             AuthenticationFailCommand failCommand = (AuthenticationFailCommand)command;
             log.error("Authentication failed: " + failCommand.getInfo());
             conn.close();
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    @Override
+    public boolean handleCommandOutgoing(ICommand command, Connection conn) {
+        if (command instanceof AuthenticationFailCommand) {
+            conn.pushCommandDirect(command);
+
             return true;
         } else {
             return false;

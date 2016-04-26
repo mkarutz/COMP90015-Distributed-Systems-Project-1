@@ -114,25 +114,12 @@ public class Control implements Runnable, IncomingConnectionHandler, ICommandBro
         return c;
     }
 
-    public void broadcastToAll(ICommand command, Connection exclude) {
+    public void broadcast(ICommand command, Connection exclude) {
         for (Connection connection : connections) {
             if (connection != exclude) {
                 connection.pushCommand(command);
             }
         }
-    }
-
-    public void broadcastToServers(ICommand command, Connection exclude) {
-        // TODO: This does NOT exclude clients at the moment!
-        for (Connection connection : connections) {
-            if (connection != exclude) {
-                connection.pushCommand(command);
-            }
-        }
-    }
-
-    public void broadcastToClients(ICommand command, Connection exclude) {
-        // TODO
     }
 
     public void announce() {

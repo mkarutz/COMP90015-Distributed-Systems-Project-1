@@ -19,7 +19,7 @@ public class LockAllowedCommandHandler implements ICommandHandler {
     }
 
     @Override
-    public boolean handleCommand(ICommand command, Connection conn) {
+    public boolean handleCommandIncoming(ICommand command, Connection conn) {
         if (command instanceof LockAllowedCommand) {
             LockAllowedCommand lCommand = (LockAllowedCommand)command;
 
@@ -27,7 +27,18 @@ public class LockAllowedCommandHandler implements ICommandHandler {
             rAuthService.putLockAllowed(lCommand.getUsername(), lCommand.getSecret(), lCommand.getServerId());
 
             // Broadcast out
-            conn.getCommandBroadcaster().broadcastToServers(lCommand, conn);
+            conn.getCommandBroadcaster().broadcast(lCommand, conn);
+
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    @Override
+    public boolean handleCommandOutgoing(ICommand command, Connection conn) {
+        if (command instanceof LockAllowedCommand) {
+            conn.pushCommandDirect(command);
 
             return true;
         } else {
