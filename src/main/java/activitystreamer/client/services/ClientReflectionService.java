@@ -14,7 +14,7 @@ public class ClientReflectionService {
     public void pushActivityJSON(JsonObject activity) {
         jActivityQueue.add(activity);
 
-        System.out.println("CLIENT REGISTERED ACTIVITY OBJECT!");
+        System.out.println("\n\nCLIENT REGISTERED ACTIVITY OBJECT!\n\n");
     }
 
     // Returns null if no more activity objects to pop
