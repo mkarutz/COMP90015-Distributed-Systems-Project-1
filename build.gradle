@@ -34,19 +34,19 @@ task(runserver0, dependsOn: 'classes', type: JavaExec) {
 task(runserver1, dependsOn: 'classes', type: JavaExec) {
 	main = 'activitystreamer.Server'
 	classpath = sourceSets.main.runtimeClasspath
-	args(['-rh', 'localhost', '-rp', '4035', '-d', '', '-lp', '4135'])
+	args(['-rh', 'localhost', '-rp', '4035', '-d', '-lp', '4135'])
 }
 
 task(runserver2, dependsOn: 'classes', type: JavaExec) {
 	main = 'activitystreamer.Server'
 	classpath = sourceSets.main.runtimeClasspath
-	args(['-rh', 'localhost', '-rp', '4135', '-d', '', '-lp', '4235'])
+	args(['-rh', 'localhost', '-rp', '4135', '-d', '-lp', '4235'])
 }
 
 task(runserver3, dependsOn: 'classes', type: JavaExec) {
 	main = 'activitystreamer.Server'
 	classpath = sourceSets.main.runtimeClasspath
-	args(['-rh', 'localhost', '-rp', '4135', '-d', '', '-lp', '4335'])
+	args(['-rh', 'localhost', '-rp', '4135', '-d', '-lp', '4335'])
 }
 
 task(runserver, dependsOn: 'classes', type: JavaExec) {
@@ -57,6 +57,10 @@ task(runserver, dependsOn: 'classes', type: JavaExec) {
 
 task test1(type: Exec) {
 	commandLine 'sh', 'scripts/test-1.sh'
+}
+
+task test2(type: Exec, dependsOn: ['serverJar','clientJar']) {
+	commandLine 'sh', 'scripts/test2.sh'
 }
 
 repositories {

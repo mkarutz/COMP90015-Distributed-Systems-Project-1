@@ -1,3 +1,0 @@
-#!/bin/sh
-terminal -e "gradle runserver"
-terminal -e "gradle runclient"

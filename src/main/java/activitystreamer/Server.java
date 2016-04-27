@@ -36,7 +36,7 @@ public class Server {
         options.addOption("lh", true, "local hostname");
         options.addOption("a", true, "activity interval in milliseconds");
         options.addOption("s", true, "secret for the server to use");
-        options.addOption("d", true, "debug mode, use static secret");
+        options.addOption("d", false, "debug mode, use static secret");
 
         CommandLineParser parser = new DefaultParser();
 
