@@ -2,7 +2,6 @@ package activitystreamer.server.commandhandlers;
 
 import activitystreamer.core.command.*;
 import activitystreamer.core.commandhandler.*;
-import activitystreamer.core.commandprocessor.*;
 import activitystreamer.core.shared.Connection;
 import activitystreamer.server.ServerState;
 import activitystreamer.server.services.*;
@@ -11,11 +10,14 @@ import activitystreamer.server.commandprocessors.*;
 public class LoginCommandHandler implements ICommandHandler {
     private final UserAuthService rAuthService;
     private final RemoteServerStateService rServerStateService;
+    private final ICommandBroadcaster rBroadcastService;
 
     public LoginCommandHandler(UserAuthService rAuthService,
-                               RemoteServerStateService rServerStateService) {
+                               RemoteServerStateService rServerStateService,
+                               ICommandBroadcaster rBroadcastService) {
         this.rAuthService = rAuthService;
         this.rServerStateService = rServerStateService;
+        this.rBroadcastService = rBroadcastService;
     }
 
     @Override
@@ -37,7 +39,7 @@ public class LoginCommandHandler implements ICommandHandler {
 
             if (rAuthService.isUserRegistered(loginCommand.getUsername(), loginCommand.getSecret())) {
                 sendLoginSuccess(conn, loginCommand.getUsername());
-                conn.setCommandProcessor(new ClientCommandProcessor(rAuthService));
+                conn.setCommandProcessor(new ClientCommandProcessor(rAuthService, rBroadcastService));
                 loadBalance(conn);
             } else {
                 LoginFailedCommand cmd = new LoginFailedCommand("Username or secret incorrect");

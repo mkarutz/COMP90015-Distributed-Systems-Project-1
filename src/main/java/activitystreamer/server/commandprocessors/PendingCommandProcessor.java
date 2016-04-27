@@ -12,11 +12,11 @@ import activitystreamer.server.services.*;
  * http://stackoverflow.com/questions/1477471/design-pattern-for-handling-multiple-message-types
  */
 public class PendingCommandProcessor extends CommandProcessor {
-    public PendingCommandProcessor(RemoteServerStateService rServerService, UserAuthService rAuthService) {
+    public PendingCommandProcessor(RemoteServerStateService rServerService, UserAuthService rAuthService, ICommandBroadcaster rBroadcastService) {
         super();
         incomingHandlers.add(new AuthenticateCommandHandler(rServerService, rAuthService));
         incomingHandlers.add(new RegisterCommandHandler(rAuthService));
-        incomingHandlers.add(new LoginCommandHandler(rAuthService, rServerService));
+        incomingHandlers.add(new LoginCommandHandler(rAuthService, rServerService, rBroadcastService));
         incomingHandlers.add(new BadActivityMessageCommandHandler());
 
         outgoingHandlers.add(new AuthenticationFailCommandHandler());

@@ -4,12 +4,16 @@ import activitystreamer.core.command.*;
 import activitystreamer.core.commandhandler.*;
 import activitystreamer.core.shared.Connection;
 import activitystreamer.server.services.*;
+import com.google.gson.JsonObject;
 
 public class ActivityMessageCommandHandler implements ICommandHandler {
     private UserAuthService rAuthService;
+    private ICommandBroadcaster rBroadcastService;
 
-    public ActivityMessageCommandHandler(UserAuthService rAuthService) {
+    public ActivityMessageCommandHandler(UserAuthService rAuthService,
+                                         ICommandBroadcaster rBroadcastService) {
         this.rAuthService = rAuthService;
+        this.rBroadcastService = rBroadcastService;
     }
 
     @Override
@@ -19,6 +23,12 @@ public class ActivityMessageCommandHandler implements ICommandHandler {
 
             if (cmd.getUsername() == null) {
                 conn.pushCommand(new InvalidMessageCommand("Username must be present."));
+                conn.close();
+                return true;
+            }
+
+            if (cmd.getActivity() == null) {
+                conn.pushCommand(new InvalidMessageCommand("Activity must be present"));
                 conn.close();
                 return true;
             }
@@ -35,9 +45,10 @@ public class ActivityMessageCommandHandler implements ICommandHandler {
                 return true;
             }
 
+            JsonObject activity = cmd.getActivity();
+            activity.addProperty("authenticated_user", cmd.getUsername());
+            rBroadcastService.broadcast(new ActivityBroadcastCommand(cmd.getActivity()), conn);
 
-//            conn.getCommandBroadcaster().broadcast(new);
-            
             return true;
         } else {
             return false;

@@ -98,7 +98,7 @@ public class Control implements Runnable, IncomingConnectionHandler, ICommandBro
     @Override
     public synchronized void incomingConnection(Socket s) throws IOException {
         log.debug("incomming connection: " + Settings.socketAddress(s));
-        Connection c = new Connection(s, new PendingCommandProcessor(rServerService, rAuthService), this);
+        Connection c = new Connection(s, new PendingCommandProcessor(rServerService, rAuthService, this), this);
         connections.add(c);
         new Thread(c).start();
     }

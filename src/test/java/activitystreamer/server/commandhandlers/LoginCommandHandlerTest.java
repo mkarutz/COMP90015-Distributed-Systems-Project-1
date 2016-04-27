@@ -15,7 +15,9 @@ public class LoginCommandHandlerTest {
         UserAuthService mockAuthService = mock(UserAuthService.class);
         RemoteServerStateService mockRemoteServerStateService = mock(RemoteServerStateService.class);
 
-        LoginCommandHandler handler = new LoginCommandHandler(mockAuthService, mockRemoteServerStateService);
+        ICommandBroadcaster mockBroadcastService = mock(ICommandBroadcaster.class);
+
+        LoginCommandHandler handler = new LoginCommandHandler(mockAuthService, mockRemoteServerStateService, mockBroadcastService);
 
         LoginCommand cmd = mock(LoginCommand.class);
         when(cmd.getUsername()).thenReturn(null);
@@ -32,7 +34,9 @@ public class LoginCommandHandlerTest {
         UserAuthService mockAuthService = mock(UserAuthService.class);
         RemoteServerStateService mockRemoteServerStateService = mock(RemoteServerStateService.class);
 
-        LoginCommandHandler handler = new LoginCommandHandler(mockAuthService, mockRemoteServerStateService);
+        ICommandBroadcaster mockBroadcastService = mock(ICommandBroadcaster.class);
+
+        LoginCommandHandler handler = new LoginCommandHandler(mockAuthService, mockRemoteServerStateService, mockBroadcastService);
 
         LoginCommand cmd = mock(LoginCommand.class);
         when(cmd.getUsername()).thenReturn("anonymous");
@@ -47,7 +51,9 @@ public class LoginCommandHandlerTest {
 
         RemoteServerStateService serverStateService = mock(RemoteServerStateService.class);
 
-        LoginCommandHandler handler = new LoginCommandHandler(authService, serverStateService);
+        ICommandBroadcaster mockBroadcastService = mock(ICommandBroadcaster.class);
+
+        LoginCommandHandler handler = new LoginCommandHandler(authService, serverStateService, mockBroadcastService);
 
         LoginCommand cmd = mock(LoginCommand.class);
         when(cmd.getUsername()).thenReturn("username");
@@ -69,7 +75,9 @@ public class LoginCommandHandlerTest {
         RemoteServerStateService serverStateService = mock(RemoteServerStateService.class);
         when(serverStateService.getServerToRedirectTo()).thenReturn(mockServer);
 
-        LoginCommandHandler handler = new LoginCommandHandler(authService, serverStateService);
+        ICommandBroadcaster mockBroadcastService = mock(ICommandBroadcaster.class);
+
+        LoginCommandHandler handler = new LoginCommandHandler(authService, serverStateService, mockBroadcastService);
 
         LoginCommand cmd = mock(LoginCommand.class);
         when(cmd.getUsername()).thenReturn("username");
@@ -89,7 +97,9 @@ public class LoginCommandHandlerTest {
 
         RemoteServerStateService serverStateService = mock(RemoteServerStateService.class);
 
-        LoginCommandHandler handler = new LoginCommandHandler(authService, serverStateService);
+        ICommandBroadcaster mockBroadcastService = mock(ICommandBroadcaster.class);
+
+        LoginCommandHandler handler = new LoginCommandHandler(authService, serverStateService, mockBroadcastService);
 
         LoginCommand cmd = mock(LoginCommand.class);
         when(cmd.getUsername()).thenReturn("username");
