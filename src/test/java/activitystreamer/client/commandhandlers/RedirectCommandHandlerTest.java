@@ -2,7 +2,7 @@ package activitystreamer.client.commandhandlers;
 
 import activitystreamer.core.command.RedirectCommand;
 import activitystreamer.core.shared.Connection;
-import activitystreamer.server.ClientSolution;
+import activitystreamer.client.ClientSolution;
 import activitystreamer.util.Settings;
 import org.junit.Test;
 
@@ -14,7 +14,8 @@ import static org.junit.Assert.*;
 public class RedirectCommandHandlerTest {
     @Test
     public void testConnectionIsClosed() {
-        RedirectCommandHandler handler = new RedirectCommandHandler();
+        ClientSolution mockClientSolution = mock(ClientSolution.class);
+        RedirectCommandHandler handler = new RedirectCommandHandler(mockClientSolution);
 
         Connection mockConnection = mock(Connection.class);
 
@@ -29,7 +30,8 @@ public class RedirectCommandHandlerTest {
 
     @Test
     public void testSettingsAreUpdated() {
-        RedirectCommandHandler handler = new RedirectCommandHandler();
+        ClientSolution mockClientSolution = mock(ClientSolution.class);
+        RedirectCommandHandler handler = new RedirectCommandHandler(mockClientSolution);
 
         Settings.setRemoteHostname("www.not-google.com");
         Settings.setRemotePort(4321);
@@ -63,6 +65,6 @@ public class RedirectCommandHandlerTest {
 
         handler.handleCommandIncoming(command, mockConnection);
 
-        verify(mockConnection).close();
+        verify(mockClientSolution).initiateConnection();
     }
 }

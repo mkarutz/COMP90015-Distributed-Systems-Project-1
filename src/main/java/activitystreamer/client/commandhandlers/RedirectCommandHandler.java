@@ -3,7 +3,7 @@ package activitystreamer.client.commandhandlers;
 import activitystreamer.core.command.*;
 import activitystreamer.core.commandhandler.ICommandHandler;
 import activitystreamer.core.shared.Connection;
-import activitystreamer.server.ClientSolution;
+import activitystreamer.client.ClientSolution;
 import activitystreamer.util.Settings;
 
 public class RedirectCommandHandler implements ICommandHandler {
