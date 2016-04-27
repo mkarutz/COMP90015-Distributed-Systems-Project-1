@@ -1,4 +1,4 @@
-package activitystreamer.server.commandhandlers;
+package activitystreamer.client.commandhandlers;
 
 import activitystreamer.core.command.*;
 import activitystreamer.core.commandhandler.*;
@@ -10,18 +10,19 @@ public class LoginFailedCommandHandler implements ICommandHandler {
 
     @Override
     public boolean handleCommandIncoming(ICommand command, Connection conn) {
-        return false;
-    }
-
-    @Override
-    public boolean handleCommandOutgoing(ICommand command, Connection conn) {
-        if (command instanceof LoginCommand) {
-            conn.pushCommandDirect(command);
+        if (command instanceof LoginFailedCommand) {
             conn.close();
+
+            // PRINT_SOMETHING login failed
 
             return true;
         } else {
             return false;
         }
+    }
+
+    @Override
+    public boolean handleCommandOutgoing(ICommand command, Connection conn) {
+        return false;
     }
 }

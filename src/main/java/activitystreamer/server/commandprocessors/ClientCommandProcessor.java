@@ -12,6 +12,9 @@ public class ClientCommandProcessor extends CommandProcessor {
         super();
 
         // Client specific command handlers
+        incomingHandlers.add(new LogoutCommandHandler());
 
+        //outgoingHandlers.add(new LoginSuccessCommandHandler());
+        outgoingHandlers.add(new RedirectCommandHandler());
     }
 }

@@ -6,7 +6,7 @@ import activitystreamer.core.commandprocessor.*;
 import activitystreamer.core.shared.Connection;
 import activitystreamer.server.services.*;
 
-public class LoginSuccessCommandHandler implements ICommandHandler {
+public class RedirectCommandHandler implements ICommandHandler {
 
     @Override
     public boolean handleCommandIncoming(ICommand command, Connection conn) {
@@ -15,13 +15,8 @@ public class LoginSuccessCommandHandler implements ICommandHandler {
 
     @Override
     public boolean handleCommandOutgoing(ICommand command, Connection conn) {
-        if (command instanceof LoginCommand) {
+        if (command instanceof RedirectCommand) {
             conn.pushCommandDirect(command);
-
-            // TODO: Check server load according to SPEC page 4, line 1
-            //       Send redirect if necessary
-            //
-            // ...conn.pushCommand(new Redi)
 
             return true;
         } else {

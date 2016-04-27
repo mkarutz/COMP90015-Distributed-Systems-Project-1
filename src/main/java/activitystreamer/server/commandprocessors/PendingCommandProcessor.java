@@ -17,7 +17,7 @@ public class PendingCommandProcessor extends CommandProcessor {
         incomingHandlers.add(new AuthenticateCommandHandler(rServerService, rAuthService));
         incomingHandlers.add(new RegisterCommandHandler(rAuthService));
         incomingHandlers.add(new LoginCommandHandler(rAuthService));
-        incomingHandlers.add(new ActivityMessageCommandHandler());
+        incomingHandlers.add(new BadActivityMessageCommandHandler());
 
         outgoingHandlers.add(new AuthenticationFailCommandHandler());
         outgoingHandlers.add(new LoginFailedCommandHandler());

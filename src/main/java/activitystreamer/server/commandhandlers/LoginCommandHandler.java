@@ -28,6 +28,7 @@ public class LoginCommandHandler implements ICommandHandler {
                 // User or secret do not match
                 LoginFailedCommand cmd = new LoginFailedCommand("Username or secret incorrect");
                 conn.pushCommand(cmd);
+                conn.close();
             }
 
             return true;
