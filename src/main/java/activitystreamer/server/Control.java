@@ -24,12 +24,11 @@ public class Control implements Runnable, IncomingConnectionHandler, ICommandBro
 
     private Listener listener;
 
-    // Services maintained by server
     private RemoteServerStateService rServerService;
-    private UserAuthService          rAuthService;
+    private UserAuthService rAuthService;
 
     public Control() {
-        this.rServerService = new RemoteServerStateService();
+        this.rServerService = new RemoteServerStateService(this);
         this.rAuthService = new UserAuthService(this.rServerService);
         try {
             listener = new Listener(this, Settings.getLocalPort());
@@ -169,5 +168,9 @@ public class Control implements Runnable, IncomingConnectionHandler, ICommandBro
 
     public final List<Connection> getConnections() {
         return connections;
+    }
+
+    public int getLoad() {
+        return getConnections().size();
     }
 }

@@ -4,14 +4,17 @@ import activitystreamer.core.command.*;
 import activitystreamer.core.commandhandler.*;
 import activitystreamer.core.commandprocessor.*;
 import activitystreamer.core.shared.Connection;
+import activitystreamer.server.ServerState;
 import activitystreamer.server.services.*;
 
 public class LoginCommandHandler implements ICommandHandler {
+    private final UserAuthService rAuthService;
+    private final RemoteServerStateService rServerStateService;
 
-    UserAuthService rAuthService;
-
-    public LoginCommandHandler(UserAuthService rAuthService) {
+    public LoginCommandHandler(UserAuthService rAuthService,
+                               RemoteServerStateService rServerStateService) {
         this.rAuthService = rAuthService;
+        this.rServerStateService = rServerStateService;
     }
 
     @Override
@@ -19,13 +22,10 @@ public class LoginCommandHandler implements ICommandHandler {
         if (command instanceof LoginCommand) {
             LoginCommand loginCommand = (LoginCommand)command;
 
-            // Check if user stored
             if (rAuthService.isUserRegistered(loginCommand.getUsername(), loginCommand.getSecret())) {
-                // User and secret match, logged in successfully
-                LoginSuccessCommand cmd = new LoginSuccessCommand("Logged in successfully as user " + loginCommand.getUsername());
-                conn.pushCommand(cmd);
+                sendLoginSuccess(conn, loginCommand.getUsername());
+                loadBalance(conn);
             } else {
-                // User or secret do not match
                 LoginFailedCommand cmd = new LoginFailedCommand("Username or secret incorrect");
                 conn.pushCommand(cmd);
                 conn.close();
@@ -35,6 +35,22 @@ public class LoginCommandHandler implements ICommandHandler {
         } else {
             return false;
         }
+    }
+
+    private void loadBalance(Connection conn) {
+        synchronized (rServerStateService) {
+            ServerState redirectTo;
+            if ((redirectTo = rServerStateService.getServerToRedirectTo()) != null) {
+                RedirectCommand cmd = new RedirectCommand(redirectTo.getHostname(), redirectTo.getPort());
+                conn.pushCommand(cmd);
+                conn.close();
+            }
+        }
+    }
+
+    private void sendLoginSuccess(Connection conn, String username) {
+        LoginSuccessCommand cmd = new LoginSuccessCommand("Logged in successfully as user " + username);
+        conn.pushCommand(cmd);
     }
 
     @Override
