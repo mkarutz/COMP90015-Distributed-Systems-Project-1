@@ -13,7 +13,6 @@ import java.io.IOException;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
-import java.net.*;
 
 import activitystreamer.core.command.*;
 
@@ -29,7 +28,7 @@ public class Control implements Runnable, IncomingConnectionHandler, ICommandBro
 
     public Control() {
         this.rServerService = new RemoteServerStateService(this);
-        this.rAuthService = new UserAuthService(this.rServerService);
+        this.rAuthService = new UserAuthService(this.rServerService, this);
         try {
             listener = new Listener(this, Settings.getLocalPort());
         } catch (IOException e1) {
@@ -114,11 +113,15 @@ public class Control implements Runnable, IncomingConnectionHandler, ICommandBro
     }
 
     public void broadcast(ICommand command, Connection exclude) {
-        for (Connection connection : connections) {
+        for (Connection connection: connections) {
             if (connection != exclude) {
                 connection.pushCommand(command);
             }
         }
+    }
+
+    public void broadcast(ICommand command) {
+        broadcast(command, null);
     }
 
     public void announce() {

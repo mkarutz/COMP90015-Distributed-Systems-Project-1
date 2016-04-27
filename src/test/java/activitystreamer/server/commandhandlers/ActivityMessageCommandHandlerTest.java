@@ -1,25 +1,26 @@
 package activitystreamer.server.commandhandlers;
 
-import activitystreamer.core.command.*;
+import activitystreamer.core.command.ActivityBroadcastCommand;
+import activitystreamer.core.command.ActivityMessageCommand;
+import activitystreamer.core.command.AuthenticationFailCommand;
+import activitystreamer.core.command.ICommandBroadcaster;
 import activitystreamer.core.shared.Connection;
 import activitystreamer.server.services.RemoteServerStateService;
 import activitystreamer.server.services.UserAuthService;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import org.junit.Test;
 
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.*;
-import static org.junit.Assert.*;
 
 public class ActivityMessageCommandHandlerTest {
     @Test
     public void testCanPostAsAnonymousWhenLoggedIn() {
         RemoteServerStateService mockServerService = mock(RemoteServerStateService.class);
-
-        UserAuthService mockAuthService = spy(new UserAuthService(mockServerService));
-        when(mockAuthService.isLoggedIn(any(Connection.class))).thenReturn(true);
-
         ICommandBroadcaster mockBroadcastService = mock(ICommandBroadcaster.class);
+
+        UserAuthService mockAuthService = spy(new UserAuthService(mockServerService, mockBroadcastService));
+        when(mockAuthService.isLoggedIn(any(Connection.class))).thenReturn(true);
 
         ActivityMessageCommandHandler handler
                 = new ActivityMessageCommandHandler(mockAuthService, mockBroadcastService);

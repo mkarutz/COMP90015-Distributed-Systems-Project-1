@@ -47,7 +47,7 @@ public class ActivityMessageCommandHandler implements ICommandHandler {
 
             JsonObject activity = cmd.getActivity();
             activity.addProperty("authenticated_user", cmd.getUsername());
-            rBroadcastService.broadcast(new ActivityBroadcastCommand(cmd.getActivity()), conn);
+            rBroadcastService.broadcast(new ActivityBroadcastCommand(activity), conn);
 
             return true;
         } else {

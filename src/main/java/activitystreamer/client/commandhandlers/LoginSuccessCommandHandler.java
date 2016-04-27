@@ -8,11 +8,7 @@ import activitystreamer.core.shared.Connection;
 public class LoginSuccessCommandHandler implements ICommandHandler {
     @Override
     public boolean handleCommandIncoming(ICommand command, Connection conn) {
-        if (command instanceof LoginSuccessCommand) {
-            return true;
-        } else {
-            return false;
-        }
+        return command instanceof LoginSuccessCommand;
     }
 
     @Override

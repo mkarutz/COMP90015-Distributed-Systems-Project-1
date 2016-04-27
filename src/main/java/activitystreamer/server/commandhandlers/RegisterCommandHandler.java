@@ -1,15 +1,18 @@
 package activitystreamer.server.commandhandlers;
 
-import activitystreamer.core.command.*;
-import activitystreamer.core.commandhandler.*;
+import activitystreamer.core.command.ICommand;
+import activitystreamer.core.command.InvalidMessageCommand;
+import activitystreamer.core.command.RegisterCommand;
+import activitystreamer.core.command.RegisterFailedCommand;
+import activitystreamer.core.commandhandler.ICommandHandler;
 import activitystreamer.core.shared.Connection;
-import activitystreamer.server.services.*;
+import activitystreamer.server.services.IUserAuthService;
 
 public class RegisterCommandHandler implements ICommandHandler {
 
-    UserAuthService rAuthService;
+    IUserAuthService rAuthService;
 
-    public RegisterCommandHandler(UserAuthService rAuthService) {
+    public RegisterCommandHandler(IUserAuthService rAuthService) {
         this.rAuthService = rAuthService;
     }
 
@@ -18,17 +21,14 @@ public class RegisterCommandHandler implements ICommandHandler {
         if (command instanceof RegisterCommand) {
             RegisterCommand registerCommand = (RegisterCommand) command;
 
-            // User is attempting to register
-            boolean result = rAuthService.register(registerCommand.getUsername(), registerCommand.getSecret(), conn);
-
-            if (!result) {
-                ICommand cmd = new RegisterFailedCommand("Username " + registerCommand.getUsername() + " already registered locally");
-                conn.pushCommand(cmd);
+            if (registerCommand.getUsername() == null || registerCommand.getSecret() == null) {
+                conn.pushCommand(new InvalidMessageCommand("Username and secret must be present."));
                 conn.close();
-            } else {
-                // Broadcast lock requests
-                ICommand cmd = new LockRequestCommand(registerCommand.getUsername(), registerCommand.getSecret());
-                conn.getCommandBroadcaster().broadcast(cmd, conn);
+                return true;
+            }
+
+            if (!rAuthService.register(registerCommand.getUsername(), registerCommand.getSecret(), conn)) {
+                conn.pushCommand(new RegisterFailedCommand("Username " + registerCommand.getUsername() + "  already exists."));
             }
 
             return true;

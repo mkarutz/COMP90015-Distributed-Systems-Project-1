@@ -5,16 +5,18 @@ import java.util.*;
 import activitystreamer.core.shared.Connection;
 import activitystreamer.core.command.*;
 
-public class UserAuthService {
-    public static final String ANONYMOUS = "anonymous";
-
+public class UserAuthService implements IUserAuthService {
     private Map<Connection, String> loggedInUsers;
     private Map<String, String> userMap;
     private Map<String, LockRequest> pendingLockRequests;
     private final RemoteServerStateService rServerService;
+    private final ICommandBroadcaster rBroadcastService;
 
-    public UserAuthService(RemoteServerStateService rServerService) {
+    public UserAuthService(RemoteServerStateService rServerService,
+                           ICommandBroadcaster rBroadcastService) {
         this.rServerService = rServerService;
+        this.rBroadcastService = rBroadcastService;
+
         this.userMap = new HashMap<>();
         this.pendingLockRequests = new HashMap<>();
         this.loggedInUsers = new HashMap<>();
@@ -51,21 +53,21 @@ public class UserAuthService {
             return false;
         }
 
-        sendLockRequest(username, secret, replyConnection);
+        sendLockRequests(username, secret, replyConnection);
         return true;
     }
 
-    private void sendLockRequest(String username, String secret, Connection replyConnection) {
+    private void sendLockRequests(String username, String secret, Connection replyConnection) {
+        Set<String> waitingServers = new HashSet<>();
         synchronized (rServerService) {
             List<String> knownServerIds = rServerService.getKnownServerIds();
-            Set<String> waitingServers = new HashSet<>();
             for (String serverId: knownServerIds) {
                 waitingServers.add(serverId);
             }
-
-            LockRequest req = new LockRequest(secret, waitingServers, replyConnection);
-            pendingLockRequests.put(username, req);
         }
+        LockRequest req = new LockRequest(secret, waitingServers, replyConnection);
+        pendingLockRequests.put(username, req);
+        rBroadcastService.broadcast(new LockRequestCommand(username, secret));
     }
 
     public synchronized void lockAllowed(String username, String secret, String serverId) {
@@ -109,15 +111,9 @@ public class UserAuthService {
             req.getReplyConnection().pushCommand(cmd);
         }
 
-        if (this.userMap.containsKey(username) && this.userMap.get(username) == secret) {
+        if (this.userMap.containsKey(username) && this.userMap.get(username).equals(secret)) {
             userMap.remove(username);
         }
-    }
-
-    public enum LockRequestResult {
-        SUCCESS,
-        FAIL_ALREADY_REGISTERED,
-        FAIL_USERNAME_TAKEN
     }
 
     private static class LockRequest {
