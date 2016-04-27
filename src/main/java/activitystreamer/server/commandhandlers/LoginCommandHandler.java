@@ -35,9 +35,12 @@ public class LoginCommandHandler implements ICommandHandler {
             if (loginCommand.getUsername().equals(UserAuthService.ANONYMOUS)) {
                 rAuthService.loginAsAnonymous(conn);
                 sendLoginSuccess(conn, loginCommand.getUsername());
+                conn.setCommandProcessor(new ClientCommandProcessor(rAuthService, rBroadcastService));
+                loadBalance(conn);
+                return true;
             }
 
-            if (rAuthService.isUserRegistered(loginCommand.getUsername(), loginCommand.getSecret())) {
+            if (rAuthService.login(conn, loginCommand.getUsername(), loginCommand.getSecret())) {
                 sendLoginSuccess(conn, loginCommand.getUsername());
                 conn.setCommandProcessor(new ClientCommandProcessor(rAuthService, rBroadcastService));
                 loadBalance(conn);

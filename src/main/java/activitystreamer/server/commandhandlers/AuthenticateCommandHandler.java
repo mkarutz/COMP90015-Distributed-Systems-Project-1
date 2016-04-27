@@ -29,7 +29,7 @@ public class AuthenticateCommandHandler implements ICommandHandler {
                 /* Incoming server connection authenticated */
                 log.info("Authentication for incoming connection successful");
                 // Dealing with a server connection
-                conn.setCommandProcessor(new ServerCommandProcessor(this.rServerService, this.rAuthService));
+//                conn.setCommandProcessor(new ServerCommandProcessor(rServerService, rAuthService, rServerAuthService, rBroadcastService));
             } else {
                 log.error("Authentication for incoming connection failed");
                 ICommand authFailCommand = new AuthenticationFailCommand("Secret was incorrect.");

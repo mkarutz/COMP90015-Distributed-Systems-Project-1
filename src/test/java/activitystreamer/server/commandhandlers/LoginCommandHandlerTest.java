@@ -48,6 +48,7 @@ public class LoginCommandHandlerTest {
     public void ifTheUserIsRegisteredALoginSuccessCommandIsSent() {
         UserAuthService authService = mock(UserAuthService.class);
         when(authService.isUserRegistered(anyString(), anyString())).thenReturn(true);
+        when(authService.login(any(Connection.class), anyString(), anyString())).thenReturn(true);
 
         RemoteServerStateService serverStateService = mock(RemoteServerStateService.class);
 
@@ -69,6 +70,7 @@ public class LoginCommandHandlerTest {
     public void ifThereIsAServerToRedirectToThenARedirectCommandIsSent() {
         UserAuthService authService = mock(UserAuthService.class);
         when(authService.isUserRegistered(anyString(), anyString())).thenReturn(true);
+        when(authService.login(any(Connection.class), anyString(), anyString())).thenReturn(true);
 
         ServerState mockServer = mock(ServerState.class);
 
@@ -94,6 +96,7 @@ public class LoginCommandHandlerTest {
     public void ifTheUserIsNotRegisteredALoginFailedCommandIsSent() {
         UserAuthService authService = mock(UserAuthService.class);
         when(authService.isUserRegistered(anyString(), anyString())).thenReturn(false);
+        when(authService.login(any(Connection.class), anyString(), anyString())).thenReturn(false);
 
         RemoteServerStateService serverStateService = mock(RemoteServerStateService.class);
 

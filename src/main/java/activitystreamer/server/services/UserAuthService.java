@@ -4,13 +4,14 @@ import java.util.*;
 
 import activitystreamer.core.shared.Connection;
 import activitystreamer.core.command.*;
+import activitystreamer.util.Settings;
 
 public class UserAuthService implements IUserAuthService {
+    private final RemoteServerStateService rServerService;
+    private final ICommandBroadcaster rBroadcastService;
     private Map<Connection, String> loggedInUsers;
     private Map<String, String> userMap;
     private Map<String, LockRequest> pendingLockRequests;
-    private final RemoteServerStateService rServerService;
-    private final ICommandBroadcaster rBroadcastService;
 
     public UserAuthService(RemoteServerStateService rServerService,
                            ICommandBroadcaster rBroadcastService) {
@@ -22,20 +23,7 @@ public class UserAuthService implements IUserAuthService {
         this.loggedInUsers = new HashMap<>();
     }
 
-    public synchronized boolean isUserRegistered(String username, String secret) {
-        return !(username == null || secret == null) && secret.equals(userMap.get(username));
-    }
-
-    public synchronized boolean isLoggedIn(Connection conn) {
-        return loggedInUsers.containsKey(conn);
-    }
-
-    public synchronized boolean authorise(Connection conn, String username, String secret) {
-        return isLoggedIn(conn) && username != null
-                && (ANONYMOUS.equals(username)
-                || secret != null && secret.equals(userMap.get(loggedInUsers.get(conn))));
-    }
-
+    @Override
     public synchronized boolean login(Connection conn, String username, String secret) {
         if (!isUserRegistered(username, secret)) {
             return false;
@@ -44,10 +32,12 @@ public class UserAuthService implements IUserAuthService {
         return true;
     }
 
+    @Override
     public synchronized void loginAsAnonymous(Connection conn) {
         loggedInUsers.put(conn, ANONYMOUS);
     }
 
+    @Override
     public synchronized boolean register(String username, String secret, Connection replyConnection) {
         if (userMap.containsKey(username) || pendingLockRequests.containsKey(username)) {
             return false;
@@ -70,6 +60,24 @@ public class UserAuthService implements IUserAuthService {
         rBroadcastService.broadcast(new LockRequestCommand(username, secret));
     }
 
+    @Override
+    public synchronized boolean isUserRegistered(String username, String secret) {
+        return !(username == null || secret == null) && secret.equals(userMap.get(username));
+    }
+
+    @Override
+    public synchronized boolean isLoggedIn(Connection conn) {
+        return loggedInUsers.containsKey(conn);
+    }
+
+    @Override
+    public synchronized boolean authorise(Connection conn, String username, String secret) {
+        return isLoggedIn(conn) && username != null
+                && (ANONYMOUS.equals(username)
+                || secret != null && secret.equals(userMap.get(loggedInUsers.get(conn))));
+    }
+
+    @Override
     public synchronized void lockAllowed(String username, String secret, String serverId) {
         if (pendingLockRequests.containsKey(username)) {
             LockRequest lockRequest = pendingLockRequests.get(username);
@@ -87,19 +95,16 @@ public class UserAuthService implements IUserAuthService {
         }
     }
 
-    public synchronized LockRequestResult lockRequest(String username, String secret) {
+    @Override
+    public synchronized void lockRequest(String username, String secret) {
         if (userMap.containsKey(username)) {
-            if (!userMap.get(username).equals(secret)) {
-                return LockRequestResult.FAIL_USERNAME_TAKEN;
-            } else {
-                return LockRequestResult.FAIL_ALREADY_REGISTERED;
-            }
+            rBroadcastService.broadcast(new LockDeniedCommand(username, secret));
         } else {
-            userMap.put(username, secret);
-            return LockRequestResult.SUCCESS;
+            rBroadcastService.broadcast(new LockAllowedCommand(username, secret, Settings.getId()));
         }
     }
 
+    @Override
     public synchronized void lockDenied(String username, String secret) {
         // Check if locally instigated, because we need to notify local client
         // that originally sent the request

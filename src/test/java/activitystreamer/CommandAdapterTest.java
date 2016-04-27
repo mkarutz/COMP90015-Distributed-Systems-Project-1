@@ -3,33 +3,36 @@ package activitystreamer;
 import activitystreamer.core.command.*;
 import com.google.gson.*;
 import org.junit.Test;
+
 import java.lang.reflect.Type;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+
 import static org.mockito.Mockito.*;
 import static org.junit.Assert.*;
 
 public class CommandAdapterTest {
-  @Test
-  public void testUnexpectedFieldAreIgnored() {
-      Class<ICommand> type = ICommand.class;
+    @Test
+    public void testUnexpectedFieldAreIgnored() {
+        Class<ICommand> type = ICommand.class;
 
-      Gson gson = new GsonBuilder()
-              .registerTypeAdapter(type, new CommandAdapter())
-              .registerTypeAdapter(JsonObject.class, new JsonObjectAdapter())
-              .create();
+        Gson gson = new GsonBuilder()
+                .registerTypeAdapter(type, new CommandAdapter())
+                .registerTypeAdapter(JsonObject.class, new JsonObjectAdapter())
+                .create();
 
 
-      AuthenticateCommand expected = new AuthenticateCommand("hvsdjhabvjdhvadsas3");
+        AuthenticateCommand expected = new AuthenticateCommand("hvsdjhabvjdhvadsas3");
 
-      String msg = "{\"command\":\"AUTHENTICATE\",\"secret\":\"hvsdjhabvjdhvadsas3\",\"unexpected\":9000}";
-      JsonObject elem = new JsonParser().parse(msg).getAsJsonObject();
-      ICommand actual = gson.fromJson(elem, type);
+        String msg = "{\"command\":\"AUTHENTICATE\",\"secret\":\"hvsdjhabvjdhvadsas3\",\"unexpected\":9000}";
+        JsonObject elem = new JsonParser().parse(msg).getAsJsonObject();
+        ICommand actual = gson.fromJson(elem, type);
 
-      // System.out.println(((ActivityBroadcastCommand)actual).getActivity().toString());
+        // System.out.println(((ActivityBroadcastCommand)actual).getActivity().toString());
 
-      assertEquals(expected, actual);
-  }
+        assertEquals(expected, actual);
+    }
+
     @Test
     public void testMissingFieldsAreNull() {
         Class<ICommand> type = ICommand.class;
@@ -64,7 +67,7 @@ public class CommandAdapterTest {
         JsonObject elem = new JsonParser().parse(msg).getAsJsonObject();
         ICommand actual = gson.fromJson(elem, type);
 
-        System.out.println(((ActivityBroadcastCommand)actual).getActivity().toString());
+        System.out.println(((ActivityBroadcastCommand) actual).getActivity().toString());
 
         assertEquals(expected, actual);
     }
