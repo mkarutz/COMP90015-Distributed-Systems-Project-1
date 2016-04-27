@@ -26,7 +26,7 @@ public class LockRequestCommandHandler implements ICommandHandler {
             // Register lock request with auth service
             UserAuthService.LockRequestResult r = rAuthService.putLockRequest(lCommand.getUsername(), lCommand.getSecret());
             if (r == UserAuthService.LockRequestResult.SUCCESS) {
-                // TODO: Send lock accept
+                // TODO: Send lock allowed
             } else {
                 // TODO: Send lock denied
             }

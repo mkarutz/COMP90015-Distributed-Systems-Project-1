@@ -12,12 +12,13 @@ public class ServerCommandProcessor extends CommandProcessor {
 
         incomingHandlers.add(new ActivityBroadcastCommandHandler(rClientRefService));
         incomingHandlers.add(new LoginSuccessCommandHandler());
-        //handlers.add(new LoginFailedCommandHandler());
-        //handlers.add(new LoginSuccessCommandHandler());
-        //handlers.add(new RedirectCommandHandler());
+        incomingHandlers.add(new LoginFailedCommandHandler());
+        incomingHandlers.add(new RegisterSuccessCommandHandler());
+        incomingHandlers.add(new RegisterFailedCommandHandler());
 
         outgoingHandlers.add(new LoginCommandHandler());
         outgoingHandlers.add(new LogoutCommandHandler());
+        outgoingHandlers.add(new RegisterCommandHandler());
         outgoingHandlers.add(new ActivityMessageCommandHandler());
     }
 }

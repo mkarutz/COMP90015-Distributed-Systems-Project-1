@@ -25,10 +25,11 @@ public class RegisterCommandHandler implements ICommandHandler {
             if (!result) {
                 ICommand cmd = new RegisterFailedCommand("Username " + registerCommand.getUsername() + " already registered locally");
                 conn.pushCommand(cmd);
+                conn.close();
             } else {
                 // Broadcast lock requests
                 ICommand cmd = new LockRequestCommand(registerCommand.getUsername(), registerCommand.getSecret());
-                conn.getCommandBroadcaster().pushCommand(cmd);
+                conn.getCommandBroadcaster().broadcast(cmd, conn);
             }
 
             return true;

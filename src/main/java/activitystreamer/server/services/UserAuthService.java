@@ -77,8 +77,6 @@ public class UserAuthService {
 
         LocalLockRequest req = new LocalLockRequest(secret, knownServerIds, replyConnection);
         userLocalLockRequestMap.put(username, req);
-        // Also put normal lock request (?)
-        //putLockRequest(username, secret);
 
         return true;
     }
@@ -93,6 +91,8 @@ public class UserAuthService {
                 // Original user needs to be notified
                 LocalLockRequest req = userLocalLockRequestMap.get(username);
                 userLocalLockRequestMap.remove(username); // Remove record
+
+                userMap.put(username, secret);
 
                 ICommand cmd = new RegisterSuccessCommand("Username " + username + " successfully registered");
                 req.getReplyConnection().pushCommand(cmd);

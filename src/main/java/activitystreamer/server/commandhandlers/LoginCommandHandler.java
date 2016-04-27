@@ -25,6 +25,7 @@ public class LoginCommandHandler implements ICommandHandler {
 
             if (rAuthService.isUserRegistered(loginCommand.getUsername(), loginCommand.getSecret())) {
                 sendLoginSuccess(conn, loginCommand.getUsername());
+                conn.setCommandProcessor(new ClientCommandProcessor(rAuthService)); // Switch to handle client connection
                 loadBalance(conn);
             } else {
                 LoginFailedCommand cmd = new LoginFailedCommand("Username or secret incorrect");
