@@ -26,8 +26,7 @@ public class LoginCommandHandler implements ICommandHandler {
             LoginCommand loginCommand = (LoginCommand) command;
 
             if (loginCommand.getUsername() == null) {
-                InvalidMessageCommand cmd = new InvalidMessageCommand("Username must be present.");
-                conn.pushCommand(cmd);
+                conn.pushCommand(new InvalidMessageCommand("Username must be present."));
                 conn.close();
                 return true;
             }
@@ -40,13 +39,18 @@ public class LoginCommandHandler implements ICommandHandler {
                 return true;
             }
 
+            if (loginCommand.getSecret() == null) {
+                conn.pushCommand(new InvalidMessageCommand("Secret must be present."));
+                conn.close();
+                return true;
+            }
+
             if (rAuthService.login(conn, loginCommand.getUsername(), loginCommand.getSecret())) {
                 sendLoginSuccess(conn, loginCommand.getUsername());
                 conn.setCommandProcessor(new ClientCommandProcessor(rAuthService, rBroadcastService));
                 loadBalance(conn);
             } else {
-                LoginFailedCommand cmd = new LoginFailedCommand("Username or secret incorrect");
-                conn.pushCommand(cmd);
+                conn.pushCommand(new LoginFailedCommand("Username or secret incorrect"));
                 conn.close();
             }
 
