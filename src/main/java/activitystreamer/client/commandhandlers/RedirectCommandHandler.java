@@ -3,17 +3,26 @@ package activitystreamer.client.commandhandlers;
 import activitystreamer.core.command.*;
 import activitystreamer.core.commandhandler.ICommandHandler;
 import activitystreamer.core.shared.Connection;
-import activitystreamer.client.services.*;
+import activitystreamer.server.ClientSolution;
+import activitystreamer.util.Settings;
 
 public class RedirectCommandHandler implements ICommandHandler {
+    private ClientSolution clientSolution;
+
+    public RedirectCommandHandler(ClientSolution clientSolution) {
+        this.clientSolution = clientSolution;
+    }
+
     @Override
     public boolean handleCommandIncoming(ICommand command, Connection conn) {
         if (command instanceof RedirectCommand) {
-            RedirectCommand redirectCommand = (RedirectCommand)command;
+            RedirectCommand redirectCommand = (RedirectCommand) command;
 
-            // TODO: Client should close connection and reconnect via the
-            // supplied host name/port as according to the spec Page 4, under
-            // "REDIRECT" heading
+            Settings.setRemoteHostname(redirectCommand.getHostname().getHostName());
+            Settings.setRemotePort(redirectCommand.getPort());
+
+            conn.close();
+            clientSolution.initiateConnection();
 
             return true;
         } else {
