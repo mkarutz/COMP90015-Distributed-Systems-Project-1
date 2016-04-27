@@ -28,12 +28,6 @@ public class ActivityBroadcastCommandHandler implements ICommandHandler {
 
     @Override
     public boolean handleCommandOutgoing(ICommand command, Connection conn) {
-        if (command instanceof ActivityBroadcastCommand) {
-            conn.pushCommandDirect(command);
-
-            return true;
-        } else {
-            return false;
-        }
+        return false;
     }
 }

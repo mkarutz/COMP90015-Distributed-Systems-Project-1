@@ -6,6 +6,7 @@ import activitystreamer.core.commandprocessor.*;
 import activitystreamer.core.shared.Connection;
 import activitystreamer.server.ServerState;
 import activitystreamer.server.services.*;
+import activitystreamer.server.commandprocessors.*;
 
 public class LoginCommandHandler implements ICommandHandler {
     private final UserAuthService rAuthService;

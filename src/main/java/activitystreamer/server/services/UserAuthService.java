@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.ArrayList;
 import activitystreamer.core.shared.Connection;
+import activitystreamer.core.command.*;
 
 public class UserAuthService {
 
@@ -63,17 +64,23 @@ public class UserAuthService {
         return false;
     }
 
-    public void putLocalLockRequest(String username, String secret, Connection replyConnection) {
-        // TODO: Check that user is not already know locally!!
-        
+    // Returns false if user already registered locally, or lock request already
+    // instigated locally for that username
+    public boolean putLocalLockRequest(String username, String secret, Connection replyConnection) {
+        if (userMap.containsKey(username) || userLocalLockRequestMap.containsKey(username)) {
+            return false;
+        }
+
         // Retrieve current list of server ids from remote server state service
         // These will be used to track which servers have registered lock allowed messages
         List<String> knownServerIds = rServerService.getKnownServerIds();
 
         LocalLockRequest req = new LocalLockRequest(secret, knownServerIds, replyConnection);
         userLocalLockRequestMap.put(username, req);
-        // Also put normal lock request
-        putLockRequest(username, secret);
+        // Also put normal lock request (?)
+        //putLockRequest(username, secret);
+
+        return true;
     }
 
     public void putLockAllowed(String username, String secret, String serverId) {
@@ -81,18 +88,18 @@ public class UserAuthService {
         if (userLocalLockRequestMap.containsKey(username)) {
             boolean allowed = userLocalLockRequestMap.get(username).registerServerAllow(serverId);
 
-            // If allowed, this means all servers have allowed the lock request
-            // Original user needs to be notified
-            LocalLockRequest req = userLocalLockRequestMap.get(username);
-            userLocalLockRequestMap.remove(username); // Remove record
+            if (allowed) {
+                // If allowed, this means all servers have allowed the lock request
+                // Original user needs to be notified
+                LocalLockRequest req = userLocalLockRequestMap.get(username);
+                userLocalLockRequestMap.remove(username); // Remove record
 
-            // TODO
-            //req.getReplyConnection().pushCommand()
+                ICommand cmd = new RegisterSuccessCommand("Username " + username + " successfully registered");
+                req.getReplyConnection().pushCommand(cmd);
+            }
         }
     }
 
-    // Returns false if username is already known to the system with a
-    // different secret (otherwise true)
     public LockRequestResult putLockRequest(String username, String secret) {
         if (userMap.containsKey(username)) {
             if (userMap.get(username) != secret) {
@@ -114,8 +121,8 @@ public class UserAuthService {
             LocalLockRequest req = userLocalLockRequestMap.get(username);
             userLocalLockRequestMap.remove(username);
 
-            // Send DENIED message
-            // TODO
+            ICommand cmd = new RegisterFailedCommand("Username " + username + " already registered");
+            req.getReplyConnection().pushCommand(cmd);
         }
 
         if (this.userMap.containsKey(username) && this.userMap.get(username) == secret) {

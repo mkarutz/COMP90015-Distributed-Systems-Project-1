@@ -24,7 +24,12 @@ public class LockRequestCommandHandler implements ICommandHandler {
             LockRequestCommand lCommand = (LockRequestCommand)command;
 
             // Register lock request with auth service
-            rAuthService.putLockRequest(lCommand.getUsername(), lCommand.getSecret());
+            UserAuthService.LockRequestResult r = rAuthService.putLockRequest(lCommand.getUsername(), lCommand.getSecret());
+            if (r == UserAuthService.LockRequestResult.SUCCESS) {
+                // TODO: Send lock accept
+            } else {
+                // TODO: Send lock denied
+            }
 
             // Broadcast out
             conn.getCommandBroadcaster().broadcast(lCommand, conn);

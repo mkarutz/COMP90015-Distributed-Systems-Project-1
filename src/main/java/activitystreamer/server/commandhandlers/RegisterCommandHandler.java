@@ -20,7 +20,16 @@ public class RegisterCommandHandler implements ICommandHandler {
             RegisterCommand registerCommand = (RegisterCommand) command;
 
             // User is attempting to register
-            rAuthService.putLocalLockRequest(registerCommand.getUsername(), registerCommand.getSecret(), conn);
+            boolean result = rAuthService.putLocalLockRequest(registerCommand.getUsername(), registerCommand.getSecret(), conn);
+
+            if (!result) {
+                ICommand cmd = new RegisterFailedCommand("Username " + registerCommand.getUsername() + " already registered locally");
+                conn.pushCommand(cmd);
+            } else {
+                // Broadcast lock requests
+                ICommand cmd = new LockRequestCommand(registerCommand.getUsername(), registerCommand.getSecret());
+                conn.getCommandBroadcaster().pushCommand(cmd);
+            }
 
             return true;
         } else {
