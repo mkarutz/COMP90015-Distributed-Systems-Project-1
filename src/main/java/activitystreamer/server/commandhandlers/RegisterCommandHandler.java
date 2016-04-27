@@ -2,7 +2,6 @@ package activitystreamer.server.commandhandlers;
 
 import activitystreamer.core.command.*;
 import activitystreamer.core.commandhandler.*;
-import activitystreamer.core.commandprocessor.*;
 import activitystreamer.core.shared.Connection;
 import activitystreamer.server.services.*;
 
@@ -20,7 +19,7 @@ public class RegisterCommandHandler implements ICommandHandler {
             RegisterCommand registerCommand = (RegisterCommand) command;
 
             // User is attempting to register
-            boolean result = rAuthService.putLocalLockRequest(registerCommand.getUsername(), registerCommand.getSecret(), conn);
+            boolean result = rAuthService.register(registerCommand.getUsername(), registerCommand.getSecret(), conn);
 
             if (!result) {
                 ICommand cmd = new RegisterFailedCommand("Username " + registerCommand.getUsername() + " already registered locally");

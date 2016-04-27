@@ -1,9 +1,6 @@
 package activitystreamer.server.commandhandlers;
 
-import activitystreamer.core.command.LoginCommand;
-import activitystreamer.core.command.LoginFailedCommand;
-import activitystreamer.core.command.LoginSuccessCommand;
-import activitystreamer.core.command.RedirectCommand;
+import activitystreamer.core.command.*;
 import activitystreamer.core.shared.Connection;
 import activitystreamer.server.ServerState;
 import activitystreamer.server.services.RemoteServerStateService;
@@ -13,6 +10,36 @@ import org.junit.Test;
 import static org.mockito.Mockito.*;
 
 public class LoginCommandHandlerTest {
+    @Test
+    public void aUsernameMustBePreset() {
+        UserAuthService mockAuthService = mock(UserAuthService.class);
+        RemoteServerStateService mockRemoteServerStateService = mock(RemoteServerStateService.class);
+
+        LoginCommandHandler handler = new LoginCommandHandler(mockAuthService, mockRemoteServerStateService);
+
+        LoginCommand cmd = mock(LoginCommand.class);
+        when(cmd.getUsername()).thenReturn(null);
+
+        Connection conn = mock(Connection.class);
+        handler.handleCommandIncoming(cmd, conn);
+
+        verify(conn).pushCommand(isA(InvalidMessageCommand.class));
+        verify(conn).close();
+    }
+
+    @Test
+    public void ifTheUsernameIsAnonymousThenTheUsernameIsIgnored() {
+        UserAuthService mockAuthService = mock(UserAuthService.class);
+        RemoteServerStateService mockRemoteServerStateService = mock(RemoteServerStateService.class);
+
+        LoginCommandHandler handler = new LoginCommandHandler(mockAuthService, mockRemoteServerStateService);
+
+        LoginCommand cmd = mock(LoginCommand.class);
+        when(cmd.getUsername()).thenReturn("anonymous");
+
+        verify(cmd, never()).getSecret();
+    }
+
     @Test
     public void ifTheUserIsRegisteredALoginSuccessCommandIsSent() {
         UserAuthService authService = mock(UserAuthService.class);
@@ -65,6 +92,9 @@ public class LoginCommandHandlerTest {
         LoginCommandHandler handler = new LoginCommandHandler(authService, serverStateService);
 
         LoginCommand cmd = mock(LoginCommand.class);
+        when(cmd.getUsername()).thenReturn("username");
+        when(cmd.getSecret()).thenReturn("password");
+
         Connection conn = mock(Connection.class);
 
         handler.handleCommandIncoming(cmd, conn);

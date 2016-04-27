@@ -2,9 +2,7 @@ package activitystreamer.server.commandhandlers;
 
 import activitystreamer.core.command.*;
 import activitystreamer.core.commandhandler.*;
-import activitystreamer.core.commandprocessor.*;
 import activitystreamer.core.shared.Connection;
-import activitystreamer.util.Settings;
 import activitystreamer.server.services.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -24,7 +22,7 @@ public class LockRequestCommandHandler implements ICommandHandler {
             LockRequestCommand lCommand = (LockRequestCommand)command;
 
             // Register lock request with auth service
-            UserAuthService.LockRequestResult r = rAuthService.putLockRequest(lCommand.getUsername(), lCommand.getSecret());
+            UserAuthService.LockRequestResult r = rAuthService.lockRequest(lCommand.getUsername(), lCommand.getSecret());
             if (r == UserAuthService.LockRequestResult.SUCCESS) {
                 // TODO: Send lock allowed
             } else {

@@ -1,96 +1,81 @@
 package activitystreamer.server.services;
 
-import java.util.Map;
-import java.util.HashMap;
-import java.util.List;
-import java.util.ArrayList;
+import java.util.*;
+
 import activitystreamer.core.shared.Connection;
 import activitystreamer.core.command.*;
 
 public class UserAuthService {
+    public static final String ANONYMOUS = "anonymous";
 
-    // Note, inner class is only used internally, hence private
-    private static class LocalLockRequest {
-        private String secret;
-        private Connection replyConnection;
-        private List<String> serverAwaitingIds;
-
-        public LocalLockRequest(String secret, List<String> serverAwaitingIds, Connection replyConnection) {
-            this.secret = secret;
-            this.replyConnection = replyConnection;
-            this.serverAwaitingIds = serverAwaitingIds;
-        }
-
-        public boolean registerServerAllow(String serverId) {
-            // If server allows a lock request, remove it from awaiting list
-            serverAwaitingIds.remove(serverId);
-
-            // If list empty, then lock request is OK
-            if (serverAwaitingIds.size() == 0) {
-                return true;
-            }
-            return false;
-        }
-
-        public Connection getReplyConnection() {
-            return this.replyConnection;
-        }
-    }
-
-    public enum LockRequestResult {
-        SUCCESS,
-        FAIL_ALREADY_REGISTERED,
-        FAIL_USERNAME_TAKEN
-    }
-
-    // Private service trackers/hash maps
-    private RemoteServerStateService          rServerService;
-
-    private HashMap<String, String>           userMap;
-    private HashMap<String, LocalLockRequest> userLocalLockRequestMap;
+    private Map<Connection, String> loggedInUsers;
+    private Map<String, String> userMap;
+    private Map<String, LockRequest> pendingLockRequests;
+    private final RemoteServerStateService rServerService;
 
     public UserAuthService(RemoteServerStateService rServerService) {
         this.rServerService = rServerService;
-        this.userMap = new HashMap<String, String>();
-        this.userLocalLockRequestMap = new HashMap<String, LocalLockRequest>();
+        this.userMap = new HashMap<>();
+        this.pendingLockRequests = new HashMap<>();
+        this.loggedInUsers = new HashMap<>();
     }
 
-    public boolean isUserRegistered(String username, String secret) {
-        if (userMap.containsKey(username)) {
-            if (userMap.get(username) == secret) {
-                return true;
-            }
-        }
-        return false;
+    public synchronized boolean isUserRegistered(String username, String secret) {
+        return !(username == null || secret == null) && secret.equals(userMap.get(username));
     }
 
-    // Returns false if user already registered locally, or lock request already
-    // instigated locally for that username
-    public boolean putLocalLockRequest(String username, String secret, Connection replyConnection) {
-        if (userMap.containsKey(username) || userLocalLockRequestMap.containsKey(username)) {
+    public synchronized boolean isLoggedIn(Connection conn) {
+        return loggedInUsers.containsKey(conn);
+    }
+
+    public synchronized boolean authorise(Connection conn, String username, String secret) {
+        return isLoggedIn(conn) && username != null
+                && (ANONYMOUS.equals(username)
+                || secret != null && secret.equals(userMap.get(loggedInUsers.get(conn))));
+    }
+
+    public synchronized boolean login(Connection conn, String username, String secret) {
+        if (!isUserRegistered(username, secret)) {
             return false;
         }
-
-        // Retrieve current list of server ids from remote server state service
-        // These will be used to track which servers have registered lock allowed messages
-        List<String> knownServerIds = rServerService.getKnownServerIds();
-
-        LocalLockRequest req = new LocalLockRequest(secret, knownServerIds, replyConnection);
-        userLocalLockRequestMap.put(username, req);
-
+        loggedInUsers.put(conn, username);
         return true;
     }
 
-    public void putLockAllowed(String username, String secret, String serverId) {
-        // Only put if locally instigated
-        if (userLocalLockRequestMap.containsKey(username)) {
-            boolean allowed = userLocalLockRequestMap.get(username).registerServerAllow(serverId);
+    public synchronized void loginAsAnonymous(Connection conn) {
+        loggedInUsers.put(conn, ANONYMOUS);
+    }
+
+    public synchronized boolean register(String username, String secret, Connection replyConnection) {
+        if (userMap.containsKey(username) || pendingLockRequests.containsKey(username)) {
+            return false;
+        }
+
+        sendLockRequest(username, secret, replyConnection);
+        return true;
+    }
+
+    private void sendLockRequest(String username, String secret, Connection replyConnection) {
+        synchronized (rServerService) {
+            List<String> knownServerIds = rServerService.getKnownServerIds();
+            Set<String> waitingServers = new HashSet<>();
+            for (String serverId: knownServerIds) {
+                waitingServers.add(serverId);
+            }
+
+            LockRequest req = new LockRequest(secret, waitingServers, replyConnection);
+            pendingLockRequests.put(username, req);
+        }
+    }
+
+    public synchronized void lockAllowed(String username, String secret, String serverId) {
+        if (pendingLockRequests.containsKey(username)) {
+            LockRequest lockRequest = pendingLockRequests.get(username);
+            boolean allowed = pendingLockRequests.get(username).lockAllow(serverId);
 
             if (allowed) {
-                // If allowed, this means all servers have allowed the lock request
-                // Original user needs to be notified
-                LocalLockRequest req = userLocalLockRequestMap.get(username);
-                userLocalLockRequestMap.remove(username); // Remove record
+                LockRequest req = pendingLockRequests.get(username);
+                pendingLockRequests.remove(username);
 
                 userMap.put(username, secret);
 
@@ -100,26 +85,25 @@ public class UserAuthService {
         }
     }
 
-    public LockRequestResult putLockRequest(String username, String secret) {
+    public synchronized LockRequestResult lockRequest(String username, String secret) {
         if (userMap.containsKey(username)) {
-            if (userMap.get(username) != secret) {
+            if (!userMap.get(username).equals(secret)) {
                 return LockRequestResult.FAIL_USERNAME_TAKEN;
             } else {
                 return LockRequestResult.FAIL_ALREADY_REGISTERED;
             }
         } else {
-            // Register lock
             userMap.put(username, secret);
             return LockRequestResult.SUCCESS;
         }
     }
 
-    public void putLockDenied(String username, String secret) {
+    public synchronized void lockDenied(String username, String secret) {
         // Check if locally instigated, because we need to notify local client
         // that originally sent the request
-        if (userLocalLockRequestMap.containsKey(username)) {
-            LocalLockRequest req = userLocalLockRequestMap.get(username);
-            userLocalLockRequestMap.remove(username);
+        if (pendingLockRequests.containsKey(username)) {
+            LockRequest req = pendingLockRequests.get(username);
+            pendingLockRequests.remove(username);
 
             ICommand cmd = new RegisterFailedCommand("Username " + username + " already registered");
             req.getReplyConnection().pushCommand(cmd);
@@ -127,6 +111,33 @@ public class UserAuthService {
 
         if (this.userMap.containsKey(username) && this.userMap.get(username) == secret) {
             userMap.remove(username);
+        }
+    }
+
+    public enum LockRequestResult {
+        SUCCESS,
+        FAIL_ALREADY_REGISTERED,
+        FAIL_USERNAME_TAKEN
+    }
+
+    private static class LockRequest {
+        private String secret;
+        private Connection replyConnection;
+        private Set<String> serverAwaitingIds;
+
+        public LockRequest(String secret, Set<String> serverAwaitingIds, Connection replyConnection) {
+            this.secret = secret;
+            this.replyConnection = replyConnection;
+            this.serverAwaitingIds = serverAwaitingIds;
+        }
+
+        public boolean lockAllow(String serverId) {
+            serverAwaitingIds.remove(serverId);
+            return serverAwaitingIds.isEmpty();
+        }
+
+        public Connection getReplyConnection() {
+            return this.replyConnection;
         }
     }
 }

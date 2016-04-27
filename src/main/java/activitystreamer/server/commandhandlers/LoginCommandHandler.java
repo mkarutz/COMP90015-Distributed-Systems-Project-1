@@ -21,11 +21,23 @@ public class LoginCommandHandler implements ICommandHandler {
     @Override
     public boolean handleCommandIncoming(ICommand command, Connection conn) {
         if (command instanceof LoginCommand) {
-            LoginCommand loginCommand = (LoginCommand)command;
+            LoginCommand loginCommand = (LoginCommand) command;
+
+            if (loginCommand.getUsername() == null) {
+                InvalidMessageCommand cmd = new InvalidMessageCommand("Username must be present.");
+                conn.pushCommand(cmd);
+                conn.close();
+                return true;
+            }
+
+            if (loginCommand.getUsername().equals(UserAuthService.ANONYMOUS)) {
+                rAuthService.loginAsAnonymous(conn);
+                sendLoginSuccess(conn, loginCommand.getUsername());
+            }
 
             if (rAuthService.isUserRegistered(loginCommand.getUsername(), loginCommand.getSecret())) {
                 sendLoginSuccess(conn, loginCommand.getUsername());
-                conn.setCommandProcessor(new ClientCommandProcessor(rAuthService)); // Switch to handle client connection
+                conn.setCommandProcessor(new ClientCommandProcessor(rAuthService));
                 loadBalance(conn);
             } else {
                 LoginFailedCommand cmd = new LoginFailedCommand("Username or secret incorrect");

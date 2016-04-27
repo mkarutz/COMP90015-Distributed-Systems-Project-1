@@ -2,9 +2,7 @@ package activitystreamer.server.commandhandlers;
 
 import activitystreamer.core.command.*;
 import activitystreamer.core.commandhandler.*;
-import activitystreamer.core.commandprocessor.*;
 import activitystreamer.core.shared.Connection;
-import activitystreamer.util.Settings;
 import activitystreamer.server.services.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -24,7 +22,7 @@ public class LockDeniedCommandHandler implements ICommandHandler {
             LockDeniedCommand lCommand = (LockDeniedCommand)command;
 
             // Register lock denied with auth service
-            rAuthService.putLockDenied(lCommand.getUsername(), lCommand.getSecret());
+            rAuthService.lockDenied(lCommand.getUsername(), lCommand.getSecret());
 
             // Broadcast out
             conn.getCommandBroadcaster().broadcast(lCommand, conn);
