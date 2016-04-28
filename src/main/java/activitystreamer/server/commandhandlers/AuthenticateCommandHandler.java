@@ -31,18 +31,25 @@ public class AuthenticateCommandHandler implements ICommandHandler {
     @Override
     public boolean handleCommand(ICommand command, Connection conn) {
         if (command instanceof AuthenticateCommand) {
-            AuthenticateCommand authCommand = (AuthenticateCommand)command;
-            if (Settings.getSecret().equals(authCommand.getSecret())) {
-                /* Incoming server connection authenticated */
-                log.info("Authentication for incoming connection successful");
-                // Dealing with a server connection
-                rConnectionStateService.setConnectionType(conn, ConnectionStateService.ConnectionType.SERVER);
-            } else {
-                log.error("Authentication for incoming connection failed");
-                ICommand authFailCommand = new AuthenticationFailCommand("Secret was incorrect.");
-                conn.pushCommand(authFailCommand);
+            AuthenticateCommand cmd = (AuthenticateCommand) command;
+
+            if (cmd.getSecret() == null) {
+                conn.pushCommand(new InvalidMessageCommand("Secret must be present"));
                 conn.close();
+                return true;
             }
+
+//            if (Settings.getSecret().equals(authCommand.getSecret())) {
+//                /* Incoming server connection authenticated */
+//                log.info("Authentication for incoming connection successful");
+//                // Dealing with a server connection
+//                rConnectionStateService.setConnectionType(conn, ConnectionStateService.ConnectionType.SERVER);
+//            } else {
+//                log.error("Authentication for incoming connection failed");
+//                ICommand authFailCommand = new AuthenticationFailCommand("Secret was incorrect.");
+//                conn.pushCommand(authFailCommand);
+//                conn.close();
+//            }
 
             return true;
         } else {
