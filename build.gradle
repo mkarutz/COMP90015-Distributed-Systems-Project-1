@@ -63,6 +63,10 @@ task testRedirect(type: Exec, dependsOn: ['serverJar','clientJar']) {
 	commandLine 'sh', 'scripts/testRedirect.sh'
 }
 
+task testBadActivity(type: Exec, dependsOn: ['serverJar','clientJar']){
+	commandLine 'sh','scripts/testBadActivityObj.sh'
+}
+
 repositories {
     mavenCentral()
 	jcenter()

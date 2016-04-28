@@ -31,7 +31,7 @@ public class ClientSolution implements Runnable {
 
     //testing for badActivity Object
     // public void sendBadActivityObject() {
-    //     connection.writeLine("{\"command\":\"ACTIVITY_MESSAGE\",\"username\":\"anonymous\",\"secret\":\"\",\"activity\":\"badmsg\"}");
+    //     connection.writeBad("{\"command\":\"ACTIVITY_MESSAGE\",\"username\":\"anonymous\",\"secret\":\"\",\"activity\":\"asdasd\"}");
     // }
 
     // called by the gui when the user clicks "send"

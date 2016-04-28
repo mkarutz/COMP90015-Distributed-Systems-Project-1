@@ -57,6 +57,8 @@ public class Connection implements Closeable, Runnable {
                 term = true;
             } catch (JsonParseException e) {
                 log.error("Invalid message. Closing connection.");
+                ICommand cmd = new InvalidMessageCommand("Expecting Json Object");
+                this.pushCommand(cmd);
                 term = true;
             }
         }
@@ -148,4 +150,9 @@ public class Connection implements Closeable, Runnable {
     public synchronized boolean isOpen() {
         return open;
     }
+
+    //testing Bad msgs
+    // public void writeBad(String msg){
+    //     this.writeLine(msg);
+    // }
 }

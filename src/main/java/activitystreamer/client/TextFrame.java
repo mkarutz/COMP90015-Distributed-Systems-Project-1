@@ -91,6 +91,8 @@ public class TextFrame extends JFrame implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent e) {
         if (e.getSource() == sendButton) {
+            //sendBadActivityObject is only for testing
+            // client.sendBadActivityObject();
             String msg = inputText.getText().trim().replaceAll("\r", "").replaceAll("\n", "").replaceAll("\t", "");
             JsonObject obj;
             try {
@@ -98,9 +100,6 @@ public class TextFrame extends JFrame implements ActionListener {
                 client.sendActivityObject(obj);
             } catch (JsonParseException e1) {
                 log.error("invalid JSON object entered into input text field, data not sent");
-                //for testing
-                //see how our servers handle bad activity objects
-                // client.sendBadActivityObject();
             }
 
         } else if (e.getSource() == disconnectButton) {
