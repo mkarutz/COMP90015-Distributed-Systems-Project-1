@@ -27,7 +27,7 @@ public class LockAllowedCommandHandler implements ICommandHandler {
             rAuthService.lockAllowed(lCommand.getUsername(), lCommand.getSecret(), lCommand.getServerId());
 
             // Broadcast out
-            rConnectionStateService.broadcastToAll(lCommand, conn);
+            rConnectionStateService.broadcastToServers(lCommand, conn);
 
             return true;
         } else {

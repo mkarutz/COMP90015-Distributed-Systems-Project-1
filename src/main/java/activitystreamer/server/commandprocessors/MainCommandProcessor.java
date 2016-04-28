@@ -23,5 +23,6 @@ public class MainCommandProcessor extends CommandProcessor {
         handlers.add(new LoginCommandHandler(rUserAuthService, rServerService, rConnectionStateService));
         handlers.add(new RegisterCommandHandler(rUserAuthService));
         handlers.add(new ServerAnnounceCommandHandler(rServerService, rConnectionStateService));
+        handlers.add(new LogoutCommandHandler());
     }
 }

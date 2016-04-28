@@ -55,9 +55,13 @@ public class UserAuthService implements IUserAuthService {
                 waitingServers.add(serverId);
             }
         }
+
+        if (waitingServers.isEmpty()){
+            registerUser(username,secret,replyConnection);
+        }
         LockRequest req = new LockRequest(secret, waitingServers, replyConnection);
         pendingLockRequests.put(username, req);
-        rConnectionStateService.broadcastToAll(new LockRequestCommand(username, secret), null);
+        rConnectionStateService.broadcastToServers(new LockRequestCommand(username, secret), null);
     }
 
     @Override
@@ -87,10 +91,7 @@ public class UserAuthService implements IUserAuthService {
                 LockRequest req = pendingLockRequests.get(username);
                 pendingLockRequests.remove(username);
 
-                userMap.put(username, secret);
-
-                ICommand cmd = new RegisterSuccessCommand("Username " + username + " successfully registered");
-                req.getReplyConnection().pushCommand(cmd);
+                registerUser(username,secret,req.getReplyConnection());
             }
         }
     }
@@ -98,9 +99,9 @@ public class UserAuthService implements IUserAuthService {
     @Override
     public synchronized void lockRequest(String username, String secret) {
         if (userMap.containsKey(username)) {
-            rConnectionStateService.broadcastToAll(new LockDeniedCommand(username, secret), null);
+            rConnectionStateService.broadcastToServers(new LockDeniedCommand(username, secret), null);
         } else {
-            rConnectionStateService.broadcastToAll(new LockAllowedCommand(username, secret, Settings.getId()), null);
+            rConnectionStateService.broadcastToServers(new LockAllowedCommand(username, secret, Settings.getId()), null);
         }
     }
 
@@ -121,6 +122,12 @@ public class UserAuthService implements IUserAuthService {
         }
     }
 
+    private synchronized void registerUser(String username,String secret,Connection replyConnection){
+        userMap.put(username, secret);
+
+        ICommand cmd = new RegisterSuccessCommand("Username " + username + " successfully registered");
+        replyConnection.pushCommand(cmd);
+    }
     private static class LockRequest {
         private String secret;
         private Connection replyConnection;

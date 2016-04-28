@@ -11,7 +11,6 @@ public class LogoutCommandHandler implements ICommandHandler {
     @Override
     public boolean handleCommand(ICommand command, Connection conn) {
         if (command instanceof LogoutCommand) {
-            LogoutCommand loginCommand = (LogoutCommand)command;
             conn.close();
 
             return true;

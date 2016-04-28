@@ -37,6 +37,8 @@ public class ClientSolution implements Runnable {
 
     // called by the gui when the user clicks disconnect
     public void disconnect() {
+        ICommand cmd = new LogoutCommand();
+        connection.pushCommand(cmd);
         textFrame.setVisible(false);
     }
 
@@ -75,9 +77,17 @@ public class ClientSolution implements Runnable {
 
     public synchronized Connection outgoingConnection(Socket s) throws IOException {
         log.debug("outgoing connection: " + Settings.socketAddress(s));
-        connection = new Connection(s, new ServerCommandProcessor(rClientRefService), null);
+        connection = new Connection(s, new ServerCommandProcessor(rClientRefService,this), null);
         new Thread(connection).start();
-        ICommand cmd = new LoginCommand(Settings.getUsername(), Settings.getSecret());
+        ICommand cmd=null;
+        if (!Settings.getUsername().equals("anonymous") && Settings.getSecret().equals("")){
+            Settings.setSecret(Settings.nextSecret());
+            cmd = new RegisterCommand(Settings.getUsername(), Settings.getSecret());
+        }
+        else{
+            cmd = new LoginCommand(Settings.getUsername(), Settings.getSecret());
+        }
+
         connection.pushCommand(cmd);
         return connection;
     }

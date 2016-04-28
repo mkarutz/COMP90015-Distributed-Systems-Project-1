@@ -32,7 +32,7 @@ public class Control implements Runnable, IncomingConnectionHandler, ICommandBro
         this.rServerService = new RemoteServerStateService(this);
         this.rConnectionStateService = new ConnectionStateService();
         this.rUserAuthService = new UserAuthService(this.rServerService, rConnectionStateService);
-        this.rServerAuthService = new ServerAuthService();
+        this.rServerAuthService = new ServerAuthService(rConnectionStateService);
         try {
             listener = new Listener(this, Settings.getLocalPort());
         } catch (IOException e1) {
