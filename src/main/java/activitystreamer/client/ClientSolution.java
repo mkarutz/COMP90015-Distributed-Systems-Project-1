@@ -29,6 +29,11 @@ public class ClientSolution implements Runnable {
         textFrame = new TextFrame(this);
     }
 
+    //testing for badActivity Object
+    // public void sendBadActivityObject() {
+    //     connection.writeLine("{\"command\":\"ACTIVITY_MESSAGE\",\"username\":\"anonymous\",\"secret\":\"\",\"activity\":\"badmsg\"}");
+    // }
+
     // called by the gui when the user clicks "send"
     public void sendActivityObject(JsonObject activityObj) {
         ICommand cmd = new ActivityMessageCommand(Settings.getUsername(), Settings.getSecret(), activityObj);

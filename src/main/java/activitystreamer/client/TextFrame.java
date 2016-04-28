@@ -98,6 +98,9 @@ public class TextFrame extends JFrame implements ActionListener {
                 client.sendActivityObject(obj);
             } catch (JsonParseException e1) {
                 log.error("invalid JSON object entered into input text field, data not sent");
+                //for testing
+                //see how our servers handle bad activity objects
+                // client.sendBadActivityObject();
             }
 
         } else if (e.getSource() == disconnectButton) {

@@ -59,8 +59,8 @@ task test1(type: Exec) {
 	commandLine 'sh', 'scripts/test-1.sh'
 }
 
-task test2(type: Exec, dependsOn: ['serverJar','clientJar']) {
-	commandLine 'sh', 'scripts/test2.sh'
+task testRedirect(type: Exec, dependsOn: ['serverJar','clientJar']) {
+	commandLine 'sh', 'scripts/testRedirect.sh'
 }
 
 repositories {
