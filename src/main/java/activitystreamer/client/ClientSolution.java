@@ -46,6 +46,14 @@ public class ClientSolution implements Runnable {
     public void run() {
         initiateConnection();
         while (!term) {
+
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                log.info("received an interrupt, system is shutting down");
+                break;
+            }
+
             // Pop any registered JSON activity objects and send to UI
             JsonObject obj;
             while ((obj = rClientRefService.popActivityJSON()) != null) {
