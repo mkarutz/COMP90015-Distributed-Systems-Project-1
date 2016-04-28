@@ -8,12 +8,12 @@ import com.google.gson.JsonObject;
 
 public class ActivityMessageCommandHandler implements ICommandHandler {
     private UserAuthService rAuthService;
-    private ICommandBroadcaster rBroadcastService;
+    private ConnectionStateService rConnectionStateService;
 
     public ActivityMessageCommandHandler(UserAuthService rAuthService,
-                                         ICommandBroadcaster rBroadcastService) {
+                                         ConnectionStateService rConnectionStateService) {
         this.rAuthService = rAuthService;
-        this.rBroadcastService = rBroadcastService;
+        this.rConnectionStateService = rConnectionStateService;
     }
 
     @Override
@@ -47,7 +47,7 @@ public class ActivityMessageCommandHandler implements ICommandHandler {
 
             JsonObject activity = cmd.getActivity();
             activity.addProperty("authenticated_user", cmd.getUsername());
-            rBroadcastService.broadcast(new ActivityBroadcastCommand(activity), conn);
+            rConnectionStateService.broadcastToAll(new ActivityBroadcastCommand(activity), conn);
 
             return true;
         } else {

@@ -8,15 +8,15 @@ import activitystreamer.util.Settings;
 
 public class UserAuthService implements IUserAuthService {
     private final RemoteServerStateService rServerService;
-    private final ICommandBroadcaster rBroadcastService;
+    private final ConnectionStateService rConnectionStateService;
     private Map<Connection, String> loggedInUsers;
     private Map<String, String> userMap;
     private Map<String, LockRequest> pendingLockRequests;
 
     public UserAuthService(RemoteServerStateService rServerService,
-                           ICommandBroadcaster rBroadcastService) {
+                           ConnectionStateService rConnectionStateService) {
         this.rServerService = rServerService;
-        this.rBroadcastService = rBroadcastService;
+        this.rConnectionStateService = rConnectionStateService;
 
         this.userMap = new HashMap<>();
         this.pendingLockRequests = new HashMap<>();
@@ -57,7 +57,7 @@ public class UserAuthService implements IUserAuthService {
         }
         LockRequest req = new LockRequest(secret, waitingServers, replyConnection);
         pendingLockRequests.put(username, req);
-        rBroadcastService.broadcast(new LockRequestCommand(username, secret));
+        rConnectionStateService.broadcastToAll(new LockRequestCommand(username, secret), null);
     }
 
     @Override
@@ -98,9 +98,9 @@ public class UserAuthService implements IUserAuthService {
     @Override
     public synchronized void lockRequest(String username, String secret) {
         if (userMap.containsKey(username)) {
-            rBroadcastService.broadcast(new LockDeniedCommand(username, secret));
+            rConnectionStateService.broadcastToAll(new LockDeniedCommand(username, secret), null);
         } else {
-            rBroadcastService.broadcast(new LockAllowedCommand(username, secret, Settings.getId()));
+            rConnectionStateService.broadcastToAll(new LockAllowedCommand(username, secret, Settings.getId()), null);
         }
     }
 

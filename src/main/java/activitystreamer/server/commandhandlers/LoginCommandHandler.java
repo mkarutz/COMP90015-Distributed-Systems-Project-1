@@ -10,14 +10,14 @@ import activitystreamer.server.commandprocessors.*;
 public class LoginCommandHandler implements ICommandHandler {
     private final UserAuthService rAuthService;
     private final RemoteServerStateService rServerStateService;
-    private final ICommandBroadcaster rBroadcastService;
+    private final ConnectionStateService rConnectionStateService;
 
     public LoginCommandHandler(UserAuthService rAuthService,
                                RemoteServerStateService rServerStateService,
-                               ICommandBroadcaster rBroadcastService) {
+                               ConnectionStateService rConnectionStateService) {
         this.rAuthService = rAuthService;
         this.rServerStateService = rServerStateService;
-        this.rBroadcastService = rBroadcastService;
+        this.rConnectionStateService = rConnectionStateService;
     }
 
     @Override
@@ -34,7 +34,9 @@ public class LoginCommandHandler implements ICommandHandler {
             if (loginCommand.getUsername().equals(UserAuthService.ANONYMOUS)) {
                 rAuthService.loginAsAnonymous(conn);
                 sendLoginSuccess(conn, loginCommand.getUsername());
-                conn.setCommandProcessor(new ClientCommandProcessor(rAuthService, rBroadcastService));
+                // Dealing with a client connection
+                rConnectionStateService.setConnectionType(conn, ConnectionStateService.ConnectionType.CLIENT);
+
                 loadBalance(conn);
                 return true;
             }
@@ -47,7 +49,9 @@ public class LoginCommandHandler implements ICommandHandler {
 
             if (rAuthService.login(conn, loginCommand.getUsername(), loginCommand.getSecret())) {
                 sendLoginSuccess(conn, loginCommand.getUsername());
-                conn.setCommandProcessor(new ClientCommandProcessor(rAuthService, rBroadcastService));
+                // Dealing with a client connection
+                rConnectionStateService.setConnectionType(conn, ConnectionStateService.ConnectionType.CLIENT);
+
                 loadBalance(conn);
             } else {
                 conn.pushCommand(new LoginFailedCommand("Username or secret incorrect"));

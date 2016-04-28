@@ -23,13 +23,15 @@ public class Control implements Runnable, IncomingConnectionHandler, ICommandBro
 
     private Listener listener;
 
+    private ConnectionStateService rConnectionStateService;
     private RemoteServerStateService rServerService;
     private UserAuthService rUserAuthService;
     private ServerAuthService rServerAuthService;
 
     public Control() {
         this.rServerService = new RemoteServerStateService(this);
-        this.rUserAuthService = new UserAuthService(this.rServerService, this);
+        this.rConnectionStateService = new ConnectionStateService();
+        this.rUserAuthService = new UserAuthService(this.rServerService, rConnectionStateService);
         this.rServerAuthService = new ServerAuthService();
         try {
             listener = new Listener(this, Settings.getLocalPort());
@@ -99,14 +101,17 @@ public class Control implements Runnable, IncomingConnectionHandler, ICommandBro
     @Override
     public synchronized void incomingConnection(Socket s) throws IOException {
         log.debug("incomming connection: " + Settings.socketAddress(s));
-        Connection c = new Connection(s, new PendingCommandProcessor(rServerService, rUserAuthService, rServerAuthService, this), this);
+        Connection c = new Connection(s, new MainCommandProcessor(rServerService, rUserAuthService, rServerAuthService, rConnectionStateService), this);
+        rConnectionStateService.registerConnection(c);
         connections.add(c);
         new Thread(c).start();
     }
 
     public synchronized Connection outgoingConnection(Socket s) throws IOException {
         log.debug("outgoing connection: " + Settings.socketAddress(s));
-        Connection c = new Connection(s, new ServerCommandProcessor(rServerService, rUserAuthService, rServerAuthService, this), this);
+        Connection c = new Connection(s, new MainCommandProcessor(rServerService, rUserAuthService, rServerAuthService, rConnectionStateService), this);
+        rConnectionStateService.registerConnection(c);
+        rConnectionStateService.setConnectionType(c, ConnectionStateService.ConnectionType.SERVER);
         connections.add(c);
         new Thread(c).start();
         ICommand cmd = new AuthenticateCommand(Settings.getSecret());
@@ -143,9 +148,10 @@ public class Control implements Runnable, IncomingConnectionHandler, ICommandBro
             } else {
                 tf = "from:";
             }
-            if (cp instanceof PendingCommandProcessor) {
-                System.out.printf("Connection " + tf + " PENDING  /" + rsaSplit[1] + "\n");
-            } else if (cp instanceof ServerCommandProcessor) {
+            ConnectionStateService.ConnectionType t = this.rConnectionStateService.getConnectionType(c);
+            if (t == ConnectionStateService.ConnectionType.UNKNOWN) {
+                System.out.printf("Connection " + tf + " UNKNOWN  /" + rsaSplit[1] + "\n");
+            } else if (t == ConnectionStateService.ConnectionType.SERVER) {
                 System.out.printf("Connection " + tf + " SERVER   /" + rsaSplit[1] + "\n");
             } else {
                 System.out.printf("Connection " + tf + " CLIENT   /" + rsaSplit[1] + "\n");
@@ -163,7 +169,9 @@ public class Control implements Runnable, IncomingConnectionHandler, ICommandBro
                 Settings.getLocalPort()
             );
 
-            connection.pushCommand(cmd);
+            if (this.rConnectionStateService.getConnectionType(connection) == ConnectionStateService.ConnectionType.SERVER) {
+                connection.pushCommand(cmd);
+            }
         }
     }
 

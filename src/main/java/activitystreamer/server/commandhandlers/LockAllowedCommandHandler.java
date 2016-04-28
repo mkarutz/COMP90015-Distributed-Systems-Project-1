@@ -11,9 +11,11 @@ public class LockAllowedCommandHandler implements ICommandHandler {
     private Logger log = LogManager.getLogger();
 
     private UserAuthService rAuthService;
+    private ConnectionStateService rConnectionStateService;
 
-    public LockAllowedCommandHandler(UserAuthService rAuthService) {
+    public LockAllowedCommandHandler(UserAuthService rAuthService, ConnectionStateService rConnectionStateService) {
         this.rAuthService = rAuthService;
+        this.rConnectionStateService = rConnectionStateService;
     }
 
     @Override
@@ -25,7 +27,7 @@ public class LockAllowedCommandHandler implements ICommandHandler {
             rAuthService.lockAllowed(lCommand.getUsername(), lCommand.getSecret(), lCommand.getServerId());
 
             // Broadcast out
-            conn.getCommandBroadcaster().broadcast(lCommand, conn);
+            rConnectionStateService.broadcastToAll(lCommand, conn);
 
             return true;
         } else {

@@ -16,16 +16,16 @@ public class AuthenticateCommandHandler implements ICommandHandler {
     private RemoteServerStateService rServerService;
     private UserAuthService rUserAuthService;
     private ServerAuthService rServerAuthService;
-    private ICommandBroadcaster rBroadcastService;
+    private ConnectionStateService rConnectionStateService;
 
     public AuthenticateCommandHandler(RemoteServerStateService rServerService,
                                       UserAuthService rUserAuthService,
                                       ServerAuthService rServerAuthService,
-                                      ICommandBroadcaster rBroadcastService) {
+                                      ConnectionStateService rConnectionStateService) {
         this.rServerService = rServerService;
         this.rUserAuthService = rUserAuthService;
         this.rServerAuthService = rServerAuthService;
-        this.rBroadcastService = rBroadcastService;
+        this.rConnectionStateService = rConnectionStateService;
     }
 
     @Override
@@ -36,7 +36,7 @@ public class AuthenticateCommandHandler implements ICommandHandler {
                 /* Incoming server connection authenticated */
                 log.info("Authentication for incoming connection successful");
                 // Dealing with a server connection
-                conn.setCommandProcessor(new ServerCommandProcessor(rServerService, rUserAuthService, rServerAuthService, rBroadcastService));
+                rConnectionStateService.setConnectionType(conn, ConnectionStateService.ConnectionType.SERVER);
             } else {
                 log.error("Authentication for incoming connection failed");
                 ICommand authFailCommand = new AuthenticationFailCommand("Secret was incorrect.");

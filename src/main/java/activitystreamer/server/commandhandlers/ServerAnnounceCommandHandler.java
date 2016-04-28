@@ -14,9 +14,11 @@ public class ServerAnnounceCommandHandler implements ICommandHandler {
     private Logger log = LogManager.getLogger();
 
     private RemoteServerStateService rServerService;
+    private ConnectionStateService rConnectionStateService;
 
-    public ServerAnnounceCommandHandler(RemoteServerStateService rServerService) {
+    public ServerAnnounceCommandHandler(RemoteServerStateService rServerService, ConnectionStateService rConnectionStateService) {
         this.rServerService = rServerService;
+        this.rConnectionStateService = rConnectionStateService;
     }
 
     @Override
@@ -25,7 +27,7 @@ public class ServerAnnounceCommandHandler implements ICommandHandler {
             ServerAnnounceCommand announceCommand = (ServerAnnounceCommand)command;
 
             // Rebroadcast out to all servers
-            conn.getCommandBroadcaster().broadcast(command, conn);
+            rConnectionStateService.broadcastToServers(command, conn);
 
             ServerState ss = new ServerState(announceCommand.getHostname(), announceCommand.getPort(), announceCommand.getLoad());
             this.rServerService.updateState(announceCommand.getId(), ss);

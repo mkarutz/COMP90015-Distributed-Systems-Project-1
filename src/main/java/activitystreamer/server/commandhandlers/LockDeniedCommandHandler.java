@@ -11,9 +11,11 @@ public class LockDeniedCommandHandler implements ICommandHandler {
     private Logger log = LogManager.getLogger();
 
     private UserAuthService rAuthService;
+    private ConnectionStateService rConnectionStateService;
 
-    public LockDeniedCommandHandler(UserAuthService rAuthService) {
+    public LockDeniedCommandHandler(UserAuthService rAuthService, ConnectionStateService rConnectionStateService) {
         this.rAuthService = rAuthService;
+        this.rConnectionStateService = rConnectionStateService;
     }
 
     @Override
@@ -25,7 +27,7 @@ public class LockDeniedCommandHandler implements ICommandHandler {
             rAuthService.lockDenied(lCommand.getUsername(), lCommand.getSecret());
 
             // Broadcast out
-            conn.getCommandBroadcaster().broadcast(lCommand, conn);
+            rConnectionStateService.broadcastToAll(lCommand, conn);
 
             return true;
         } else {
