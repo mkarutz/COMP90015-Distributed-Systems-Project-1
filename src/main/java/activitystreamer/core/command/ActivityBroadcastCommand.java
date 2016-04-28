@@ -10,6 +10,14 @@ public class ActivityBroadcastCommand implements ICommand {
     }
 
     @Override
+    public String filter() {
+        if (activity == null) {
+            return "Activity broadcast command should contain an activity message";
+        }
+        return null;
+    }
+
+    @Override
     public boolean equals(Object obj) {
         return obj instanceof ActivityBroadcastCommand && activity.equals(((ActivityBroadcastCommand) obj).getActivity());
     }

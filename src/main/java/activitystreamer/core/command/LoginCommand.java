@@ -11,6 +11,17 @@ public class LoginCommand implements ICommand {
     }
 
     @Override
+    public String filter() {
+        if (username == null) {
+            return "Login command should contain a username";
+        }
+        if (secret == null) {
+            secret = "";
+        }
+        return null;
+    }
+
+    @Override
     public boolean equals(Object obj) {
         return obj instanceof LoginCommand &&
             username.equals(((LoginCommand) obj).getUsername()) &&

@@ -9,6 +9,14 @@ public class InvalidMessageCommand implements ICommand {
     }
 
     @Override
+    public String filter() {
+        if (info == null) {
+            return "Invalid message command should contain an info field";
+        }
+        return null;
+    }
+
+    @Override
     public boolean equals(Object obj) {
         return obj instanceof InvalidMessageCommand &&
             info.equals(((InvalidMessageCommand) obj).getInfo());

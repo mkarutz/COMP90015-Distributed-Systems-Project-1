@@ -18,9 +18,18 @@ public abstract class CommandProcessor {
     public void processCommandIncoming(Connection connection, ICommand command) {
         boolean handled = false;
         for (ICommandHandler h : handlers) {
-            if (h.handleCommand(command, connection)) {
+            String filterError;
+            if ((filterError = command.filter()) != null) {
+                // There's been a validation issue
+                ICommand invalidCommand = new InvalidMessageCommand(filterError);
+                connection.pushCommand(invalidCommand);
+                connection.close();
                 handled = true;
-                break;
+            } else {
+                if (h.handleCommand(command, connection)) {
+                    handled = true;
+                    break;
+                }
             }
         }
 

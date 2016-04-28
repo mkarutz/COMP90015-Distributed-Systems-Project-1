@@ -11,6 +11,17 @@ public class LockRequestCommand implements ICommand {
     }
 
     @Override
+    public String filter() {
+        if (username == null) {
+            return "Lock request command should contain a username";
+        }
+        if (secret == null) {
+            return "Lock request command should contain a secret";
+        }
+        return null;
+    }
+
+    @Override
     public boolean equals(Object obj) {
         return obj instanceof LockRequestCommand &&
             username.equals(((LockRequestCommand) obj).getUsername()) &&

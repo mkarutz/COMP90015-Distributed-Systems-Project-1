@@ -8,6 +8,14 @@ public class AuthenticationFailCommand implements ICommand {
     }
 
     @Override
+    public String filter() {
+        if (info == null) {
+            return "Authentication fail command should contain an info field";
+        }
+        return null;
+    }
+
+    @Override
     public boolean equals(Object obj) {
         return obj instanceof AuthenticationFailCommand && info.equals(((AuthenticationFailCommand) obj).getInfo());
     }

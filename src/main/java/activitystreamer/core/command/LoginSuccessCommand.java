@@ -9,6 +9,14 @@ public class LoginSuccessCommand implements ICommand {
     }
 
     @Override
+    public String filter() {
+        if (info == null) {
+            return "Login success command should contain an info field";
+        }
+        return null;
+    }
+
+    @Override
     public boolean equals(Object obj) {
         return obj instanceof LoginSuccessCommand &&
             info.equals(((LoginSuccessCommand) obj).getInfo());

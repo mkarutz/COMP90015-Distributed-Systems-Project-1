@@ -8,6 +8,14 @@ public class AuthenticateCommand implements ICommand {
     }
 
     @Override
+    public String filter() {
+        if (secret == null) {
+            secret = "Authenticate command should contain a secret";
+        }
+        return null;
+    }
+
+    @Override
     public boolean equals(Object obj) {
         return obj instanceof AuthenticateCommand && secret.equals(((AuthenticateCommand) obj).getSecret());
     }

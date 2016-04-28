@@ -17,6 +17,17 @@ public class ServerAnnounceCommand implements ICommand {
     }
 
     @Override
+    public String filter() {
+        if (id == null) {
+            return "Server announce command should contain an id field";
+        }
+        if (hostname == null) {
+            return "Server announce command should contain a hostname field";
+        }
+        return null;
+    }
+
+    @Override
     public boolean equals(Object obj) {
         return obj instanceof ServerAnnounceCommand &&
             id.equals(((ServerAnnounceCommand) obj).getId()) &&

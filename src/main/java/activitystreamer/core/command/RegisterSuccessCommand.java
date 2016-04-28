@@ -9,6 +9,14 @@ public class RegisterSuccessCommand implements ICommand {
     }
 
     @Override
+    public String filter() {
+        if (info == null) {
+            return "Register success command should contain an info field";
+        }
+        return null;
+    }
+
+    @Override
     public boolean equals(Object obj) {
         return obj instanceof RegisterSuccessCommand &&
             info.equals(((RegisterSuccessCommand) obj).getInfo());

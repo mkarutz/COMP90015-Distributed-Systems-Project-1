@@ -11,6 +11,17 @@ public class LockDeniedCommand implements ICommand {
     }
 
     @Override
+    public String filter() {
+        if (username == null) {
+            return "Lock denied command should contain a username";
+        }
+        if (secret == null) {
+            return "Lock denied command should contain a secret";
+        }
+        return null;
+    }
+
+    @Override
     public boolean equals(Object obj) {
         return obj instanceof LockDeniedCommand &&
             username.equals(((LockDeniedCommand) obj).getUsername()) &&

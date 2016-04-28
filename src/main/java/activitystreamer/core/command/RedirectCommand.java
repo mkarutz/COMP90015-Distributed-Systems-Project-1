@@ -13,6 +13,14 @@ public class RedirectCommand implements ICommand {
     }
 
     @Override
+    public String filter() {
+        if (hostname == null) {
+            return "Redirect command should contain a hostname";
+        }
+        return null;
+    }
+
+    @Override
     public boolean equals(Object obj) {
         return obj instanceof RedirectCommand &&
             hostname.equals(((RedirectCommand) obj).getHostname()) &&

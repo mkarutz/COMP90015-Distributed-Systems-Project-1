@@ -11,6 +11,17 @@ public class RegisterCommand implements ICommand {
     }
 
     @Override
+    public String filter() {
+        if (username == null) {
+            return "Register command should contain a username field";
+        }
+        if (secret == null) {
+            return "Register command should contain a secret field";
+        }
+        return null;
+    }
+
+    @Override
     public boolean equals(Object obj) {
         return obj instanceof RegisterCommand &&
             username.equals(((RegisterCommand) obj).getUsername()) &&

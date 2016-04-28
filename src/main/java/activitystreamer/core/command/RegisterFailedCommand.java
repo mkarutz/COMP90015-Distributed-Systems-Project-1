@@ -9,6 +9,14 @@ public class RegisterFailedCommand implements ICommand {
     }
 
     @Override
+    public String filter() {
+        if (info == null) {
+            return "Register failed command should contain an info field";
+        }
+        return null;
+    }
+
+    @Override
     public boolean equals(Object obj) {
         return obj instanceof RegisterFailedCommand &&
             info.equals(((RegisterFailedCommand) obj).getInfo());

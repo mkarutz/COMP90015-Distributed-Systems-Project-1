@@ -15,6 +15,20 @@ public class ActivityMessageCommand implements ICommand {
     }
 
     @Override
+    public String filter() {
+        if (username == null) {
+            return "Activity message command should contain a username";
+        }
+        if (secret == null) {
+            secret = "";
+        }
+        if (activity == null) {
+            return "Activity message command should contain an activity message";
+        }
+        return null;
+    }
+
+    @Override
     public boolean equals(Object obj) {
         return obj instanceof ActivityMessageCommand &&
             username.equals(((ActivityMessageCommand) obj).getUsername()) &&

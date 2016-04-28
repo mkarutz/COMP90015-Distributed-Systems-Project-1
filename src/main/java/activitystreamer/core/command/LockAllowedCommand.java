@@ -13,6 +13,20 @@ public class LockAllowedCommand implements ICommand {
     }
 
     @Override
+    public String filter() {
+        if (username == null) {
+            return "Lock allowed command should contain a username";
+        }
+        if (secret == null) {
+            return "Lock allowed command should contain a secret";
+        }
+        if (server == null) {
+            return "Lock allowed command should contain a server id";
+        }
+        return null;
+    }
+
+    @Override
     public boolean equals(Object obj) {
         return obj instanceof LockAllowedCommand &&
             username.equals(((LockAllowedCommand) obj).getUsername()) &&
