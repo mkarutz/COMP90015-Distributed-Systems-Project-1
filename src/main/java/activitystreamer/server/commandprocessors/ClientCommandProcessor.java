@@ -2,10 +2,7 @@ package activitystreamer.server.commandprocessors;
 
 import activitystreamer.core.command.ICommandBroadcaster;
 import activitystreamer.core.commandprocessor.CommandProcessor;
-import activitystreamer.server.commandhandlers.ActivityBroadcastCommandHandler;
-import activitystreamer.server.commandhandlers.ActivityMessageCommandHandler;
-import activitystreamer.server.commandhandlers.LogoutCommandHandler;
-import activitystreamer.server.commandhandlers.RedirectCommandHandler;
+import activitystreamer.server.commandhandlers.*;
 import activitystreamer.server.services.UserAuthService;
 
 public class ClientCommandProcessor extends CommandProcessor {

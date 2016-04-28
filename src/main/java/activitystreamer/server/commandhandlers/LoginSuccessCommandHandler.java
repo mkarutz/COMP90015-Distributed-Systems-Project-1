@@ -15,7 +15,7 @@ public class LoginSuccessCommandHandler implements ICommandHandler {
 
     @Override
     public boolean handleCommandOutgoing(ICommand command, Connection conn) {
-        if (command instanceof LoginCommand) {
+        if (command instanceof LoginSuccessCommand) {
             conn.pushCommandDirect(command);
 
             // TODO: Check server load according to SPEC page 4, line 1

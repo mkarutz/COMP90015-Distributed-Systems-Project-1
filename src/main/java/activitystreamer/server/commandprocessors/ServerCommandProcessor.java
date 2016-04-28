@@ -28,7 +28,7 @@ public class ServerCommandProcessor extends CommandProcessor {
         incomingHandlers.add(serverAnnounceCommandHandler);
 
         outgoingHandlers.add(activityBroadcastCommandHandler);
-        outgoingHandlers.add(new AuthenticateCommandHandler(rServerService, rUserAuthService));
+        outgoingHandlers.add(new AuthenticateCommandHandler(rServerService, rUserAuthService, rServerAuthService, rBroadcastService));
         outgoingHandlers.add(lockAllowedCommandHandler);
         outgoingHandlers.add(lockDeniedCommandHandler);
         outgoingHandlers.add(lockRequestCommandHandler);

@@ -15,7 +15,7 @@ public class LoginFailedCommandHandler implements ICommandHandler {
 
     @Override
     public boolean handleCommandOutgoing(ICommand command, Connection conn) {
-        if (command instanceof LoginCommand) {
+        if (command instanceof LoginFailedCommand) {
             conn.pushCommandDirect(command);
             conn.close();
 
