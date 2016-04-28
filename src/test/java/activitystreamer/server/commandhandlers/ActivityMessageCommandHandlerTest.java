@@ -32,7 +32,7 @@ public class ActivityMessageCommandHandlerTest {
 
         Connection mockConnection = mock(Connection.class);
 
-        handler.handleCommandIncoming(mockCommand, mockConnection);
+        handler.handleCommand(mockCommand, mockConnection);
 
         verify(mockConnection, never()).pushCommand(isA(AuthenticationFailCommand.class));
     }
@@ -59,7 +59,7 @@ public class ActivityMessageCommandHandlerTest {
 
         Connection mockConnection = mock(Connection.class);
 
-        handler.handleCommandIncoming(mockCommand, mockConnection);
+        handler.handleCommand(mockCommand, mockConnection);
 
         verify(mockConnection).pushCommand(isA(AuthenticationFailCommand.class));
     }
@@ -86,7 +86,7 @@ public class ActivityMessageCommandHandlerTest {
 
         Connection mockConnection = mock(Connection.class);
 
-        handler.handleCommandIncoming(mockCommand, mockConnection);
+        handler.handleCommand(mockCommand, mockConnection);
 
         verify(mockConnection).pushCommand(isA(AuthenticationFailCommand.class));
     }
@@ -111,7 +111,7 @@ public class ActivityMessageCommandHandlerTest {
 
         Connection mockConnection = mock(Connection.class);
 
-        handler.handleCommandIncoming(mockCommand, mockConnection);
+        handler.handleCommand(mockCommand, mockConnection);
 
         verify(mockConnectionStateService).broadcastToAll(isA(ActivityBroadcastCommand.class), same(mockConnection));
     }
@@ -138,7 +138,7 @@ public class ActivityMessageCommandHandlerTest {
 
         Connection mockConnection = mock(Connection.class);
 
-        handler.handleCommandIncoming(mockCommand, mockConnection);
+        handler.handleCommand(mockCommand, mockConnection);
 
         assertTrue(activity.has("authenticated_user"));
     }

@@ -22,7 +22,7 @@ public class ServerAnnounceCommandHandler implements ICommandHandler {
     }
 
     @Override
-    public boolean handleCommandIncoming(ICommand command, Connection conn) {
+    public boolean handleCommand(ICommand command, Connection conn) {
         if (command instanceof ServerAnnounceCommand) {
             ServerAnnounceCommand announceCommand = (ServerAnnounceCommand)command;
 
@@ -31,17 +31,6 @@ public class ServerAnnounceCommandHandler implements ICommandHandler {
 
             ServerState ss = new ServerState(announceCommand.getHostname(), announceCommand.getPort(), announceCommand.getLoad());
             this.rServerService.updateState(announceCommand.getId(), ss);
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    @Override
-    public boolean handleCommandOutgoing(ICommand command, Connection conn) {
-        if (command instanceof  ServerAnnounceCommand) {
-            conn.pushCommandDirect(command);
-
             return true;
         } else {
             return false;

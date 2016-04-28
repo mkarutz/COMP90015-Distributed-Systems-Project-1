@@ -20,7 +20,7 @@ public abstract class CommandProcessor {
     public void processCommandIncoming(Connection connection, ICommand command) {
         boolean handled = false;
         for (ICommandHandler h : incomingHandlers) {
-            if (h.handleCommandIncoming(command, connection)) {
+            if (h.handleCommand(command, connection)) {
                 handled = true;
                 break;
             }
@@ -30,20 +30,6 @@ public abstract class CommandProcessor {
             ICommand invalidCommand = new InvalidMessageCommand("Command type was invalid for the current command processor.");
             connection.pushCommand(invalidCommand);
             connection.close();
-        }
-    }
-
-    public void processCommandOutgoing(Connection connection, ICommand command) {
-        boolean handled = false;
-        for (ICommandHandler h : outgoingHandlers) {
-            if (h.handleCommandOutgoing(command, connection)) {
-                handled = true;
-                break;
-            }
-        }
-
-        if (!handled) {
-
         }
     }
 }

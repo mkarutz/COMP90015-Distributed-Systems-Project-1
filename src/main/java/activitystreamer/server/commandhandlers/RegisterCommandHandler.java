@@ -17,7 +17,7 @@ public class RegisterCommandHandler implements ICommandHandler {
     }
 
     @Override
-    public boolean handleCommandIncoming(ICommand command, Connection conn) {
+    public boolean handleCommand(ICommand command, Connection conn) {
         if (command instanceof RegisterCommand) {
             RegisterCommand registerCommand = (RegisterCommand) command;
 
@@ -30,17 +30,6 @@ public class RegisterCommandHandler implements ICommandHandler {
             if (!rAuthService.register(registerCommand.getUsername(), registerCommand.getSecret(), conn)) {
                 conn.pushCommand(new RegisterFailedCommand("Username " + registerCommand.getUsername() + "  already exists."));
             }
-
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    @Override
-    public boolean handleCommandOutgoing(ICommand command, Connection conn) {
-        if (command instanceof RegisterCommand) {
-            conn.pushCommandDirect(command);
 
             return true;
         } else {

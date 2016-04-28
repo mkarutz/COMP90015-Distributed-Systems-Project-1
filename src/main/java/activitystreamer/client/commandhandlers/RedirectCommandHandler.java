@@ -14,7 +14,7 @@ public class RedirectCommandHandler implements ICommandHandler {
     }
 
     @Override
-    public boolean handleCommandIncoming(ICommand command, Connection conn) {
+    public boolean handleCommand(ICommand command, Connection conn) {
         if (command instanceof RedirectCommand) {
             RedirectCommand redirectCommand = (RedirectCommand) command;
 
@@ -23,17 +23,6 @@ public class RedirectCommandHandler implements ICommandHandler {
 
             conn.close();
             clientSolution.initiateConnection();
-
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    @Override
-    public boolean handleCommandOutgoing(ICommand command, Connection conn) {
-        if (command instanceof ActivityBroadcastCommand) {
-            conn.pushCommandDirect(command);
 
             return true;
         } else {

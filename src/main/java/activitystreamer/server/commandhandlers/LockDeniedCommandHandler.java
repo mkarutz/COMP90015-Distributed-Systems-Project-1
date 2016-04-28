@@ -19,7 +19,7 @@ public class LockDeniedCommandHandler implements ICommandHandler {
     }
 
     @Override
-    public boolean handleCommandIncoming(ICommand command, Connection conn) {
+    public boolean handleCommand(ICommand command, Connection conn) {
         if (command instanceof LockDeniedCommand) {
             LockDeniedCommand lCommand = (LockDeniedCommand)command;
 
@@ -28,17 +28,6 @@ public class LockDeniedCommandHandler implements ICommandHandler {
 
             // Broadcast out
             rConnectionStateService.broadcastToAll(lCommand, conn);
-
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    @Override
-    public boolean handleCommandOutgoing(ICommand command, Connection conn) {
-        if (command instanceof LockDeniedCommand) {
-            conn.pushCommandDirect(command);
 
             return true;
         } else {

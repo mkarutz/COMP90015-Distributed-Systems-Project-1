@@ -21,7 +21,7 @@ public class LoginCommandHandler implements ICommandHandler {
     }
 
     @Override
-    public boolean handleCommandIncoming(ICommand command, Connection conn) {
+    public boolean handleCommand(ICommand command, Connection conn) {
         if (command instanceof LoginCommand) {
             LoginCommand loginCommand = (LoginCommand) command;
 
@@ -78,16 +78,5 @@ public class LoginCommandHandler implements ICommandHandler {
     private void sendLoginSuccess(Connection conn, String username) {
         LoginSuccessCommand cmd = new LoginSuccessCommand("Logged in successfully as user " + username);
         conn.pushCommand(cmd);
-    }
-
-    @Override
-    public boolean handleCommandOutgoing(ICommand command, Connection conn) {
-        if (command instanceof LoginCommand) {
-            conn.pushCommandDirect(command);
-
-            return true;
-        } else {
-            return false;
-        }
     }
 }

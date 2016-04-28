@@ -21,7 +21,7 @@ public class RegisterCommandHandlerTest {
 
         Connection mockConnection = mock(Connection.class);
 
-        handler.handleCommandIncoming(mockCommand, mockConnection);
+        handler.handleCommand(mockCommand, mockConnection);
 
         verify(mockConnection).pushCommand(isA(InvalidMessageCommand.class));
     }
@@ -37,7 +37,7 @@ public class RegisterCommandHandlerTest {
 
         Connection mockConnection = mock(Connection.class);
 
-        handler.handleCommandIncoming(mockCommand, mockConnection);
+        handler.handleCommand(mockCommand, mockConnection);
 
         verify(mockConnection).pushCommand(isA(InvalidMessageCommand.class));
     }
@@ -55,7 +55,7 @@ public class RegisterCommandHandlerTest {
 
         Connection mockConnection = mock(Connection.class);
 
-        handler.handleCommandIncoming(mockCommand, mockConnection);
+        handler.handleCommand(mockCommand, mockConnection);
 
         verify(mockAuthService).register(mockCommand.getUsername(), mockCommand.getSecret(), mockConnection);
     }
@@ -73,7 +73,7 @@ public class RegisterCommandHandlerTest {
 
         Connection mockConnection = mock(Connection.class);
 
-        handler.handleCommandIncoming(mockCommand, mockConnection);
+        handler.handleCommand(mockCommand, mockConnection);
 
         verify(mockConnection).pushCommand(isA(RegisterFailedCommand.class));
     }

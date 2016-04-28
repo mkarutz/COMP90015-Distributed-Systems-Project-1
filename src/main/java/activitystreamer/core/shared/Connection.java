@@ -68,24 +68,34 @@ public class Connection implements Closeable, Runnable {
     }
 
     public void pushCommand(ICommand cmd) {
-        processor.processCommandOutgoing(this, cmd);
-    }
-
-    // Should only be called within command handlers
-    public void pushCommandDirect(ICommand cmd) {
         String json = this.gson.toJson(cmd, ICommand.class);
         System.out.println("SENDING JSON: " + json);
         this.writeLine(json);
+
+        // Blanket connection close if pushing invalid message
+        if (cmd instanceof InvalidMessageCommand) {
+            log.error("Invalid message command sent ... connection closing");
+            this.close();
+        }
     }
 
     private ICommand pullCommand() throws IOException, JsonParseException {
         String line = this.readLine();
-        System.out.println("RECEIVING JSON: " + line);
         if (line == null) {
             term = true;
             return null;
+        } else {
+            System.out.println("RECEIVING JSON: " + line);
         }
-        return gson.fromJson(line, ICommand.class);
+        ICommand cmd = gson.fromJson(line, ICommand.class);
+
+        // Blanket connection close if pulling invalid message
+        if (cmd instanceof InvalidMessageCommand) {
+            log.error("Invalid message command received ... connection closing");
+            this.close();
+        }
+
+        return cmd;
     }
 
     private String readLine() throws IOException {

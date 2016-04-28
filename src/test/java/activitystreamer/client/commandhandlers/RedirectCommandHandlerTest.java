@@ -23,7 +23,7 @@ public class RedirectCommandHandlerTest {
         when(mockAddress.getHostName()).thenReturn("www.google.com");
         RedirectCommand command = new RedirectCommand(mockAddress, 1234);
 
-        handler.handleCommandIncoming(command, mockConnection);
+        handler.handleCommand(command, mockConnection);
 
         verify(mockConnection).close();
     }
@@ -46,7 +46,7 @@ public class RedirectCommandHandlerTest {
         when(mockCommand.getHostname()).thenReturn(mockAddress);
         when(mockCommand.getPort()).thenReturn(port);
 
-        handler.handleCommandIncoming(mockCommand, mockConnection);
+        handler.handleCommand(mockCommand, mockConnection);
 
         assertEquals(Settings.getRemoteHostname(), mockAddress.getHostName());
         assertEquals(Settings.getRemotePort(), port);
@@ -63,7 +63,7 @@ public class RedirectCommandHandlerTest {
         when(mockAddress.getHostName()).thenReturn("www.google.com");
         RedirectCommand command = new RedirectCommand(mockAddress, 1234);
 
-        handler.handleCommandIncoming(command, mockConnection);
+        handler.handleCommand(command, mockConnection);
 
         verify(mockClientSolution).initiateConnection();
     }

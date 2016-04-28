@@ -5,6 +5,5 @@ import activitystreamer.core.shared.Connection;
 import java.util.List;
 
 public interface ICommandHandler {
-    boolean handleCommandIncoming(ICommand command, Connection conn);
-    boolean handleCommandOutgoing(ICommand command, Connection conn);
+    boolean handleCommand(ICommand command, Connection conn);
 }

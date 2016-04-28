@@ -7,18 +7,7 @@ import activitystreamer.core.shared.Connection;
 
 public class ActivityMessageCommandHandler implements ICommandHandler {
     @Override
-    public boolean handleCommandIncoming(ICommand command, Connection conn) {
+    public boolean handleCommand(ICommand command, Connection conn) {
         return false;
-    }
-
-    @Override
-    public boolean handleCommandOutgoing(ICommand command, Connection conn) {
-        if (command instanceof ActivityMessageCommand) {
-            conn.pushCommandDirect(command);
-
-            return true;
-        } else {
-            return false;
-        }
     }
 }

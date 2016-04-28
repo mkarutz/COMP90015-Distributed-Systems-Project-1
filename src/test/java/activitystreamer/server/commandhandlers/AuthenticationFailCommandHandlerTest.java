@@ -15,7 +15,7 @@ public class AuthenticationFailCommandHandlerTest {
         ICommand cmd = spy(new AuthenticationFailCommand("Incorrect secret."));
         Connection conn = mock(Connection.class);
 
-        handler.handleCommandIncoming(cmd, conn);
+        handler.handleCommand(cmd, conn);
 
         verify(conn).close();
     }

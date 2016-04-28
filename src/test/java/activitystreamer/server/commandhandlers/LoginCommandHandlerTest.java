@@ -22,7 +22,7 @@ public class LoginCommandHandlerTest {
         when(cmd.getUsername()).thenReturn(null);
 
         Connection conn = mock(Connection.class);
-        handler.handleCommandIncoming(cmd, conn);
+        handler.handleCommand(cmd, conn);
 
         verify(conn).pushCommand(isA(InvalidMessageCommand.class));
         verify(conn).close();
@@ -61,7 +61,7 @@ public class LoginCommandHandlerTest {
 
         Connection conn = mock(Connection.class);
 
-        handler.handleCommandIncoming(cmd, conn);
+        handler.handleCommand(cmd, conn);
         verify(conn).pushCommand(isA(LoginSuccessCommand.class));
     }
 
@@ -86,7 +86,7 @@ public class LoginCommandHandlerTest {
 
         Connection conn = mock(Connection.class);
 
-        handler.handleCommandIncoming(cmd, conn);
+        handler.handleCommand(cmd, conn);
         verify(conn).pushCommand(isA(LoginSuccessCommand.class));
         verify(conn).pushCommand(isA(RedirectCommand.class));
     }
@@ -109,7 +109,7 @@ public class LoginCommandHandlerTest {
 
         Connection conn = mock(Connection.class);
 
-        handler.handleCommandIncoming(cmd, conn);
+        handler.handleCommand(cmd, conn);
         verify(conn).pushCommand(isA(LoginFailedCommand.class));
     }
 }

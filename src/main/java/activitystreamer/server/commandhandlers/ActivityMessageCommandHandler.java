@@ -17,7 +17,7 @@ public class ActivityMessageCommandHandler implements ICommandHandler {
     }
 
     @Override
-    public boolean handleCommandIncoming(ICommand command, Connection conn) {
+    public boolean handleCommand(ICommand command, Connection conn) {
         if (command instanceof ActivityMessageCommand) {
             ActivityMessageCommand cmd = (ActivityMessageCommand) command;
 
@@ -53,10 +53,5 @@ public class ActivityMessageCommandHandler implements ICommandHandler {
         } else {
             return false;
         }
-    }
-
-    @Override
-    public boolean handleCommandOutgoing(ICommand command, Connection conn) {
-        return false;
     }
 }

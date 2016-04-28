@@ -29,7 +29,7 @@ public class AuthenticateCommandHandler implements ICommandHandler {
     }
 
     @Override
-    public boolean handleCommandIncoming(ICommand command, Connection conn) {
+    public boolean handleCommand(ICommand command, Connection conn) {
         if (command instanceof AuthenticateCommand) {
             AuthenticateCommand authCommand = (AuthenticateCommand)command;
             if (Settings.getSecret().equals(authCommand.getSecret())) {
@@ -43,17 +43,6 @@ public class AuthenticateCommandHandler implements ICommandHandler {
                 conn.pushCommand(authFailCommand);
                 conn.close();
             }
-
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    @Override
-    public boolean handleCommandOutgoing(ICommand command, Connection conn) {
-        if (command instanceof AuthenticateCommand) {
-            conn.pushCommandDirect(command);
 
             return true;
         } else {

@@ -15,21 +15,10 @@ public class ActivityBroadcastCommandHandler implements ICommandHandler {
     }
 
     @Override
-    public boolean handleCommandIncoming(ICommand command, Connection conn) {
+    public boolean handleCommand(ICommand command, Connection conn) {
         if (command instanceof ActivityBroadcastCommand) {
             ActivityBroadcastCommand activityBroadcast = (ActivityBroadcastCommand)command;
             rConnectionStateService.broadcastToAll(activityBroadcast, conn);
-
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    @Override
-    public boolean handleCommandOutgoing(ICommand command, Connection conn) {
-        if (command instanceof ActivityBroadcastCommand) {
-            conn.pushCommandDirect(command);
 
             return true;
         } else {

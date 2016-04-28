@@ -9,18 +9,7 @@ import activitystreamer.server.services.*;
 public class RedirectCommandHandler implements ICommandHandler {
 
     @Override
-    public boolean handleCommandIncoming(ICommand command, Connection conn) {
+    public boolean handleCommand(ICommand command, Connection conn) {
         return false;
-    }
-
-    @Override
-    public boolean handleCommandOutgoing(ICommand command, Connection conn) {
-        if (command instanceof RedirectCommand) {
-            conn.pushCommandDirect(command);
-
-            return true;
-        } else {
-            return false;
-        }
     }
 }

@@ -16,7 +16,7 @@ public class LogoutCommandHandlerTest {
 
         LogoutCommand cmd = new LogoutCommand();
         Connection conn = mock(Connection.class);
-        handler.handleCommandIncoming(cmd, conn);
+        handler.handleCommand(cmd, conn);
 
         verify(conn).close();
     }
