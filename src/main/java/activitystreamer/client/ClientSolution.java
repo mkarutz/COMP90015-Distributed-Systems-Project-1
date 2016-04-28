@@ -26,12 +26,13 @@ public class ClientSolution implements Runnable {
 
         // open the gui
         log.debug("opening the gui");
-        textFrame = new TextFrame();
+        textFrame = new TextFrame(this);
     }
 
     // called by the gui when the user clicks "send"
     public void sendActivityObject(JsonObject activityObj) {
-
+        ICommand cmd = new ActivityMessageCommand(Settings.getUsername(), Settings.getSecret(), activityObj);
+        connection.pushCommand(cmd);
     }
 
     // called by the gui when the user clicks disconnect

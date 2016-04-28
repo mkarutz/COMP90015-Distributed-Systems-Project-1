@@ -13,26 +13,15 @@ public class MainCommandProcessor extends CommandProcessor {
                                 ConnectionStateService rConnectionStateService) {
         super();
 
-        addIncomingOutgoing(new ActivityBroadcastCommandHandler(rConnectionStateService));
-        addIncomingOutgoing(new ActivityMessageCommandHandler(rUserAuthService, rConnectionStateService));
-        addIncomingOutgoing(new AuthenticateCommandHandler(rServerService, rUserAuthService, rServerAuthService, rConnectionStateService));
-        addIncomingOutgoing(new AuthenticationFailCommandHandler());
-        addIncomingOutgoing(new LockAllowedCommandHandler(rUserAuthService, rConnectionStateService));
-        addIncomingOutgoing(new LockDeniedCommandHandler(rUserAuthService, rConnectionStateService));
-        addIncomingOutgoing(new LockRequestCommandHandler(rUserAuthService, rServerAuthService));
-        addIncomingOutgoing(new LoginCommandHandler(rUserAuthService, rServerService, rConnectionStateService));
-        addIncomingOutgoing(new LoginFailedCommandHandler());
-        addIncomingOutgoing(new LoginSuccessCommandHandler());
-        addIncomingOutgoing(new LogoutCommandHandler());
-        addIncomingOutgoing(new RedirectCommandHandler());
-        addIncomingOutgoing(new RegisterCommandHandler(rUserAuthService));
-        addIncomingOutgoing(new RegisterFailedCommandHandler());
-        addIncomingOutgoing(new RegisterSuccessCommandHandler());
-        addIncomingOutgoing(new ServerAnnounceCommandHandler(rServerService, rConnectionStateService));
-    }
-
-    private void addIncomingOutgoing(ICommandHandler handler) {
-        incomingHandlers.add(handler);
-        outgoingHandlers.add(handler);
+        handlers.add(new ActivityBroadcastCommandHandler(rConnectionStateService));
+        handlers.add(new ActivityMessageCommandHandler(rUserAuthService, rConnectionStateService));
+        handlers.add(new AuthenticateCommandHandler(rServerService, rUserAuthService, rServerAuthService, rConnectionStateService));
+        handlers.add(new AuthenticationFailCommandHandler());
+        handlers.add(new LockAllowedCommandHandler(rUserAuthService, rConnectionStateService));
+        handlers.add(new LockDeniedCommandHandler(rUserAuthService, rConnectionStateService));
+        handlers.add(new LockRequestCommandHandler(rUserAuthService, rServerAuthService));
+        handlers.add(new LoginCommandHandler(rUserAuthService, rServerService, rConnectionStateService));
+        handlers.add(new RegisterCommandHandler(rUserAuthService));
+        handlers.add(new ServerAnnounceCommandHandler(rServerService, rConnectionStateService));
     }
 }

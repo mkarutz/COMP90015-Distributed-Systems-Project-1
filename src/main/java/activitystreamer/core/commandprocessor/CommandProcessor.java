@@ -7,19 +7,17 @@ import activitystreamer.core.commandhandler.*;
 import activitystreamer.core.shared.*;
 
 public abstract class CommandProcessor {
-    protected List<ICommandHandler> incomingHandlers = new ArrayList<ICommandHandler>();
-    protected List<ICommandHandler> outgoingHandlers = new ArrayList<ICommandHandler>();
+    protected List<ICommandHandler> handlers = new ArrayList<ICommandHandler>();
 
     public CommandProcessor() {
         // All command processors handle invalid messages
         InvalidMessageCommandHandler invalidMessageCommandHandler = new InvalidMessageCommandHandler();
-        incomingHandlers.add(invalidMessageCommandHandler);
-        outgoingHandlers.add(invalidMessageCommandHandler);
+        handlers.add(invalidMessageCommandHandler);
     }
 
     public void processCommandIncoming(Connection connection, ICommand command) {
         boolean handled = false;
-        for (ICommandHandler h : incomingHandlers) {
+        for (ICommandHandler h : handlers) {
             if (h.handleCommand(command, connection)) {
                 handled = true;
                 break;
@@ -27,7 +25,7 @@ public abstract class CommandProcessor {
         }
 
         if (!handled) {
-            ICommand invalidCommand = new InvalidMessageCommand("Command type was invalid for the current command processor.");
+            ICommand invalidCommand = new InvalidMessageCommand("Command type is invalid.");
             connection.pushCommand(invalidCommand);
             connection.close();
         }

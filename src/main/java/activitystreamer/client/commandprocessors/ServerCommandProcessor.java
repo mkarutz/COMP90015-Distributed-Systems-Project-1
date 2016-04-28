@@ -10,15 +10,11 @@ public class ServerCommandProcessor extends CommandProcessor {
     public ServerCommandProcessor(ClientReflectionService rClientRefService) {
         super();
 
-        incomingHandlers.add(new ActivityBroadcastCommandHandler(rClientRefService));
-        incomingHandlers.add(new LoginSuccessCommandHandler());
-        incomingHandlers.add(new LoginFailedCommandHandler());
-        incomingHandlers.add(new RegisterSuccessCommandHandler());
-        incomingHandlers.add(new RegisterFailedCommandHandler());
-
-        outgoingHandlers.add(new LoginCommandHandler());
-        outgoingHandlers.add(new LogoutCommandHandler());
-        outgoingHandlers.add(new RegisterCommandHandler());
-        outgoingHandlers.add(new ActivityMessageCommandHandler());
+        handlers.add(new ActivityBroadcastCommandHandler(rClientRefService));
+        handlers.add(new LoginSuccessCommandHandler());
+        handlers.add(new LoginFailedCommandHandler());
+        //handlers.add(new RedirectCommandHandler());
+        handlers.add(new RegisterSuccessCommandHandler());
+        handlers.add(new RegisterFailedCommandHandler());
     }
 }
