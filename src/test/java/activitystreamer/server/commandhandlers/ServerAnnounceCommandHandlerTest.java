@@ -6,6 +6,8 @@ import activitystreamer.core.command.transmission.CommandParseException;
 import activitystreamer.core.command.transmission.gson.GsonCommandSerializationAdaptor;
 import activitystreamer.core.shared.Connection;
 import activitystreamer.server.ServerState;
+import activitystreamer.server.services.contracts.IBroadcastService;
+import activitystreamer.server.services.contracts.IServerAuthService;
 import activitystreamer.server.services.impl.ConnectionStateService;
 import activitystreamer.server.services.impl.RemoteServerStateService;
 import org.junit.Test;
@@ -18,14 +20,14 @@ import static org.mockito.Mockito.*;
 public class ServerAnnounceCommandHandlerTest {
     @Test
     public void testIfTheServerIdIsNotPresentThenAnInvalidMessageCommandIsSent() {
-
-        ConnectionStateService mockConnectionStateService = mock(ConnectionStateService.class);
+        IServerAuthService mockServerAuthService = mock(IServerAuthService.class);
+        IBroadcastService mockIBroadcastService = mock(ConnectionStateService.class);
         RemoteServerStateService mockRemoteServerStateService = mock(RemoteServerStateService.class);
 
         ServerAnnounceCommandHandler handler = new ServerAnnounceCommandHandler(
+                mockServerAuthService,
                 mockRemoteServerStateService,
-                mockConnectionStateService
-        );
+                mockIBroadcastService);
 
         ServerAnnounceCommand mockCommand = mock(ServerAnnounceCommand.class);
         when(mockCommand.getId()).thenReturn(null);
@@ -40,16 +42,16 @@ public class ServerAnnounceCommandHandlerTest {
 
     @Test
     public void testIfReceivedFromUnauthenticatedServerThenSendAnInvalidMessageCommand() throws CommandParseException {
+        IServerAuthService mockServerAuthService = mock(IServerAuthService.class);
+        when(mockServerAuthService.isAuthenticated(any(Connection.class))).thenReturn(false);
 
         ConnectionStateService mockConnectionStateService = mock(ConnectionStateService.class);
-        when(mockConnectionStateService.getConnectionType(any(Connection.class))).thenReturn(null);
-
         RemoteServerStateService mockRemoteServerStateService = mock(RemoteServerStateService.class);
 
         ServerAnnounceCommandHandler handler = new ServerAnnounceCommandHandler(
+                mockServerAuthService,
                 mockRemoteServerStateService,
-                mockConnectionStateService
-        );
+                mockConnectionStateService);
 
         ServerAnnounceCommand mockCommand = (ServerAnnounceCommand) new GsonCommandSerializationAdaptor().deserialize("{\n" +
                 "    \"command\" : \"SERVER_ANNOUNCE\",\n" +
@@ -69,16 +71,17 @@ public class ServerAnnounceCommandHandlerTest {
 
     @Test
     public void testServerStateIsUpdated() throws CommandParseException, UnknownHostException {
+        IServerAuthService mockServerAuthService = mock(IServerAuthService.class);
+        when(mockServerAuthService.isAuthenticated(any(Connection.class))).thenReturn(true);
 
         ConnectionStateService mockConnectionStateService = mock(ConnectionStateService.class);
-        when(mockConnectionStateService.getConnectionType(any(Connection.class))).thenReturn(ConnectionStateService.ConnectionType.SERVER);
 
         RemoteServerStateService mockRemoteServerStateService = mock(RemoteServerStateService.class);
 
         ServerAnnounceCommandHandler handler = new ServerAnnounceCommandHandler(
+                mockServerAuthService,
                 mockRemoteServerStateService,
-                mockConnectionStateService
-        );
+                mockConnectionStateService);
 
         ServerAnnounceCommand mockCommand = (ServerAnnounceCommand) new GsonCommandSerializationAdaptor().deserialize("{\n" +
                 "    \"command\" : \"SERVER_ANNOUNCE\",\n" +
@@ -102,17 +105,17 @@ public class ServerAnnounceCommandHandlerTest {
     }
 
     @Test
-    public void testTheMessageIsBroadcasted() throws CommandParseException, UnknownHostException {
+    public void testTheMessageIsBroadcast() throws CommandParseException, UnknownHostException {
+        IServerAuthService mockServerAuthService = mock(IServerAuthService.class);
+        when(mockServerAuthService.isAuthenticated(any(Connection.class))).thenReturn(true);
 
         ConnectionStateService mockConnectionStateService = mock(ConnectionStateService.class);
-        when(mockConnectionStateService.getConnectionType(any(Connection.class))).thenReturn(ConnectionStateService.ConnectionType.SERVER);
-
         RemoteServerStateService mockRemoteServerStateService = mock(RemoteServerStateService.class);
 
         ServerAnnounceCommandHandler handler = new ServerAnnounceCommandHandler(
+                mockServerAuthService,
                 mockRemoteServerStateService,
-                mockConnectionStateService
-        );
+                mockConnectionStateService);
 
         ServerAnnounceCommand mockCommand = (ServerAnnounceCommand) new GsonCommandSerializationAdaptor().deserialize("{\n" +
                 "    \"command\" : \"SERVER_ANNOUNCE\",\n" +
@@ -125,9 +128,6 @@ public class ServerAnnounceCommandHandlerTest {
         Connection mockConnection = mock(Connection.class);
 
         handler.handleCommand(mockCommand, mockConnection);
-
-        InetAddress address = InetAddress.getByName("128.250.13.46");
-        ServerState state = new ServerState(address, 3570, 5);
 
         verify(mockConnectionStateService).broadcastToServers(mockCommand, mockConnection);
     }

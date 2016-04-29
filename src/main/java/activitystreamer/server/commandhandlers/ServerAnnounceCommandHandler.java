@@ -4,7 +4,8 @@ import activitystreamer.core.command.*;
 import activitystreamer.core.commandhandler.*;
 import activitystreamer.core.shared.*;
 import activitystreamer.server.*;
-import activitystreamer.server.services.impl.ConnectionStateService;
+import activitystreamer.server.services.contracts.IBroadcastService;
+import activitystreamer.server.services.contracts.IServerAuthService;
 import activitystreamer.server.services.impl.RemoteServerStateService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -12,13 +13,16 @@ import org.apache.logging.log4j.Logger;
 public class ServerAnnounceCommandHandler implements ICommandHandler {
     private Logger log = LogManager.getLogger();
 
-    private RemoteServerStateService rServerService;
-    private ConnectionStateService rConnectionStateService;
+    private RemoteServerStateService remoteServerStateService;
+    private IBroadcastService broadcastService;
+    private IServerAuthService serverAuthService;
 
-    public ServerAnnounceCommandHandler(RemoteServerStateService rServerService,
-                                        ConnectionStateService rConnectionStateService) {
-        this.rServerService = rServerService;
-        this.rConnectionStateService = rConnectionStateService;
+    public ServerAnnounceCommandHandler(IServerAuthService serverAuthService,
+                                        RemoteServerStateService remoteServerStateService,
+                                        IBroadcastService broadcastService) {
+        this.serverAuthService = serverAuthService;
+        this.remoteServerStateService = remoteServerStateService;
+        this.broadcastService = broadcastService;
     }
 
     @Override
@@ -32,18 +36,18 @@ public class ServerAnnounceCommandHandler implements ICommandHandler {
                 return true;
             }
 
-            if (rConnectionStateService.getConnectionType(conn) != ConnectionStateService.ConnectionType.SERVER) {
+            if (!serverAuthService.isAuthenticated(conn)) {
                 conn.pushCommand(new InvalidMessageCommand("Not authenticated."));
                 conn.close();
                 return true;
             }
 
-            this.rServerService.updateState(
+            remoteServerStateService.updateState(
                     cmd.getId(),
                     new ServerState(cmd.getHostname(), cmd.getPort(), cmd.getLoad())
             );
 
-            rConnectionStateService.broadcastToServers(command, conn);
+            broadcastService.broadcastToServers(command, conn);
 
             return true;
         } else {
