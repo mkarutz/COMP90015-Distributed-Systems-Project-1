@@ -13,6 +13,16 @@ public class ServerState {
         this.load = load;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof ServerState)) { return false; }
+
+        ServerState other = (ServerState) o;
+        return load == other.load
+                && hostname.equals(other.hostname)
+                && port == other.port;
+    }
+
     public InetAddress getHostname() {
         return hostname;
     }

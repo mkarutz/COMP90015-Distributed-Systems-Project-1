@@ -16,7 +16,8 @@ public class ServerAnnounceCommandHandler implements ICommandHandler {
     private RemoteServerStateService rServerService;
     private ConnectionStateService rConnectionStateService;
 
-    public ServerAnnounceCommandHandler(RemoteServerStateService rServerService, ConnectionStateService rConnectionStateService) {
+    public ServerAnnounceCommandHandler(RemoteServerStateService rServerService,
+                                        ConnectionStateService rConnectionStateService) {
         this.rServerService = rServerService;
         this.rConnectionStateService = rConnectionStateService;
     }
@@ -32,11 +33,19 @@ public class ServerAnnounceCommandHandler implements ICommandHandler {
                 return true;
             }
 
-            // Rebroadcast out to all servers
+            if (rConnectionStateService.getConnectionType(conn) != ConnectionStateService.ConnectionType.SERVER) {
+                conn.pushCommand(new InvalidMessageCommand("Not authenticated."));
+                conn.close();
+                return true;
+            }
+
+            this.rServerService.updateState(
+                    cmd.getId(),
+                    new ServerState(cmd.getHostname(), cmd.getPort(), cmd.getLoad())
+            );
+
             rConnectionStateService.broadcastToServers(command, conn);
 
-            ServerState ss = new ServerState(cmd.getHostname(), cmd.getPort(), cmd.getLoad());
-            this.rServerService.updateState(cmd.getId(), ss);
             return true;
         } else {
             return false;
