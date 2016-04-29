@@ -3,8 +3,13 @@ package activitystreamer.server;
 import activitystreamer.core.command.transmission.gson.GsonCommandSerializationAdaptor;
 import activitystreamer.core.shared.*;
 import activitystreamer.core.commandprocessor.*;
-import activitystreamer.server.services.*;
 import activitystreamer.server.commandprocessors.*;
+import activitystreamer.server.services.contracts.IServerAuthService;
+import activitystreamer.server.services.contracts.IUserAuthService;
+import activitystreamer.server.services.impl.ConnectionStateService;
+import activitystreamer.server.services.impl.RemoteServerStateService;
+import activitystreamer.server.services.impl.ServerAuthService;
+import activitystreamer.server.services.impl.UserAuthService;
 import activitystreamer.util.Settings;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -25,14 +30,14 @@ public class Control implements Runnable, IncomingConnectionHandler {
 
     private ConnectionStateService rConnectionStateService;
     private RemoteServerStateService rServerService;
-    private UserAuthService rUserAuthService;
-    private ServerAuthService rServerAuthService;
+    private IUserAuthService rIUserAuthService;
+    private IServerAuthService rIServerAuthService;
 
     public Control() {
         this.rServerService = new RemoteServerStateService(this);
         this.rConnectionStateService = new ConnectionStateService();
-        this.rUserAuthService = new UserAuthService(this.rServerService, rConnectionStateService);
-        this.rServerAuthService = new ServerAuthService(rConnectionStateService);
+        this.rIUserAuthService = new UserAuthService(this.rServerService, rConnectionStateService);
+        this.rIServerAuthService = new ServerAuthService(rConnectionStateService);
         try {
             listener = new Listener(this, Settings.getLocalPort());
         } catch (IOException e1) {
@@ -106,8 +111,8 @@ public class Control implements Runnable, IncomingConnectionHandler {
                 new GsonCommandSerializationAdaptor(),
                 new MainCommandProcessor(
                         rServerService,
-                        rUserAuthService,
-                        rServerAuthService,
+                        rIUserAuthService,
+                        rIServerAuthService,
                         rConnectionStateService
                 )
         );
@@ -123,8 +128,8 @@ public class Control implements Runnable, IncomingConnectionHandler {
                 new GsonCommandSerializationAdaptor(),
                 new MainCommandProcessor(
                         rServerService,
-                        rUserAuthService,
-                        rServerAuthService,
+                        rIUserAuthService,
+                        rIServerAuthService,
                         rConnectionStateService
                 )
         );

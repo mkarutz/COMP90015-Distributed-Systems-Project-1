@@ -2,8 +2,10 @@ package activitystreamer.server.commandhandlers;
 
 import activitystreamer.core.command.*;
 import activitystreamer.core.shared.Connection;
-import activitystreamer.server.services.ServerAuthService;
-import activitystreamer.server.services.UserAuthService;
+import activitystreamer.server.services.contracts.IServerAuthService;
+import activitystreamer.server.services.contracts.IUserAuthService;
+import activitystreamer.server.services.impl.ServerAuthService;
+import activitystreamer.server.services.impl.UserAuthService;
 import org.junit.Test;
 
 import static org.mockito.Mockito.*;
@@ -11,12 +13,12 @@ import static org.mockito.Mockito.*;
 public class LockRequestCommandHandlerTest {
     @Test
     public void testUsernameMustBeNotNull() {
-        ServerAuthService mockServerAuthService = mock(ServerAuthService.class);
-        UserAuthService mockAuthService = mock(UserAuthService.class);
+        IServerAuthService mockIServerAuthService = mock(ServerAuthService.class);
+        IUserAuthService mockAuthService = mock(UserAuthService.class);
 
         LockRequestCommandHandler handler = new LockRequestCommandHandler(
                 mockAuthService,
-                mockServerAuthService
+                mockIServerAuthService
         );
 
         LockRequestCommand mockCommand = mock(LockRequestCommand.class);
@@ -32,12 +34,12 @@ public class LockRequestCommandHandlerTest {
 
     @Test
     public void testSecretMustBeNotNull() {
-        ServerAuthService mockServerAuthService = mock(ServerAuthService.class);
-        UserAuthService mockAuthService = mock(UserAuthService.class);
+        IServerAuthService mockIServerAuthService = mock(ServerAuthService.class);
+        IUserAuthService mockAuthService = mock(UserAuthService.class);
 
         LockRequestCommandHandler handler = new LockRequestCommandHandler(
                 mockAuthService,
-                mockServerAuthService
+                mockIServerAuthService
         );
 
         LockRequestCommand mockCommand = mock(LockRequestCommand.class);

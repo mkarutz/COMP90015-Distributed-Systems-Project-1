@@ -1,4 +1,4 @@
-package activitystreamer.server.services;
+package activitystreamer.server.services.contracts;
 
 import activitystreamer.core.shared.Connection;
 
@@ -7,6 +7,7 @@ public interface IUserAuthService {
 
     boolean register(String username, String secret, Connection replyConnection);
     boolean login(Connection conn, String username, String secret);
+    void logout(Connection conn);
     void loginAsAnonymous(Connection conn);
     void lockRequest(String username, String secret);
     void lockAllowed(String username, String secret, String serverId);

@@ -2,18 +2,16 @@ package activitystreamer.server.commandhandlers;
 
 import activitystreamer.core.command.*;
 import activitystreamer.core.shared.Connection;
-import activitystreamer.server.services.RemoteServerStateService;
-import activitystreamer.server.services.UserAuthService;
-import com.google.gson.JsonObject;
+import activitystreamer.server.services.contracts.IUserAuthService;
+import activitystreamer.server.services.impl.UserAuthService;
 import org.junit.Test;
 
-import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
 public class RegisterCommandHandlerTest {
     @Test
     public void testUsernameMustBeNotNull() {
-        UserAuthService mockAuthService = mock(UserAuthService.class);
+        IUserAuthService mockAuthService = mock(UserAuthService.class);
         RegisterCommandHandler handler = new RegisterCommandHandler(mockAuthService);
 
         RegisterCommand mockCommand = mock(RegisterCommand.class);
@@ -28,7 +26,7 @@ public class RegisterCommandHandlerTest {
 
     @Test
     public void testSecretMustBeNotNull() {
-        UserAuthService mockAuthService = mock(UserAuthService.class);
+        IUserAuthService mockAuthService = mock(UserAuthService.class);
         RegisterCommandHandler handler = new RegisterCommandHandler(mockAuthService);
 
         RegisterCommand mockCommand = mock(RegisterCommand.class);
@@ -44,7 +42,7 @@ public class RegisterCommandHandlerTest {
 
     @Test
     public void testRegisterIsCalledOnTheAuthService() {
-        UserAuthService mockAuthService = mock(UserAuthService.class);
+        IUserAuthService mockAuthService = mock(UserAuthService.class);
         when(mockAuthService.register(anyString(), anyString(), any(Connection.class))).thenReturn(false);
 
         RegisterCommandHandler handler = new RegisterCommandHandler(mockAuthService);
@@ -62,7 +60,7 @@ public class RegisterCommandHandlerTest {
 
     @Test
     public void testIfTheUsernameIsAlreadyKnownThenSendARegisterFailedCommand() {
-        UserAuthService mockAuthService = mock(UserAuthService.class);
+        IUserAuthService mockAuthService = mock(UserAuthService.class);
         when(mockAuthService.register(anyString(), anyString(), any(Connection.class))).thenReturn(false);
 
         RegisterCommandHandler handler = new RegisterCommandHandler(mockAuthService);

@@ -3,19 +3,20 @@ package activitystreamer.server.commandhandlers;
 import activitystreamer.core.command.*;
 import activitystreamer.core.commandhandler.*;
 import activitystreamer.core.shared.Connection;
-import activitystreamer.server.services.*;
+import activitystreamer.server.services.contracts.IBroadcastService;
+import activitystreamer.server.services.contracts.IUserAuthService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 public class LockDeniedCommandHandler implements ICommandHandler {
     private Logger log = LogManager.getLogger();
 
-    private UserAuthService rAuthService;
-    private ConnectionStateService rConnectionStateService;
+    private IUserAuthService rAuthService;
+    private IBroadcastService rIBroadcastService;
 
-    public LockDeniedCommandHandler(UserAuthService rAuthService, ConnectionStateService rConnectionStateService) {
+    public LockDeniedCommandHandler(IUserAuthService rAuthService, IBroadcastService rIBroadcastService) {
         this.rAuthService = rAuthService;
-        this.rConnectionStateService = rConnectionStateService;
+        this.rIBroadcastService = rIBroadcastService;
     }
 
     @Override
@@ -27,7 +28,7 @@ public class LockDeniedCommandHandler implements ICommandHandler {
             rAuthService.lockDenied(lCommand.getUsername(), lCommand.getSecret());
 
             // Broadcast out
-            rConnectionStateService.broadcastToAll(lCommand, conn);
+            rIBroadcastService.broadcastToAll(lCommand, conn);
 
             return true;
         } else {

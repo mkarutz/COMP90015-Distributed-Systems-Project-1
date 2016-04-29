@@ -1,9 +1,10 @@
-package activitystreamer.server.services;
+package activitystreamer.server.services.impl;
 
 import activitystreamer.core.shared.Connection;
+import activitystreamer.server.services.contracts.IServerAuthService;
 import activitystreamer.util.Settings;
 
-public class ServerAuthService {
+public class ServerAuthService implements IServerAuthService {
 
     private ConnectionStateService connectionStateService;
 

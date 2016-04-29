@@ -1,5 +1,5 @@
 
-package activitystreamer.server.services;
+package activitystreamer.server.services.impl;
 
 import activitystreamer.server.Control;
 import activitystreamer.server.ServerState;

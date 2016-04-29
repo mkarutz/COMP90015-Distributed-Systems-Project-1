@@ -3,17 +3,18 @@ package activitystreamer.server.commandhandlers;
 import activitystreamer.core.command.*;
 import activitystreamer.core.commandhandler.*;
 import activitystreamer.core.shared.Connection;
-import activitystreamer.server.services.*;
+import activitystreamer.server.services.contracts.IBroadcastService;
+import activitystreamer.server.services.contracts.IUserAuthService;
 import com.google.gson.JsonObject;
 
 public class ActivityMessageCommandHandler implements ICommandHandler {
-    private UserAuthService rAuthService;
-    private ConnectionStateService rConnectionStateService;
+    private IUserAuthService rAuthService;
+    private IBroadcastService rIBroadcastService;
 
-    public ActivityMessageCommandHandler(UserAuthService rAuthService,
-                                         ConnectionStateService rConnectionStateService) {
+    public ActivityMessageCommandHandler(IUserAuthService rAuthService,
+                                         IBroadcastService rIBroadcastService) {
         this.rAuthService = rAuthService;
-        this.rConnectionStateService = rConnectionStateService;
+        this.rIBroadcastService = rIBroadcastService;
     }
 
     @Override
@@ -47,7 +48,7 @@ public class ActivityMessageCommandHandler implements ICommandHandler {
 
             JsonObject activity = cmd.getActivity();
             activity.addProperty("authenticated_user", cmd.getUsername());
-            rConnectionStateService.broadcastToAll(new ActivityBroadcastCommand(activity), conn);
+            rIBroadcastService.broadcastToAll(new ActivityBroadcastCommand(activity), conn);
 
             return true;
         } else {

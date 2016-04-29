@@ -3,19 +3,20 @@ package activitystreamer.server.commandhandlers;
 import activitystreamer.core.command.*;
 import activitystreamer.core.commandhandler.*;
 import activitystreamer.core.shared.Connection;
-import activitystreamer.server.services.*;
+import activitystreamer.server.services.contracts.IBroadcastService;
+import activitystreamer.server.services.contracts.IUserAuthService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 public class LockAllowedCommandHandler implements ICommandHandler {
     private Logger log = LogManager.getLogger();
 
-    private UserAuthService rAuthService;
-    private ConnectionStateService rConnectionStateService;
+    private IUserAuthService rAuthService;
+    private IBroadcastService rIBroadcastService;
 
-    public LockAllowedCommandHandler(UserAuthService rAuthService, ConnectionStateService rConnectionStateService) {
+    public LockAllowedCommandHandler(IUserAuthService rAuthService, IBroadcastService rIBroadcastService) {
         this.rAuthService = rAuthService;
-        this.rConnectionStateService = rConnectionStateService;
+        this.rIBroadcastService = rIBroadcastService;
     }
 
     @Override
@@ -27,7 +28,7 @@ public class LockAllowedCommandHandler implements ICommandHandler {
             rAuthService.lockAllowed(lCommand.getUsername(), lCommand.getSecret(), lCommand.getServerId());
 
             // Broadcast out
-            rConnectionStateService.broadcastToServers(lCommand, conn);
+            rIBroadcastService.broadcastToServers(lCommand, conn);
 
             return true;
         } else {

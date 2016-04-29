@@ -4,15 +4,16 @@ import activitystreamer.core.command.*;
 import activitystreamer.core.commandhandler.*;
 import activitystreamer.core.shared.Connection;
 import activitystreamer.server.ServerState;
-import activitystreamer.server.services.*;
-import activitystreamer.server.commandprocessors.*;
+import activitystreamer.server.services.contracts.IUserAuthService;
+import activitystreamer.server.services.impl.ConnectionStateService;
+import activitystreamer.server.services.impl.RemoteServerStateService;
 
 public class LoginCommandHandler implements ICommandHandler {
-    private final UserAuthService rAuthService;
+    private final IUserAuthService rAuthService;
     private final RemoteServerStateService rServerStateService;
     private final ConnectionStateService rConnectionStateService;
 
-    public LoginCommandHandler(UserAuthService rAuthService,
+    public LoginCommandHandler(IUserAuthService rAuthService,
                                RemoteServerStateService rServerStateService,
                                ConnectionStateService rConnectionStateService) {
         this.rAuthService = rAuthService;
@@ -31,7 +32,7 @@ public class LoginCommandHandler implements ICommandHandler {
                 return true;
             }
 
-            if (loginCommand.getUsername().equals(UserAuthService.ANONYMOUS)) {
+            if (loginCommand.getUsername().equals(IUserAuthService.ANONYMOUS)) {
                 rAuthService.loginAsAnonymous(conn);
                 sendLoginSuccess(conn, loginCommand.getUsername());
                 // Dealing with a client connection

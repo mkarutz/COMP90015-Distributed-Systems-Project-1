@@ -1,11 +1,12 @@
 package activitystreamer.core.command;
 
 import activitystreamer.core.command.transmission.gson.JsonRequired;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 public class ActivityBroadcastCommand implements ICommand {
     @JsonRequired
-    private JsonObject activity;
+    private JsonElement activity;
 
     public ActivityBroadcastCommand(JsonObject activity) {
         this.activity = activity;
@@ -25,7 +26,7 @@ public class ActivityBroadcastCommand implements ICommand {
     }
 
     public JsonObject getActivity() {
-        return activity;
+        return activity.getAsJsonObject();
     }
 
     public void setActivity(JsonObject activity) {

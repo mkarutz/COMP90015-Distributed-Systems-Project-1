@@ -1,5 +1,5 @@
 
-package activitystreamer.server.services;
+package activitystreamer.server.services.impl;
 
 import java.util.Map;
 import java.util.HashMap;
@@ -8,8 +8,9 @@ import java.util.ArrayList;
 
 import activitystreamer.core.command.*;
 import activitystreamer.core.shared.Connection;
+import activitystreamer.server.services.contracts.IBroadcastService;
 
-public class ConnectionStateService {
+public class ConnectionStateService implements IBroadcastService {
     private HashMap<Connection, ConnectionType> connectionStates;
 
     public enum ConnectionType {
@@ -48,6 +49,30 @@ public class ConnectionStateService {
     public void broadcastToServers(ICommand command, Connection exclude) {
         for (Map.Entry<Connection, ConnectionType> entry : connectionStates.entrySet()) {
             if (entry.getKey() != exclude && entry.getValue() == ConnectionType.SERVER) {
+                entry.getKey().pushCommand(command);
+            }
+        }
+    }
+
+    @Override
+    public void broadcastToServers(ICommand command) {
+        broadcastToServers(command, null);
+    }
+
+    @Override
+    public void broadcastToClients(ICommand command) {
+        broadcastToClients(command, null);
+    }
+
+    @Override
+    public void broadcastToAll(ICommand command) {
+        broadcastToAll(command, null);
+    }
+
+    @Override
+    public void broadcastToClients(ICommand command, Connection exclude) {
+        for (Map.Entry<Connection, ConnectionType> entry : connectionStates.entrySet()) {
+            if (entry.getKey() != exclude && entry.getValue() == ConnectionType.CLIENT) {
                 entry.getKey().pushCommand(command);
             }
         }

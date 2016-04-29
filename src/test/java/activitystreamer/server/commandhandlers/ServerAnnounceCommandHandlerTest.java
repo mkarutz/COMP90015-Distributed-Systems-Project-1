@@ -6,16 +6,14 @@ import activitystreamer.core.command.transmission.CommandParseException;
 import activitystreamer.core.command.transmission.gson.GsonCommandSerializationAdaptor;
 import activitystreamer.core.shared.Connection;
 import activitystreamer.server.ServerState;
-import activitystreamer.server.services.ConnectionStateService;
-import activitystreamer.server.services.RemoteServerStateService;
-import activitystreamer.server.services.ServerAuthService;
+import activitystreamer.server.services.impl.ConnectionStateService;
+import activitystreamer.server.services.impl.RemoteServerStateService;
 import org.junit.Test;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
 import static org.mockito.Mockito.*;
-import static org.junit.Assert.*;
 
 public class ServerAnnounceCommandHandlerTest {
     @Test

@@ -2,11 +2,10 @@ package activitystreamer.server.commandhandlers;
 
 import activitystreamer.core.command.*;
 import activitystreamer.core.commandhandler.*;
-import activitystreamer.core.commandprocessor.*;
 import activitystreamer.core.shared.*;
 import activitystreamer.server.*;
-import activitystreamer.server.services.*;
-import activitystreamer.util.Settings;
+import activitystreamer.server.services.impl.ConnectionStateService;
+import activitystreamer.server.services.impl.RemoteServerStateService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

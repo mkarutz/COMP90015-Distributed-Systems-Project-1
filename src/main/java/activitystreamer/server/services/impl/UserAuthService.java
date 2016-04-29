@@ -1,22 +1,24 @@
-package activitystreamer.server.services;
+package activitystreamer.server.services.impl;
 
 import java.util.*;
 
 import activitystreamer.core.shared.Connection;
 import activitystreamer.core.command.*;
+import activitystreamer.server.services.contracts.IBroadcastService;
+import activitystreamer.server.services.contracts.IUserAuthService;
 import activitystreamer.util.Settings;
 
 public class UserAuthService implements IUserAuthService {
     private final RemoteServerStateService rServerService;
-    private final ConnectionStateService rConnectionStateService;
+    private final IBroadcastService rIBroadcastService;
     private Map<Connection, String> loggedInUsers;
     private Map<String, String> userMap;
     private Map<String, LockRequest> pendingLockRequests;
 
     public UserAuthService(RemoteServerStateService rServerService,
-                           ConnectionStateService rConnectionStateService) {
+                           IBroadcastService rIBroadcastService) {
         this.rServerService = rServerService;
-        this.rConnectionStateService = rConnectionStateService;
+        this.rIBroadcastService = rIBroadcastService;
 
         this.userMap = new HashMap<>();
         this.pendingLockRequests = new HashMap<>();
@@ -30,6 +32,11 @@ public class UserAuthService implements IUserAuthService {
         }
         loggedInUsers.put(conn, username);
         return true;
+    }
+
+    @Override
+    public void logout(Connection conn) {
+        loggedInUsers.remove(conn);
     }
 
     @Override
@@ -61,7 +68,7 @@ public class UserAuthService implements IUserAuthService {
         }
         LockRequest req = new LockRequest(secret, waitingServers, replyConnection);
         pendingLockRequests.put(username, req);
-        rConnectionStateService.broadcastToServers(new LockRequestCommand(username, secret), null);
+        rIBroadcastService.broadcastToServers(new LockRequestCommand(username, secret), null);
     }
 
     @Override
@@ -99,9 +106,9 @@ public class UserAuthService implements IUserAuthService {
     @Override
     public synchronized void lockRequest(String username, String secret) {
         if (userMap.containsKey(username)) {
-            rConnectionStateService.broadcastToServers(new LockDeniedCommand(username, secret), null);
+            rIBroadcastService.broadcastToServers(new LockDeniedCommand(username, secret), null);
         } else {
-            rConnectionStateService.broadcastToServers(new LockAllowedCommand(username, secret, Settings.getId()), null);
+            rIBroadcastService.broadcastToServers(new LockAllowedCommand(username, secret, Settings.getId()), null);
         }
     }
 

@@ -6,14 +6,14 @@ import activitystreamer.core.command.RegisterCommand;
 import activitystreamer.core.command.RegisterFailedCommand;
 import activitystreamer.core.commandhandler.ICommandHandler;
 import activitystreamer.core.shared.Connection;
-import activitystreamer.server.services.IUserAuthService;
+import activitystreamer.server.services.contracts.IUserAuthService;
 
 public class RegisterCommandHandler implements ICommandHandler {
 
-    IUserAuthService rAuthService;
+    IUserAuthService rUserAuthService;
 
-    public RegisterCommandHandler(IUserAuthService rAuthService) {
-        this.rAuthService = rAuthService;
+    public RegisterCommandHandler(IUserAuthService rUserAuthService) {
+        this.rUserAuthService = rUserAuthService;
     }
 
     @Override
@@ -27,7 +27,7 @@ public class RegisterCommandHandler implements ICommandHandler {
                 return true;
             }
 
-            if (!rAuthService.register(registerCommand.getUsername(), registerCommand.getSecret(), conn)) {
+            if (!rUserAuthService.register(registerCommand.getUsername(), registerCommand.getSecret(), conn)) {
                 conn.pushCommand(new RegisterFailedCommand("Username " + registerCommand.getUsername() + "  already exists."));
             }
 
