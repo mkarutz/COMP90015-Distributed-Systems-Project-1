@@ -1,8 +1,6 @@
 package activitystreamer.server.commandprocessors;
 
-import activitystreamer.core.command.ICommandBroadcaster;
 import activitystreamer.core.commandprocessor.*;
-import activitystreamer.core.commandhandler.*;
 import activitystreamer.server.commandhandlers.*;
 import activitystreamer.server.services.*;
 
@@ -15,7 +13,7 @@ public class MainCommandProcessor extends CommandProcessor {
 
         handlers.add(new ActivityBroadcastCommandHandler(rConnectionStateService));
         handlers.add(new ActivityMessageCommandHandler(rUserAuthService, rConnectionStateService));
-        handlers.add(new AuthenticateCommandHandler(rServerService, rUserAuthService, rServerAuthService, rConnectionStateService));
+        handlers.add(new AuthenticateCommandHandler(rServerAuthService));
         handlers.add(new AuthenticationFailCommandHandler());
         handlers.add(new LockAllowedCommandHandler(rUserAuthService, rConnectionStateService));
         handlers.add(new LockDeniedCommandHandler(rUserAuthService, rConnectionStateService));

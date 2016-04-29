@@ -1,20 +1,25 @@
 package activitystreamer.server.services;
 
 import activitystreamer.core.shared.Connection;
-import activitystreamer.server.services.ConnectionStateService;
+import activitystreamer.util.Settings;
 
 public class ServerAuthService {
 
-    private ConnectionStateService connState;
+    private ConnectionStateService connectionStateService;
 
-    public ServerAuthService(ConnectionStateService connState){
-        this.connState=connState;
+    public ServerAuthService(ConnectionStateService connectionStateService){
+        this.connectionStateService = connectionStateService;
     }
 
-    public boolean isAuthenticated(Connection conn) {
-        if (connState.getConnectionType(conn) == ConnectionStateService.ConnectionType.SERVER){
+    public boolean authenticate(Connection conn, String secret) {
+        if (Settings.getSecret().equals(secret)) {
+            connectionStateService.setConnectionType(conn, ConnectionStateService.ConnectionType.SERVER);
             return true;
         }
         return false;
+    }
+
+    public boolean isAuthenticated(Connection conn) {
+        return connectionStateService.getConnectionType(conn) == ConnectionStateService.ConnectionType.SERVER;
     }
 }
