@@ -12,12 +12,62 @@ import org.junit.Test;
 import static org.mockito.Mockito.*;
 
 public class AuthenticateCommandHandlerTest {
+    
+    @Test
+    public void testIfClientSendInvalid() {
+        ConnectionStateService mockConnectionStateService=mock(ConnectionStateService.class);
+        when(mockConnectionStateService.getConnectionType(any(Connection.class))).thenReturn(ConnectionStateService.ConnectionType.CLIENT);
+        ServerAuthService mockServerAuthService = spy(new ServerAuthService(mockConnectionStateService));
+
+        AuthenticateCommandHandler handler = new AuthenticateCommandHandler(
+                mockServerAuthService,
+                mockConnectionStateService
+        );
+
+        Settings.setSecret("the actual secret");
+
+        AuthenticateCommand mockCommand = mock(AuthenticateCommand.class);
+        when(mockCommand.getSecret()).thenReturn("the actual secret");
+
+        Connection mockConnection = mock(Connection.class);
+        handler.handleCommand(mockCommand, mockConnection);
+
+        verify(mockConnection).pushCommand(isA(InvalidMessageCommand.class));
+        verify(mockConnection).close();
+    }
+
+    @Test
+    public void testIfServerSendInvalid() {
+        ConnectionStateService mockConnectionStateService=mock(ConnectionStateService.class);
+        when(mockConnectionStateService.getConnectionType(any(Connection.class))).thenReturn(ConnectionStateService.ConnectionType.SERVER);
+        ServerAuthService mockServerAuthService = spy(new ServerAuthService(mockConnectionStateService));
+
+        AuthenticateCommandHandler handler = new AuthenticateCommandHandler(
+                mockServerAuthService,
+                mockConnectionStateService
+        );
+
+        Settings.setSecret("the actual secret");
+
+        AuthenticateCommand mockCommand = mock(AuthenticateCommand.class);
+        when(mockCommand.getSecret()).thenReturn("the actual secret");
+
+        Connection mockConnection = mock(Connection.class);
+        handler.handleCommand(mockCommand, mockConnection);
+
+        verify(mockConnection).pushCommand(isA(InvalidMessageCommand.class));
+        verify(mockConnection).close();
+    }
+
     @Test
     public void testIfThereIsNoSecretThenSendAnInvalidMessageCommand() {
         ServerAuthService mockServerAuthService = mock(ServerAuthService.class);
+        ConnectionStateService mockConnectionStateService=mock(ConnectionStateService.class);
+        when(mockConnectionStateService.getConnectionType(any(Connection.class))).thenReturn(ConnectionStateService.ConnectionType.UNKNOWN);
 
         AuthenticateCommandHandler handler = new AuthenticateCommandHandler(
-                mockServerAuthService
+                mockServerAuthService,
+                mockConnectionStateService
         );
 
         AuthenticateCommand mockCommand = mock(AuthenticateCommand.class);
@@ -33,9 +83,12 @@ public class AuthenticateCommandHandlerTest {
     @Test
     public void testIfTheSecretIsIncorrectThenSendAnAuthenticationFailCommand() {
         ServerAuthService mockServerAuthService = mock(ServerAuthService.class);
+        ConnectionStateService mockConnectionStateService=mock(ConnectionStateService.class);
+        when(mockConnectionStateService.getConnectionType(any(Connection.class))).thenReturn(ConnectionStateService.ConnectionType.UNKNOWN);
 
         AuthenticateCommandHandler handler = new AuthenticateCommandHandler(
-                mockServerAuthService
+                mockServerAuthService,
+                mockConnectionStateService
         );
 
         Settings.setSecret("the actual secret");
@@ -52,11 +105,13 @@ public class AuthenticateCommandHandlerTest {
 
     @Test
     public void testIfTheSecretIsCorrectThenAuthenticateTheServer() {
-        ConnectionStateService mockConnectionStateService = spy(new ConnectionStateService());
+        ConnectionStateService mockConnectionStateService=mock(ConnectionStateService.class);
+        when(mockConnectionStateService.getConnectionType(any(Connection.class))).thenReturn(ConnectionStateService.ConnectionType.UNKNOWN);
         ServerAuthService mockServerAuthService = spy(new ServerAuthService(mockConnectionStateService));
 
         AuthenticateCommandHandler handler = new AuthenticateCommandHandler(
-                mockServerAuthService
+                mockServerAuthService,
+                mockConnectionStateService
         );
 
         Settings.setSecret("the actual secret");

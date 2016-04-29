@@ -21,6 +21,13 @@ public class LockDeniedCommandHandler implements ICommandHandler {
     @Override
     public boolean handleCommand(ICommand command, Connection conn) {
         if (command instanceof LockDeniedCommand) {
+
+            if (!(this.rConnectionStateService.getConnectionType(conn)==ConnectionStateService.ConnectionType.SERVER)){
+                conn.pushCommand(new InvalidMessageCommand("Imposter SERVER."));
+                conn.close();
+                return true;
+            }
+            
             LockDeniedCommand lCommand = (LockDeniedCommand)command;
 
             // Register lock denied with auth service

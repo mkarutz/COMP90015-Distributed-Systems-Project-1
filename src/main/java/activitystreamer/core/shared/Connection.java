@@ -54,14 +54,14 @@ public class Connection implements Closeable, Runnable {
                 term = true;
             } catch (CommandParseException e) {
                 log.error("Invalid message. Closing connection.");
-                ICommand cmd = new InvalidMessageCommand("Expecting Json Object");
+                ICommand cmd = new InvalidMessageCommand(e.getMessage());
                 this.pushCommand(cmd);
                 term = true;
             }
         }
         isRunning = false;
     }
-    
+
     public void pushCommand(ICommand cmd) {
         String message = commandSerializer.serialize(cmd);
         log.info("Sent message: " + message);
@@ -131,7 +131,7 @@ public class Connection implements Closeable, Runnable {
         return open;
     }
 
-    //testing Bad msgs
+    // testing Bad msgs
     // public void writeBad(String msg){
     //     this.writeLine(msg);
     // }

@@ -30,9 +30,14 @@ public class ClientSolution implements Runnable {
         textFrame = new TextFrame(this);
     }
 
-    //testing for badActivity Object
+    // testing for badActivity Object
     // public void sendBadActivityObject() {
-    //     connection.writeBad("{\"command\":\"ACTIVITY_MESSAGE\",\"username\":\"anonymous\",\"secret\":\"\",\"activity\":\"asdasd\"}");
+    //     // connection.writeBad("{\"command\":\"ACTIVITY_MESSAGE\",\"username\":\"anonymous\",\"secret\":\"\",\"activity\":{\"asdsad\":\"asdsd\"}}");
+    //     // connection.writeBad("{\"command\":\"ACTIVITY_MESSAGE\",\"username\":\"anonymous\",\"secret\":\"\",\"activity\":\"asdasd\"}");
+    //     // connection.writeBad("{\"command\":\"ACTIVITY_MESSAGE\",\"username\":\"anonymous\",\"secret\":\"\"}");
+    //     // connection.writeBad("{\"command\":\"ACTIVITY_MESSAGE\"}");
+    //     // connection.writeBad("{\"command\":\"SERVER_ANNOUNCE\",\"id\":\"ghavsjhdvjh576avsjhdh\",\"hostname\":\"127.0.0.1\",\"load\":\"0\",\"port\":\"4213\"}");
+    //     connection.writeBad("{\"command\":\"SERVER_ANNOUNCE\",\"id\":\"ghavsjhdvjh576avsjhdh\",\"hostname\":\"127.0.0.1\",\"load\":\"0\",\"port\":\"4213\"}");
     // }
 
     // called by the gui when the user clicks "send"

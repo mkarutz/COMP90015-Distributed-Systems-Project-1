@@ -24,6 +24,13 @@ public class ServerAnnounceCommandHandler implements ICommandHandler {
     @Override
     public boolean handleCommand(ICommand command, Connection conn) {
         if (command instanceof ServerAnnounceCommand) {
+
+            if (!(this.rConnectionStateService.getConnectionType(conn)==ConnectionStateService.ConnectionType.SERVER)){
+                conn.pushCommand(new InvalidMessageCommand("Imposter SERVER."));
+                conn.close();
+                return true;
+            }
+
             ServerAnnounceCommand cmd = (ServerAnnounceCommand) command;
 
             if (cmd.getId() == null) {

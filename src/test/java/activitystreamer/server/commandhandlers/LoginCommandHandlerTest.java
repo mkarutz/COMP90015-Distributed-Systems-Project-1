@@ -15,6 +15,7 @@ public class LoginCommandHandlerTest {
         RemoteServerStateService mockRemoteServerStateService = mock(RemoteServerStateService.class);
 
         ConnectionStateService mockConnectionStateService = mock(ConnectionStateService.class);
+        when(mockConnectionStateService.getConnectionType(any(Connection.class))).thenReturn(ConnectionStateService.ConnectionType.UNKNOWN);
 
         LoginCommandHandler handler = new LoginCommandHandler(mockAuthService, mockRemoteServerStateService, mockConnectionStateService);
 
@@ -29,11 +30,62 @@ public class LoginCommandHandlerTest {
     }
 
     @Test
+    public void aLoggedInClientCannotSendaotherLogin() {
+        UserAuthService mockAuthService = mock(UserAuthService.class);
+        when(mockAuthService.isUserRegistered(anyString(), anyString())).thenReturn(true);
+        when(mockAuthService.login(any(Connection.class), anyString(), anyString())).thenReturn(true);
+
+        RemoteServerStateService mockRemoteServerStateService = mock(RemoteServerStateService.class);
+
+        ConnectionStateService mockConnectionStateService = mock(ConnectionStateService.class);
+        when(mockConnectionStateService.getConnectionType(any(Connection.class))).thenReturn(ConnectionStateService.ConnectionType.CLIENT);
+
+        LoginCommandHandler handler = new LoginCommandHandler(mockAuthService, mockRemoteServerStateService, mockConnectionStateService);
+
+        LoginCommand cmd = mock(LoginCommand.class);
+        when(cmd.getUsername()).thenReturn("username");
+        when(cmd.getSecret()).thenReturn("password");
+
+
+        Connection conn = mock(Connection.class);
+        handler.handleCommand(cmd, conn);
+
+        verify(conn).pushCommand(isA(InvalidMessageCommand.class));
+        verify(conn).close();
+    }
+
+    @Test
+    public void aServerCannotSendALogin() {
+        UserAuthService mockAuthService = mock(UserAuthService.class);
+        when(mockAuthService.isUserRegistered(anyString(), anyString())).thenReturn(true);
+        when(mockAuthService.login(any(Connection.class), anyString(), anyString())).thenReturn(true);
+
+        RemoteServerStateService mockRemoteServerStateService = mock(RemoteServerStateService.class);
+
+        ConnectionStateService mockConnectionStateService = mock(ConnectionStateService.class);
+        when(mockConnectionStateService.getConnectionType(any(Connection.class))).thenReturn(ConnectionStateService.ConnectionType.SERVER);
+
+        LoginCommandHandler handler = new LoginCommandHandler(mockAuthService, mockRemoteServerStateService, mockConnectionStateService);
+
+        LoginCommand cmd = mock(LoginCommand.class);
+        when(cmd.getUsername()).thenReturn("username");
+        when(cmd.getSecret()).thenReturn("password");
+
+
+        Connection conn = mock(Connection.class);
+        handler.handleCommand(cmd, conn);
+
+        verify(conn).pushCommand(isA(InvalidMessageCommand.class));
+        verify(conn).close();
+    }
+
+    @Test
     public void ifTheUsernameIsAnonymousThenTheUsernameIsIgnored() {
         UserAuthService mockAuthService = mock(UserAuthService.class);
         RemoteServerStateService mockRemoteServerStateService = mock(RemoteServerStateService.class);
 
         ConnectionStateService mockConnectionStateService = mock(ConnectionStateService.class);
+        when(mockConnectionStateService.getConnectionType(any(Connection.class))).thenReturn(ConnectionStateService.ConnectionType.UNKNOWN);
 
         LoginCommandHandler handler = new LoginCommandHandler(mockAuthService, mockRemoteServerStateService, mockConnectionStateService);
 
@@ -52,6 +104,7 @@ public class LoginCommandHandlerTest {
         RemoteServerStateService serverStateService = mock(RemoteServerStateService.class);
 
         ConnectionStateService mockConnectionStateService = mock(ConnectionStateService.class);
+        when(mockConnectionStateService.getConnectionType(any(Connection.class))).thenReturn(ConnectionStateService.ConnectionType.UNKNOWN);
 
         LoginCommandHandler handler = new LoginCommandHandler(authService, serverStateService, mockConnectionStateService);
 
@@ -77,6 +130,7 @@ public class LoginCommandHandlerTest {
         when(serverStateService.getServerToRedirectTo()).thenReturn(mockServer);
 
         ConnectionStateService mockConnectionStateService = mock(ConnectionStateService.class);
+        when(mockConnectionStateService.getConnectionType(any(Connection.class))).thenReturn(ConnectionStateService.ConnectionType.UNKNOWN);
 
         LoginCommandHandler handler = new LoginCommandHandler(authService, serverStateService, mockConnectionStateService);
 
@@ -100,6 +154,7 @@ public class LoginCommandHandlerTest {
         RemoteServerStateService serverStateService = mock(RemoteServerStateService.class);
 
         ConnectionStateService mockConnectionStateService = mock(ConnectionStateService.class);
+        when(mockConnectionStateService.getConnectionType(any(Connection.class))).thenReturn(ConnectionStateService.ConnectionType.UNKNOWN);
 
         LoginCommandHandler handler = new LoginCommandHandler(authService, serverStateService, mockConnectionStateService);
 

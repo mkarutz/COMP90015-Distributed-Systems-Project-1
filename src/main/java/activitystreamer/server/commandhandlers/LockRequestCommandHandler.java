@@ -12,16 +12,25 @@ public class LockRequestCommandHandler implements ICommandHandler {
 
     private UserAuthService rUserAuthService;
     private ServerAuthService rServerAuthService;
+    private ConnectionStateService rConnectionStateService;
 
     public LockRequestCommandHandler(UserAuthService rUserAuthService,
-                                     ServerAuthService rServerAuthService) {
+                                     ServerAuthService rServerAuthService, ConnectionStateService rConnectionStateService) {
         this.rUserAuthService = rUserAuthService;
         this.rServerAuthService = rServerAuthService;
+        this.rConnectionStateService=rConnectionStateService;
     }
 
     @Override
     public boolean handleCommand(ICommand command, Connection conn) {
         if (command instanceof LockRequestCommand) {
+
+            if (!(this.rConnectionStateService.getConnectionType(conn)==ConnectionStateService.ConnectionType.SERVER)){
+                conn.pushCommand(new InvalidMessageCommand("Imposter SERVER."));
+                conn.close();
+                return true;
+            }
+
             LockRequestCommand cmd = (LockRequestCommand) command;
 
             if (cmd.getUsername() == null) {

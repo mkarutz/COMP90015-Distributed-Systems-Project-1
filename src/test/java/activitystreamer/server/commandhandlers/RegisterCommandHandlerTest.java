@@ -6,6 +6,7 @@ import activitystreamer.server.services.RemoteServerStateService;
 import activitystreamer.server.services.UserAuthService;
 import com.google.gson.JsonObject;
 import org.junit.Test;
+import activitystreamer.server.services.ConnectionStateService;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
@@ -14,7 +15,9 @@ public class RegisterCommandHandlerTest {
     @Test
     public void testUsernameMustBeNotNull() {
         UserAuthService mockAuthService = mock(UserAuthService.class);
-        RegisterCommandHandler handler = new RegisterCommandHandler(mockAuthService);
+        ConnectionStateService mockConnectionStateService=mock(ConnectionStateService.class);
+        when(mockConnectionStateService.getConnectionType(any(Connection.class))).thenReturn(ConnectionStateService.ConnectionType.UNKNOWN);
+        RegisterCommandHandler handler = new RegisterCommandHandler(mockAuthService,mockConnectionStateService);
 
         RegisterCommand mockCommand = mock(RegisterCommand.class);
         when(mockCommand.getUsername()).thenReturn(null);
@@ -29,7 +32,10 @@ public class RegisterCommandHandlerTest {
     @Test
     public void testSecretMustBeNotNull() {
         UserAuthService mockAuthService = mock(UserAuthService.class);
-        RegisterCommandHandler handler = new RegisterCommandHandler(mockAuthService);
+        ConnectionStateService mockConnectionStateService=mock(ConnectionStateService.class);
+        when(mockConnectionStateService.getConnectionType(any(Connection.class))).thenReturn(ConnectionStateService.ConnectionType.UNKNOWN);
+        RegisterCommandHandler handler = new RegisterCommandHandler(mockAuthService,mockConnectionStateService);
+
 
         RegisterCommand mockCommand = mock(RegisterCommand.class);
         when(mockCommand.getUsername()).thenReturn("username");
@@ -47,7 +53,9 @@ public class RegisterCommandHandlerTest {
         UserAuthService mockAuthService = mock(UserAuthService.class);
         when(mockAuthService.register(anyString(), anyString(), any(Connection.class))).thenReturn(false);
 
-        RegisterCommandHandler handler = new RegisterCommandHandler(mockAuthService);
+        ConnectionStateService mockConnectionStateService=mock(ConnectionStateService.class);
+        when(mockConnectionStateService.getConnectionType(any(Connection.class))).thenReturn(ConnectionStateService.ConnectionType.UNKNOWN);
+        RegisterCommandHandler handler = new RegisterCommandHandler(mockAuthService,mockConnectionStateService);
 
         RegisterCommand mockCommand = mock(RegisterCommand.class);
         when(mockCommand.getUsername()).thenReturn("username");
@@ -65,7 +73,9 @@ public class RegisterCommandHandlerTest {
         UserAuthService mockAuthService = mock(UserAuthService.class);
         when(mockAuthService.register(anyString(), anyString(), any(Connection.class))).thenReturn(false);
 
-        RegisterCommandHandler handler = new RegisterCommandHandler(mockAuthService);
+        ConnectionStateService mockConnectionStateService=mock(ConnectionStateService.class);
+        when(mockConnectionStateService.getConnectionType(any(Connection.class))).thenReturn(ConnectionStateService.ConnectionType.UNKNOWN);
+        RegisterCommandHandler handler = new RegisterCommandHandler(mockAuthService,mockConnectionStateService);
 
         RegisterCommand mockCommand = mock(RegisterCommand.class);
         when(mockCommand.getUsername()).thenReturn("username");

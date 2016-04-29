@@ -11,14 +11,23 @@ public class AuthenticateCommandHandler implements ICommandHandler {
     private Logger log = LogManager.getLogger();
 
     private ServerAuthService rServerAuthService;
+    private ConnectionStateService rConnectionStateService;
 
-    public AuthenticateCommandHandler(ServerAuthService rServerAuthService) {
+    public AuthenticateCommandHandler(ServerAuthService rServerAuthService, ConnectionStateService rConnectionStateService) {
         this.rServerAuthService = rServerAuthService;
+        this.rConnectionStateService=rConnectionStateService;
     }
 
     @Override
     public boolean handleCommand(ICommand command, Connection conn) {
         if (command instanceof AuthenticateCommand) {
+
+            if (!(this.rConnectionStateService.getConnectionType(conn)==ConnectionStateService.ConnectionType.UNKNOWN)){
+                conn.pushCommand(new InvalidMessageCommand(this.rConnectionStateService.getConnectionType(conn)+" connection cannot send an Authenticate message"));
+                conn.close();
+                return true;
+            }
+
             AuthenticateCommand cmd = (AuthenticateCommand) command;
 
             if (cmd.getSecret() == null) {

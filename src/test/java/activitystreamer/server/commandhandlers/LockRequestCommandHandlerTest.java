@@ -5,6 +5,7 @@ import activitystreamer.core.shared.Connection;
 import activitystreamer.server.services.ServerAuthService;
 import activitystreamer.server.services.UserAuthService;
 import org.junit.Test;
+import activitystreamer.server.services.ConnectionStateService;
 
 import static org.mockito.Mockito.*;
 
@@ -13,10 +14,12 @@ public class LockRequestCommandHandlerTest {
     public void testUsernameMustBeNotNull() {
         ServerAuthService mockServerAuthService = mock(ServerAuthService.class);
         UserAuthService mockAuthService = mock(UserAuthService.class);
+        ConnectionStateService mockConnectionStateService=mock(ConnectionStateService.class);
 
         LockRequestCommandHandler handler = new LockRequestCommandHandler(
                 mockAuthService,
-                mockServerAuthService
+                mockServerAuthService,
+                mockConnectionStateService
         );
 
         LockRequestCommand mockCommand = mock(LockRequestCommand.class);
@@ -35,9 +38,12 @@ public class LockRequestCommandHandlerTest {
         ServerAuthService mockServerAuthService = mock(ServerAuthService.class);
         UserAuthService mockAuthService = mock(UserAuthService.class);
 
+        ConnectionStateService mockConnectionStateService=mock(ConnectionStateService.class);
+
         LockRequestCommandHandler handler = new LockRequestCommandHandler(
                 mockAuthService,
-                mockServerAuthService
+                mockServerAuthService,
+                mockConnectionStateService
         );
 
         LockRequestCommand mockCommand = mock(LockRequestCommand.class);

@@ -21,6 +21,13 @@ public class LockAllowedCommandHandler implements ICommandHandler {
     @Override
     public boolean handleCommand(ICommand command, Connection conn) {
         if (command instanceof LockAllowedCommand) {
+
+            if (!(this.rConnectionStateService.getConnectionType(conn)==ConnectionStateService.ConnectionType.SERVER)){
+                conn.pushCommand(new InvalidMessageCommand("Imposter SERVER."));
+                conn.close();
+                return true;
+            }
+            
             LockAllowedCommand lCommand = (LockAllowedCommand)command;
 
             // Register lock allowed with auth service

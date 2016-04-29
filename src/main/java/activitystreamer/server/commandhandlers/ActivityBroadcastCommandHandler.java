@@ -17,6 +17,13 @@ public class ActivityBroadcastCommandHandler implements ICommandHandler {
     @Override
     public boolean handleCommand(ICommand command, Connection conn) {
         if (command instanceof ActivityBroadcastCommand) {
+
+            if (!(this.rConnectionStateService.getConnectionType(conn)==ConnectionStateService.ConnectionType.SERVER)){
+                conn.pushCommand(new InvalidMessageCommand("Imposter SERVER."));
+                conn.close();
+                return true;
+            }
+            
             ActivityBroadcastCommand activityBroadcast = (ActivityBroadcastCommand)command;
             rConnectionStateService.broadcastToAll(activityBroadcast, conn);
 

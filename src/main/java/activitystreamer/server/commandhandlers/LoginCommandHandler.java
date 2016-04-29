@@ -23,6 +23,13 @@ public class LoginCommandHandler implements ICommandHandler {
     @Override
     public boolean handleCommand(ICommand command, Connection conn) {
         if (command instanceof LoginCommand) {
+
+            if (!(this.rConnectionStateService.getConnectionType(conn)==ConnectionStateService.ConnectionType.UNKNOWN)){
+                conn.pushCommand(new InvalidMessageCommand("malicious message!"));
+                conn.close();
+                return true;
+            }
+
             LoginCommand loginCommand = (LoginCommand) command;
 
             if (loginCommand.getUsername() == null) {

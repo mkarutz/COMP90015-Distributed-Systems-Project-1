@@ -2,6 +2,7 @@ package activitystreamer.server.commandhandlers;
 
 import activitystreamer.core.command.ActivityBroadcastCommand;
 import activitystreamer.core.command.ActivityMessageCommand;
+import activitystreamer.core.command.InvalidMessageCommand;
 import activitystreamer.core.command.AuthenticationFailCommand;
 import activitystreamer.core.shared.Connection;
 import activitystreamer.server.services.*;
@@ -12,10 +13,70 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.*;
 
 public class ActivityMessageCommandHandlerTest {
+
+    @Test
+    public void ifServerSendInvalid() {
+        RemoteServerStateService mockServerService = mock(RemoteServerStateService.class);
+        ConnectionStateService mockConnectionStateService = mock(ConnectionStateService.class);
+        when(mockConnectionStateService.getConnectionType(any(Connection.class))).thenReturn(ConnectionStateService.ConnectionType.SERVER);
+
+        UserAuthService mockAuthService = spy(new UserAuthService(mockServerService, mockConnectionStateService));
+        when(mockAuthService.isLoggedIn(any(Connection.class))).thenReturn(true);
+        when(mockAuthService
+                .authorise(any(Connection.class), anyString(), anyString()))
+                .thenReturn(true);
+
+        ActivityMessageCommandHandler handler
+                = new ActivityMessageCommandHandler(mockAuthService, mockConnectionStateService);
+
+        ActivityMessageCommand mockCommand = mock(ActivityMessageCommand.class);
+        when(mockCommand.getUsername()).thenReturn("username");
+        when(mockCommand.getSecret()).thenReturn("password");
+
+        JsonObject activity = new JsonObject();
+        when(mockCommand.getActivity()).thenReturn(activity);
+
+        Connection mockConnection = mock(Connection.class);
+
+        handler.handleCommand(mockCommand, mockConnection);
+
+        verify(mockConnection).pushCommand(isA(InvalidMessageCommand.class));
+    }
+
+    @Test
+    public void ifUnknownSendInvalid() {
+        RemoteServerStateService mockServerService = mock(RemoteServerStateService.class);
+        ConnectionStateService mockConnectionStateService = mock(ConnectionStateService.class);
+        when(mockConnectionStateService.getConnectionType(any(Connection.class))).thenReturn(ConnectionStateService.ConnectionType.UNKNOWN);
+
+        UserAuthService mockAuthService = spy(new UserAuthService(mockServerService, mockConnectionStateService));
+        when(mockAuthService.isLoggedIn(any(Connection.class))).thenReturn(true);
+        when(mockAuthService
+                .authorise(any(Connection.class), anyString(), anyString()))
+                .thenReturn(true);
+
+        ActivityMessageCommandHandler handler
+                = new ActivityMessageCommandHandler(mockAuthService, mockConnectionStateService);
+
+        ActivityMessageCommand mockCommand = mock(ActivityMessageCommand.class);
+        when(mockCommand.getUsername()).thenReturn("username");
+        when(mockCommand.getSecret()).thenReturn("password");
+
+        JsonObject activity = new JsonObject();
+        when(mockCommand.getActivity()).thenReturn(activity);
+
+        Connection mockConnection = mock(Connection.class);
+
+        handler.handleCommand(mockCommand, mockConnection);
+
+        verify(mockConnection).pushCommand(isA(InvalidMessageCommand.class));
+    }
+
     @Test
     public void testCanPostAsAnonymousWhenLoggedIn() {
         RemoteServerStateService mockServerService = mock(RemoteServerStateService.class);
         ConnectionStateService mockConnectionStateService = mock(ConnectionStateService.class);
+        when(mockConnectionStateService.getConnectionType(any(Connection.class))).thenReturn(ConnectionStateService.ConnectionType.CLIENT);
 
         UserAuthService mockAuthService = spy(new UserAuthService(mockServerService, mockConnectionStateService));
         when(mockAuthService.isLoggedIn(any(Connection.class))).thenReturn(true);
@@ -45,6 +106,7 @@ public class ActivityMessageCommandHandlerTest {
                 .thenReturn(false);
 
         ConnectionStateService mockConnectionStateService = mock(ConnectionStateService.class);
+        when(mockConnectionStateService.getConnectionType(any(Connection.class))).thenReturn(ConnectionStateService.ConnectionType.CLIENT);
 
         ActivityMessageCommandHandler handler
                 = new ActivityMessageCommandHandler(mockAuthService, mockConnectionStateService);
@@ -72,6 +134,7 @@ public class ActivityMessageCommandHandlerTest {
                 .thenReturn(false);
 
         ConnectionStateService mockConnectionStateService = mock(ConnectionStateService.class);
+        when(mockConnectionStateService.getConnectionType(any(Connection.class))).thenReturn(ConnectionStateService.ConnectionType.CLIENT);
 
         ActivityMessageCommandHandler handler
                 = new ActivityMessageCommandHandler(mockAuthService, mockConnectionStateService);
@@ -97,6 +160,7 @@ public class ActivityMessageCommandHandlerTest {
         when(mockAuthService.authorise(any(Connection.class), anyString(), anyString())).thenReturn(true);
 
         ConnectionStateService mockConnectionStateService = mock(ConnectionStateService.class);
+        when(mockConnectionStateService.getConnectionType(any(Connection.class))).thenReturn(ConnectionStateService.ConnectionType.CLIENT);
 
         ActivityMessageCommandHandler handler
                 = new ActivityMessageCommandHandler(mockAuthService, mockConnectionStateService);
@@ -122,6 +186,7 @@ public class ActivityMessageCommandHandlerTest {
         when(mockAuthService.authorise(any(Connection.class), anyString(), anyString())).thenReturn(true);
 
         ConnectionStateService mockConnectionStateService = mock(ConnectionStateService.class);
+        when(mockConnectionStateService.getConnectionType(any(Connection.class))).thenReturn(ConnectionStateService.ConnectionType.CLIENT);
 
         ActivityMessageCommandHandler handler
                 = new ActivityMessageCommandHandler(mockAuthService, mockConnectionStateService);

@@ -21,6 +21,12 @@ public class ActivityMessageCommandHandler implements ICommandHandler {
         if (command instanceof ActivityMessageCommand) {
             ActivityMessageCommand cmd = (ActivityMessageCommand) command;
 
+            if (!(this.rConnectionStateService.getConnectionType(conn)==ConnectionStateService.ConnectionType.CLIENT)){
+                conn.pushCommand(new InvalidMessageCommand("Imposter Client."));
+                conn.close();
+                return true;
+            }
+
             if (cmd.getUsername() == null) {
                 conn.pushCommand(new InvalidMessageCommand("Username must be present."));
                 conn.close();
