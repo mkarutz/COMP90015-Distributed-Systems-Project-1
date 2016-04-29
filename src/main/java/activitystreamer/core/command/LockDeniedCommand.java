@@ -1,8 +1,12 @@
 package activitystreamer.core.command;
 
+import activitystreamer.core.command.transmission.gson.JsonRequired;
+
 public class LockDeniedCommand implements ICommand {
     private final String command = "LOCK_DENIED";
+    @JsonRequired
     private String username;
+    @JsonRequired
     private String secret;
 
     public LockDeniedCommand(String username, String secret) {

@@ -1,7 +1,10 @@
 package activitystreamer.core.command;
 
+import activitystreamer.core.command.transmission.gson.JsonRequired;
+
 public class RegisterFailedCommand implements ICommand {
     private final String command = "REGISTER_FAILED";
+    @JsonRequired
     private String info;
 
     public RegisterFailedCommand(String info) {

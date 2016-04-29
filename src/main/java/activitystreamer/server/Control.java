@@ -1,5 +1,6 @@
 package activitystreamer.server;
 
+import activitystreamer.core.command.transmission.gson.GsonCommandSerializationAdaptor;
 import activitystreamer.core.shared.*;
 import activitystreamer.core.commandprocessor.*;
 import activitystreamer.server.services.*;
@@ -100,7 +101,16 @@ public class Control implements Runnable, IncomingConnectionHandler {
     @Override
     public synchronized void incomingConnection(Socket s) throws IOException {
         log.debug("incomming connection: " + Settings.socketAddress(s));
-        Connection c = new Connection(s, new MainCommandProcessor(rServerService, rUserAuthService, rServerAuthService, rConnectionStateService));
+        Connection c = new Connection(s,
+                new GsonCommandSerializationAdaptor(),
+                new GsonCommandSerializationAdaptor(),
+                new MainCommandProcessor(
+                        rServerService,
+                        rUserAuthService,
+                        rServerAuthService,
+                        rConnectionStateService
+                )
+        );
         rConnectionStateService.registerConnection(c);
         connections.add(c);
         new Thread(c).start();
@@ -108,7 +118,16 @@ public class Control implements Runnable, IncomingConnectionHandler {
 
     public synchronized Connection outgoingConnection(Socket s) throws IOException {
         log.debug("outgoing connection: " + Settings.socketAddress(s));
-        Connection c = new Connection(s, new MainCommandProcessor(rServerService, rUserAuthService, rServerAuthService, rConnectionStateService));
+        Connection c = new Connection(s,
+                new GsonCommandSerializationAdaptor(),
+                new GsonCommandSerializationAdaptor(),
+                new MainCommandProcessor(
+                        rServerService,
+                        rUserAuthService,
+                        rServerAuthService,
+                        rConnectionStateService
+                )
+        );
         rConnectionStateService.registerConnection(c);
         rConnectionStateService.setConnectionType(c, ConnectionStateService.ConnectionType.SERVER);
         connections.add(c);

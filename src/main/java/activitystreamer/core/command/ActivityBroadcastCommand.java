@@ -1,8 +1,10 @@
 package activitystreamer.core.command;
 
+import activitystreamer.core.command.transmission.gson.JsonRequired;
 import com.google.gson.JsonObject;
 
 public class ActivityBroadcastCommand implements ICommand {
+    @JsonRequired
     private JsonObject activity;
 
     public ActivityBroadcastCommand(JsonObject activity) {

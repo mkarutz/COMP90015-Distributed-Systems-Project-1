@@ -1,6 +1,9 @@
 package activitystreamer.core.command;
 
+import activitystreamer.core.command.transmission.gson.JsonRequired;
+
 public class AuthenticationFailCommand implements ICommand {
+    @JsonRequired
     private String info;
 
     public AuthenticationFailCommand(String info) {

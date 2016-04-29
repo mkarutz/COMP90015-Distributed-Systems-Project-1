@@ -1,9 +1,14 @@
 package activitystreamer.core.command;
 
+import activitystreamer.core.command.transmission.gson.JsonRequired;
+
 public class LockAllowedCommand implements ICommand {
     private final String command = "LOCK_ALLOWED";
+    @JsonRequired
     private String username;
+    @JsonRequired
     private String secret;
+    @JsonRequired
     private String server;
 
     public LockAllowedCommand(String username, String secret, String server) {

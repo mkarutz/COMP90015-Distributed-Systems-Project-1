@@ -1,11 +1,14 @@
 package activitystreamer.core.command;
 
+import activitystreamer.core.command.transmission.gson.JsonRequired;
 import com.google.gson.JsonObject;
 
 public class ActivityMessageCommand implements ICommand {
     private final String command = "ACTIVITY_MESSAGE";
+    @JsonRequired
     private String username;
     private String secret;
+    @JsonRequired
     private JsonObject activity;
 
     public ActivityMessageCommand(String username, String secret, JsonObject activity) {

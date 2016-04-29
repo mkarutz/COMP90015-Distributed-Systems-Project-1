@@ -1,5 +1,6 @@
 package activitystreamer.client;
 
+import activitystreamer.core.command.transmission.gson.GsonCommandSerializationAdaptor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import activitystreamer.core.command.*;
@@ -82,8 +83,11 @@ public class ClientSolution implements Runnable {
 
     public synchronized Connection outgoingConnection(Socket s) throws IOException {
         log.debug("outgoing connection: " + Settings.socketAddress(s));
-        connection = new Connection(s, new ServerCommandProcessor(rClientRefService,this));
-        //connection = new Connection(s, new ServerCommandProcessor(rClientRefService));
+        connection = new Connection(s,
+                new GsonCommandSerializationAdaptor(),
+                new GsonCommandSerializationAdaptor(),
+                new ServerCommandProcessor(rClientRefService,this)
+        );
 
         new Thread(connection).start();
         ICommand cmd=null;

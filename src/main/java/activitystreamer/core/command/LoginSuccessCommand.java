@@ -1,7 +1,10 @@
 package activitystreamer.core.command;
 
+import activitystreamer.core.command.transmission.gson.JsonRequired;
+
 public class LoginSuccessCommand implements ICommand {
     private final String command = "LOGIN_SUCCESS";
+    @JsonRequired
     private String info;
 
     public LoginSuccessCommand(String info) {

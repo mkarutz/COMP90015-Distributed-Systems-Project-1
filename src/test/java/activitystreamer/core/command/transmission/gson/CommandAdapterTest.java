@@ -1,6 +1,8 @@
-package activitystreamer;
+package activitystreamer.core.command.transmission.gson;
 
 import activitystreamer.core.command.*;
+import activitystreamer.core.command.transmission.gson.CommandAdapter;
+import activitystreamer.core.command.transmission.gson.JsonObjectAdapter;
 import com.google.gson.*;
 import org.junit.Test;
 

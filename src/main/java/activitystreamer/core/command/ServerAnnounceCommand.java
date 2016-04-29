@@ -1,12 +1,19 @@
 package activitystreamer.core.command;
 
+import activitystreamer.core.command.transmission.gson.JsonRequired;
+
 import java.net.InetAddress;
 
 public class ServerAnnounceCommand implements ICommand {
     private final String command = "SERVER_ANNOUNCE";
+
+    @JsonRequired
     private String id;
+    @JsonRequired
     private int load;
+    @JsonRequired
     private InetAddress hostname;
+    @JsonRequired
     private int port;
 
     public ServerAnnounceCommand(String id, int load, InetAddress hostname, int port) {

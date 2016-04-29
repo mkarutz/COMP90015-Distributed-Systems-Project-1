@@ -1,7 +1,10 @@
 package activitystreamer.core.command;
 
+import activitystreamer.core.command.transmission.gson.JsonRequired;
+
 public class InvalidMessageCommand implements ICommand {
     private final String command = "INVALID_MESSAGE";
+    @JsonRequired
     private String info;
 
     public InvalidMessageCommand(String info){

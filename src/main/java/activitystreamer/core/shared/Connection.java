@@ -2,20 +2,17 @@ package activitystreamer.core.shared;
 
 import java.io.*;
 import java.net.Socket;
-import java.util.Queue;
 
-import activitystreamer.JsonObjectAdapter;
+import activitystreamer.core.command.transmission.CommandDeserializer;
+import activitystreamer.core.command.transmission.CommandParseException;
+import activitystreamer.core.command.transmission.CommandSerializer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import activitystreamer.util.Settings;
-import activitystreamer.CommandAdapter;
 
 import activitystreamer.core.command.*;
 import activitystreamer.core.commandprocessor.*;
-import activitystreamer.server.commandprocessors.*;
-
-import com.google.gson.*;
 
 public class Connection implements Closeable, Runnable {
     private static final Logger log = LogManager.getLogger();
@@ -26,16 +23,18 @@ public class Connection implements Closeable, Runnable {
     private boolean term = false;
     private boolean isRunning = true;
 
+    private CommandSerializer commandSerializer;
+    private CommandDeserializer commandDeserializer;
     private CommandProcessor processor;
-    private Gson gson;
 
-    public Connection(Socket socket, CommandProcessor processor) throws IOException {
+    public Connection(Socket socket,
+                      CommandSerializer commandSerializer,
+                      CommandDeserializer commandDeserializer,
+                      CommandProcessor processor) throws IOException {
         this.socket = socket;
+        this.commandSerializer = commandSerializer;
+        this.commandDeserializer = commandDeserializer;
         this.processor = processor;
-        this.gson = new GsonBuilder()
-                .registerTypeAdapter(ICommand.class, new CommandAdapter())
-                .registerTypeAdapter(JsonObject.class, new JsonObjectAdapter())
-                .create();
 
         in = new BufferedReader(new InputStreamReader(new DataInputStream(socket.getInputStream())));
         out = new PrintWriter(new DataOutputStream(socket.getOutputStream()), true);
@@ -53,7 +52,7 @@ public class Connection implements Closeable, Runnable {
             } catch (IOException e) {
                 log.error("I/O exception. Closing connection");
                 term = true;
-            } catch (JsonParseException e) {
+            } catch (CommandParseException e) {
                 log.error("Invalid message. Closing connection.");
                 ICommand cmd = new InvalidMessageCommand("Expecting Json Object");
                 this.pushCommand(cmd);
@@ -64,34 +63,21 @@ public class Connection implements Closeable, Runnable {
     }
     
     public void pushCommand(ICommand cmd) {
-        String json = this.gson.toJson(cmd, ICommand.class);
-        System.out.println("SENDING JSON: " + json);
-        this.writeLine(json);
-
-        // Blanket connection close if pushing invalid message
-        if (cmd instanceof InvalidMessageCommand) {
-            log.error("Invalid message command sent ... connection closing");
-            this.close();
-        }
+        String message = commandSerializer.serialize(cmd);
+        log.info("Sent message: " + message);
+        this.writeLine(message);
     }
 
-    private ICommand pullCommand() throws IOException, JsonParseException {
-        String line = this.readLine();
-        if (line == null) {
-            term = true;
+    private ICommand pullCommand() throws IOException, CommandParseException {
+        String message = this.readLine();
+
+        if (message == null) {
+            close();
             return null;
-        } else {
-            System.out.println("RECEIVING JSON: " + line);
-        }
-        ICommand cmd = gson.fromJson(line, ICommand.class);
-
-        // Blanket connection close if pulling invalid message
-        if (cmd instanceof InvalidMessageCommand) {
-            log.error("Invalid message command received ... connection closing");
-            this.close();
         }
 
-        return cmd;
+        log.info("Received message: " + message);
+        return commandDeserializer.deserialize(message);
     }
 
     private String readLine() throws IOException {

@@ -1,8 +1,12 @@
 package activitystreamer.core.command;
 
+import activitystreamer.core.command.transmission.gson.JsonRequired;
+
 public class RegisterCommand implements ICommand {
     private final String command = "REGISTER";
+    @JsonRequired
     private String username;
+    @JsonRequired
     private String secret;
 
     public RegisterCommand(String username, String secret) {

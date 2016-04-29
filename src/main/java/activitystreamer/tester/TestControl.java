@@ -1,15 +1,14 @@
 package activitystreamer.tester;
 
+import activitystreamer.core.command.transmission.gson.GsonCommandSerializationAdaptor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import activitystreamer.core.command.*;
 import activitystreamer.core.shared.Connection;
 
-import com.google.gson.JsonObject;
 import activitystreamer.util.Settings;
 import java.io.IOException;
 import java.net.Socket;
-import java.util.List;
 import java.util.LinkedList;
 import java.util.Queue;
 
@@ -74,7 +73,6 @@ public class TestControl implements Runnable {
         }
 
         System.out.println("TEST COMPLETE");
-
     }
 
     public void initiateConnection() {
@@ -96,7 +94,11 @@ public class TestControl implements Runnable {
 
     public synchronized Connection outgoingConnection(Socket s) throws IOException {
         log.debug("outgoing connection: " + Settings.socketAddress(s));
-        connection = new Connection(s, new TestCommandProcessor(this));
+        connection = new Connection(s,
+                new GsonCommandSerializationAdaptor(),
+                new GsonCommandSerializationAdaptor(),
+                new TestCommandProcessor(this)
+        );
         new Thread(connection).start();
         return connection;
     }

@@ -1,6 +1,9 @@
 package activitystreamer.core.command;
 
+import activitystreamer.core.command.transmission.gson.JsonRequired;
+
 public class AuthenticateCommand implements ICommand {
+    @JsonRequired
     private String secret;
 
     public AuthenticateCommand(String secret) {

@@ -1,7 +1,10 @@
 package activitystreamer.core.command;
 
+import activitystreamer.core.command.transmission.gson.JsonRequired;
+
 public class LoginCommand implements ICommand {
     private final String command = "LOGIN";
+    @JsonRequired
     private String username;
     private String secret;
 

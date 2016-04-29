@@ -4,8 +4,9 @@ import activitystreamer.core.command.*;
 import java.util.List;
 import java.util.Queue;
 import java.util.LinkedList;
-import activitystreamer.*;
 
+import activitystreamer.core.command.transmission.gson.CommandAdapter;
+import activitystreamer.core.command.transmission.gson.JsonObjectAdapter;
 import com.google.gson.*;
 
 public abstract class Test {

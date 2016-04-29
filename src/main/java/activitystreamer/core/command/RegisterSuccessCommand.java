@@ -1,7 +1,10 @@
 package activitystreamer.core.command;
 
+import activitystreamer.core.command.transmission.gson.JsonRequired;
+
 public class RegisterSuccessCommand implements ICommand {
     private final String command = "REGISTER_SUCCESS";
+    @JsonRequired
     private String info;
 
     public RegisterSuccessCommand(String info) {

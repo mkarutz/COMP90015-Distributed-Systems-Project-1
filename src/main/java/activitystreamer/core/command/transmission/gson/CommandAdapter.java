@@ -1,4 +1,4 @@
-package activitystreamer;
+package activitystreamer.core.command.transmission.gson;
 
 import activitystreamer.core.command.*;
 import com.google.gson.*;
