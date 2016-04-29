@@ -20,6 +20,16 @@ task serverJar(type: Jar) {
     with jar
 }
 
+task testerJar(type: Jar) {
+	manifest {
+        attributes 'Implementation-Title': 'Activity Streamer Integration Tester',
+        	'Main-Class': 'activitystreamer.Tester'
+    }
+    baseName = 'Tester'
+    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+    with jar
+}
+
 task(runclient, dependsOn: 'classes', type: JavaExec) {
 	main = 'activitystreamer.Client'
 	classpath = sourceSets.main.runtimeClasspath
@@ -65,6 +75,10 @@ task testRedirect(type: Exec, dependsOn: ['serverJar','clientJar']) {
 
 task testBadActivity(type: Exec, dependsOn: ['serverJar','clientJar']){
 	commandLine 'sh','scripts/testBadActivityObj.sh'
+}
+
+task test2(type: Exec, dependsOn: ['serverJar','clientJar','testerJar']) {
+	commandLine 'sh', 'scripts/test2.sh'
 }
 
 repositories {

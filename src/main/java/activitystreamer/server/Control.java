@@ -2,7 +2,6 @@ package activitystreamer.server;
 
 import activitystreamer.core.shared.*;
 import activitystreamer.core.commandprocessor.*;
-import activitystreamer.core.command.ICommandBroadcaster;
 import activitystreamer.server.services.*;
 import activitystreamer.server.commandprocessors.*;
 import activitystreamer.util.Settings;
@@ -16,7 +15,7 @@ import java.util.List;
 
 import activitystreamer.core.command.*;
 
-public class Control implements Runnable, IncomingConnectionHandler, ICommandBroadcaster {
+public class Control implements Runnable, IncomingConnectionHandler {
     private Logger log = LogManager.getLogger();
     private List<Connection> connections = new ArrayList<Connection>();
     private boolean term = false;
@@ -101,7 +100,7 @@ public class Control implements Runnable, IncomingConnectionHandler, ICommandBro
     @Override
     public synchronized void incomingConnection(Socket s) throws IOException {
         log.debug("incomming connection: " + Settings.socketAddress(s));
-        Connection c = new Connection(s, new MainCommandProcessor(rServerService, rUserAuthService, rServerAuthService, rConnectionStateService), this);
+        Connection c = new Connection(s, new MainCommandProcessor(rServerService, rUserAuthService, rServerAuthService, rConnectionStateService));
         rConnectionStateService.registerConnection(c);
         connections.add(c);
         new Thread(c).start();
@@ -109,7 +108,7 @@ public class Control implements Runnable, IncomingConnectionHandler, ICommandBro
 
     public synchronized Connection outgoingConnection(Socket s) throws IOException {
         log.debug("outgoing connection: " + Settings.socketAddress(s));
-        Connection c = new Connection(s, new MainCommandProcessor(rServerService, rUserAuthService, rServerAuthService, rConnectionStateService), this);
+        Connection c = new Connection(s, new MainCommandProcessor(rServerService, rUserAuthService, rServerAuthService, rConnectionStateService));
         rConnectionStateService.registerConnection(c);
         rConnectionStateService.setConnectionType(c, ConnectionStateService.ConnectionType.SERVER);
         connections.add(c);
@@ -117,18 +116,6 @@ public class Control implements Runnable, IncomingConnectionHandler, ICommandBro
         ICommand cmd = new AuthenticateCommand(Settings.getSecret());
         c.pushCommand(cmd);
         return c;
-    }
-
-    public void broadcast(ICommand command, Connection exclude) {
-        for (Connection connection: connections) {
-            if (connection != exclude) {
-                connection.pushCommand(command);
-            }
-        }
-    }
-
-    public void broadcast(ICommand command) {
-        broadcast(command, null);
     }
 
     public void announce() {

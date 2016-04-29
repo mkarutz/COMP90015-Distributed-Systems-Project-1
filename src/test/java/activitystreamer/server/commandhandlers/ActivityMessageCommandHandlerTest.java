@@ -3,7 +3,6 @@ package activitystreamer.server.commandhandlers;
 import activitystreamer.core.command.ActivityBroadcastCommand;
 import activitystreamer.core.command.ActivityMessageCommand;
 import activitystreamer.core.command.AuthenticationFailCommand;
-import activitystreamer.core.command.ICommandBroadcaster;
 import activitystreamer.core.shared.Connection;
 import activitystreamer.server.services.*;
 import com.google.gson.JsonObject;

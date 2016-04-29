@@ -82,7 +82,9 @@ public class ClientSolution implements Runnable {
 
     public synchronized Connection outgoingConnection(Socket s) throws IOException {
         log.debug("outgoing connection: " + Settings.socketAddress(s));
-        connection = new Connection(s, new ServerCommandProcessor(rClientRefService,this), null);
+        connection = new Connection(s, new ServerCommandProcessor(rClientRefService,this));
+        //connection = new Connection(s, new ServerCommandProcessor(rClientRefService));
+
         new Thread(connection).start();
         ICommand cmd=null;
         if (!Settings.getUsername().equals("anonymous") && Settings.getSecret().equals("")){
