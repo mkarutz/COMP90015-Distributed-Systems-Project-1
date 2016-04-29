@@ -11,13 +11,13 @@ import org.apache.logging.log4j.Logger;
 public class LockRequestCommandHandler implements ICommandHandler {
     private Logger log = LogManager.getLogger();
 
-    private IUserAuthService rIUserAuthService;
-    private IServerAuthService rIServerAuthService;
+    private IUserAuthService userAuthService;
+    private IServerAuthService serverAuthService;
 
-    public LockRequestCommandHandler(IUserAuthService rIUserAuthService,
-                                     IServerAuthService rIServerAuthService) {
-        this.rIUserAuthService = rIUserAuthService;
-        this.rIServerAuthService = rIServerAuthService;
+    public LockRequestCommandHandler(IUserAuthService userAuthService,
+                                     IServerAuthService serverAuthService) {
+        this.userAuthService = userAuthService;
+        this.serverAuthService = serverAuthService;
     }
 
     @Override
@@ -37,13 +37,13 @@ public class LockRequestCommandHandler implements ICommandHandler {
                 return true;
             }
 
-            if (!rIServerAuthService.isAuthenticated(conn)) {
+            if (!serverAuthService.isAuthenticated(conn)) {
                 conn.pushCommand(new InvalidMessageCommand("Not authenticated."));
                 conn.close();
                 return true;
             }
 
-            rIUserAuthService.lockRequest(cmd.getUsername(), cmd.getSecret());
+            userAuthService.lockRequest(cmd.getUsername(), cmd.getSecret());
             return true;
         } else {
             return false;
