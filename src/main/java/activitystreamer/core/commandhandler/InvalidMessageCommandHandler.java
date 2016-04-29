@@ -11,11 +11,10 @@ public class InvalidMessageCommandHandler implements ICommandHandler {
     @Override
     public boolean handleCommand(ICommand command, Connection conn) {
         if (command instanceof InvalidMessageCommand) {
-            InvalidMessageCommand invalidMessageCommand = (InvalidMessageCommand)command;
-            log.error("Invalid message was sent: " + invalidMessageCommand.getInfo());
+            InvalidMessageCommand cmd = (InvalidMessageCommand) command;
+            log.error("Invalid message was sent: " + cmd.getInfo());
             conn.close();
             return true;
-            /* TODO: */
         } else {
             return false;
         }

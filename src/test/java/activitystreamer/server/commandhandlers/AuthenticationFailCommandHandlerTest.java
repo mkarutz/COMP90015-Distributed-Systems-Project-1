@@ -12,11 +12,11 @@ public class AuthenticationFailCommandHandlerTest {
     public void testConnectionIsClosed() {
         AuthenticationFailCommandHandler handler = new AuthenticationFailCommandHandler();
 
-        ICommand cmd = spy(new AuthenticationFailCommand("Incorrect secret."));
-        Connection conn = mock(Connection.class);
+        ICommand mockCommand = spy(new AuthenticationFailCommand("Incorrect secret."));
+        Connection mockConnection = mock(Connection.class);
 
-        handler.handleCommand(cmd, conn);
+        handler.handleCommand(mockCommand, mockConnection);
 
-        verify(conn).close();
+        verify(mockConnection).close();
     }
 }

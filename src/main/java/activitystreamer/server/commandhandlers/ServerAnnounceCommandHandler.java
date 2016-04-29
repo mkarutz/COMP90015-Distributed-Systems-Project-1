@@ -24,13 +24,19 @@ public class ServerAnnounceCommandHandler implements ICommandHandler {
     @Override
     public boolean handleCommand(ICommand command, Connection conn) {
         if (command instanceof ServerAnnounceCommand) {
-            ServerAnnounceCommand announceCommand = (ServerAnnounceCommand)command;
+            ServerAnnounceCommand cmd = (ServerAnnounceCommand) command;
+
+            if (cmd.getId() == null) {
+                conn.pushCommand(new InvalidMessageCommand("An ID must be present."));
+                conn.close();
+                return true;
+            }
 
             // Rebroadcast out to all servers
             rConnectionStateService.broadcastToServers(command, conn);
 
-            ServerState ss = new ServerState(announceCommand.getHostname(), announceCommand.getPort(), announceCommand.getLoad());
-            this.rServerService.updateState(announceCommand.getId(), ss);
+            ServerState ss = new ServerState(cmd.getHostname(), cmd.getPort(), cmd.getLoad());
+            this.rServerService.updateState(cmd.getId(), ss);
             return true;
         } else {
             return false;
