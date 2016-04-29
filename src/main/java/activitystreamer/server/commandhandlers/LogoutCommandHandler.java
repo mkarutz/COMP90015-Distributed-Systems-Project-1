@@ -3,19 +3,21 @@ package activitystreamer.server.commandhandlers;
 import activitystreamer.core.command.*;
 import activitystreamer.core.commandhandler.*;
 import activitystreamer.core.shared.Connection;
-import activitystreamer.server.services.contracts.IUserAuthService;
+import activitystreamer.server.services.contracts.UserAuthService;
+import com.google.inject.Inject;
 
 public class LogoutCommandHandler implements ICommandHandler {
-    private IUserAuthService rAuthService;
+    private UserAuthService userAuthService;
 
-    public LogoutCommandHandler(IUserAuthService rAuthService) {
-        this.rAuthService = rAuthService;
+    @Inject
+    public LogoutCommandHandler(UserAuthService userAuthService) {
+        this.userAuthService = userAuthService;
     }
 
     @Override
     public boolean handleCommand(ICommand command, Connection conn) {
         if (command instanceof LogoutCommand) {
-            rAuthService.logout(conn);
+            userAuthService.logout(conn);
             conn.close();
             return true;
         } else {

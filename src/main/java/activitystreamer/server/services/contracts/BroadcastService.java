@@ -3,7 +3,7 @@ package activitystreamer.server.services.contracts;
 import activitystreamer.core.command.ICommand;
 import activitystreamer.core.shared.Connection;
 
-public interface IBroadcastService {
+public interface BroadcastService {
     void broadcastToServers(ICommand command);
     void broadcastToClients(ICommand command);
     void broadcastToAll(ICommand command);

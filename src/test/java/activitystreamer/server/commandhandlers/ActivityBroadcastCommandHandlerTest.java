@@ -6,9 +6,8 @@ import activitystreamer.core.command.InvalidMessageCommand;
 import activitystreamer.core.command.transmission.CommandParseException;
 import activitystreamer.core.command.transmission.gson.GsonCommandSerializationAdaptor;
 import activitystreamer.core.shared.Connection;
-import activitystreamer.server.services.contracts.IServerAuthService;
-import activitystreamer.server.services.impl.ConnectionStateService;
-import activitystreamer.server.services.impl.ServerAuthService;
+import activitystreamer.server.services.contracts.BroadcastService;
+import activitystreamer.server.services.contracts.ServerAuthService;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -19,12 +18,15 @@ import static org.mockito.Mockito.*;
 public class ActivityBroadcastCommandHandlerTest {
     @Test
     public void testIfReceivedFromUnauthenticatedServerThenSendAnInvalidMessageCommand() throws CommandParseException {
-        IServerAuthService mockServerAuthService = mock(IServerAuthService.class);
+        ServerAuthService mockServerAuthService = mock(ServerAuthService.class);
+        when(mockServerAuthService.isAuthenticated(any(Connection.class))).thenReturn(false);
 
-        ConnectionStateService mockConnectionStateService = mock(ConnectionStateService.class);
-        when(mockConnectionStateService.getConnectionType(any(Connection.class))).thenReturn(null);
+        BroadcastService mockBroadcastService = mock(BroadcastService.class);
 
-        ActivityBroadcastCommandHandler handler = new ActivityBroadcastCommandHandler(mockServerAuthService, mockConnectionStateService);
+        ActivityBroadcastCommandHandler handler = new ActivityBroadcastCommandHandler(
+                mockServerAuthService,
+                mockBroadcastService
+        );
 
         ActivityBroadcastCommand mockCommand = (ActivityBroadcastCommand)
                 new GsonCommandSerializationAdaptor().deserialize(
@@ -40,20 +42,21 @@ public class ActivityBroadcastCommandHandlerTest {
 
         handler.handleCommand(mockCommand, mockConnection);
 
-        verify(mockConnectionStateService, never()).broadcastToAll(any(ICommand.class), any(Connection.class));
+        verify(mockBroadcastService, never()).broadcastToAll(any(ICommand.class), any(Connection.class));
         verify(mockConnection).pushCommand(isA(InvalidMessageCommand.class));
         verify(mockConnection).close();
     }
 
     @Test
     public void testIfAuthorisedThenBroadcastToAllClientsAndServers() throws CommandParseException {
-        IServerAuthService mockServerAuthService = mock(IServerAuthService.class);
+        ServerAuthService mockServerAuthService = mock(ServerAuthService.class);
         when(mockServerAuthService.isAuthenticated(any(Connection.class))).thenReturn(true);
+        BroadcastService mockBroadcastService = mock(BroadcastService.class);
 
-        ConnectionStateService mockConnectionStateService = mock(ConnectionStateService.class);
-        when(mockConnectionStateService.getConnectionType(any(Connection.class))).thenReturn(ConnectionStateService.ConnectionType.SERVER);
-
-        ActivityBroadcastCommandHandler handler = new ActivityBroadcastCommandHandler(mockServerAuthService, mockConnectionStateService);
+        ActivityBroadcastCommandHandler handler = new ActivityBroadcastCommandHandler(
+                mockServerAuthService,
+                mockBroadcastService
+        );
 
         ActivityBroadcastCommand command = (ActivityBroadcastCommand)
                 new GsonCommandSerializationAdaptor().deserialize(
@@ -73,19 +76,21 @@ public class ActivityBroadcastCommandHandlerTest {
 
         handler.handleCommand(command, mockConnection);
 
-        verify(mockConnectionStateService).broadcastToAll(command, mockConnection);
+        verify(mockBroadcastService).broadcastToAll(command, mockConnection);
         verify(mockConnection, never()).pushCommand(isA(InvalidMessageCommand.class));
         verify(mockConnection, never()).close();
     }
 
     @Test
     public void testIfTheActivityObjectHasNotBeenProcessedSendAnInvalidMessageCommand() throws CommandParseException {
-        IServerAuthService mockServerAuthService = mock(IServerAuthService.class);
+        ServerAuthService mockServerAuthService = mock(ServerAuthService.class);
+        when(mockServerAuthService.isAuthenticated(any(Connection.class))).thenReturn(true);
+        BroadcastService mockBroadcastService = mock(BroadcastService.class);
 
-        ConnectionStateService mockConnectionStateService = mock(ConnectionStateService.class);
-        when(mockConnectionStateService.getConnectionType(any(Connection.class))).thenReturn(ConnectionStateService.ConnectionType.SERVER);
-
-        ActivityBroadcastCommandHandler handler = new ActivityBroadcastCommandHandler(mockServerAuthService, mockConnectionStateService);
+        ActivityBroadcastCommandHandler handler = new ActivityBroadcastCommandHandler(
+                mockServerAuthService,
+                mockBroadcastService
+        );
 
         ActivityBroadcastCommand mockCommand = (ActivityBroadcastCommand)
                 new GsonCommandSerializationAdaptor().deserialize(
@@ -99,7 +104,7 @@ public class ActivityBroadcastCommandHandlerTest {
 
         handler.handleCommand(mockCommand, mockConnection);
 
-        verify(mockConnectionStateService, never()).broadcastToAll(any(ICommand.class), any(Connection.class));
+        verify(mockBroadcastService, never()).broadcastToAll(any(ICommand.class), any(Connection.class));
         verify(mockConnection).pushCommand(isA(InvalidMessageCommand.class));
         verify(mockConnection).close();
     }

@@ -1,26 +1,40 @@
 package activitystreamer.server.services.impl;
 
 import activitystreamer.core.shared.Connection;
-import activitystreamer.server.services.contracts.IServerAuthService;
+import activitystreamer.server.services.contracts.ConnectionManager;
 import activitystreamer.util.Settings;
+import com.google.inject.Inject;
 
-public class ServerAuthService implements IServerAuthService {
+import java.util.HashSet;
+import java.util.Set;
 
-    private ConnectionStateService connectionStateService;
+public class ServerAuthService implements activitystreamer.server.services.contracts.ServerAuthService {
+    private ConnectionManager connectionManager;
 
-    public ServerAuthService(ConnectionStateService connectionStateService){
-        this.connectionStateService = connectionStateService;
+    private Set<Connection> authenticatedServers = new HashSet<>();
+
+    @Inject
+    public ServerAuthService(ConnectionManager connectionManager){
+        this.connectionManager = connectionManager;
     }
 
-    public boolean authenticate(Connection conn, String secret) {
+    @Override
+    public synchronized void logout(Connection conn) {
+        authenticatedServers.remove(conn);
+        connectionManager.removeConnection(conn);
+    }
+
+    @Override
+    public synchronized boolean authenticate(Connection conn, String secret) {
         if (Settings.getSecret().equals(secret)) {
-            connectionStateService.setConnectionType(conn, ConnectionStateService.ConnectionType.SERVER);
+            connectionManager.addServerConnection(conn);
             return true;
         }
         return false;
     }
 
-    public boolean isAuthenticated(Connection conn) {
-        return connectionStateService.getConnectionType(conn) == ConnectionStateService.ConnectionType.SERVER;
+    @Override
+    public synchronized boolean isAuthenticated(Connection conn) {
+        return authenticatedServers.contains(conn);
     }
 }

@@ -2,7 +2,7 @@ package activitystreamer.server.services.contracts;
 
 import activitystreamer.core.shared.Connection;
 
-public interface IUserAuthService {
+public interface UserAuthService {
     String ANONYMOUS = "anonymous";
 
     boolean register(String username, String secret, Connection replyConnection);

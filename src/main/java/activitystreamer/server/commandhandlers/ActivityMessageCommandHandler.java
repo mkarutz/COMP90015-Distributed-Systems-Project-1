@@ -3,18 +3,20 @@ package activitystreamer.server.commandhandlers;
 import activitystreamer.core.command.*;
 import activitystreamer.core.commandhandler.*;
 import activitystreamer.core.shared.Connection;
-import activitystreamer.server.services.contracts.IBroadcastService;
-import activitystreamer.server.services.contracts.IUserAuthService;
+import activitystreamer.server.services.contracts.BroadcastService;
+import activitystreamer.server.services.contracts.UserAuthService;
 import com.google.gson.JsonObject;
+import com.google.inject.Inject;
 
 public class ActivityMessageCommandHandler implements ICommandHandler {
-    private IUserAuthService rAuthService;
-    private IBroadcastService rIBroadcastService;
+    private UserAuthService userAuthService;
+    private BroadcastService broadcastService;
 
-    public ActivityMessageCommandHandler(IUserAuthService rAuthService,
-                                         IBroadcastService rIBroadcastService) {
-        this.rAuthService = rAuthService;
-        this.rIBroadcastService = rIBroadcastService;
+    @Inject
+    public ActivityMessageCommandHandler(UserAuthService userAuthService,
+                                         BroadcastService broadcastService) {
+        this.userAuthService = userAuthService;
+        this.broadcastService = broadcastService;
     }
 
     @Override
@@ -34,13 +36,13 @@ public class ActivityMessageCommandHandler implements ICommandHandler {
                 return true;
             }
 
-            if (!rAuthService.isLoggedIn(conn)) {
+            if (!userAuthService.isLoggedIn(conn)) {
                 conn.pushCommand(new AuthenticationFailCommand("Not logged in."));
                 conn.close();
                 return true;
             }
 
-            if (!rAuthService.authorise(conn, cmd.getUsername(), cmd.getSecret())) {
+            if (!userAuthService.authorise(conn, cmd.getUsername(), cmd.getSecret())) {
                 conn.pushCommand(new AuthenticationFailCommand("Incorrect username or password."));
                 conn.close();
                 return true;
@@ -48,7 +50,7 @@ public class ActivityMessageCommandHandler implements ICommandHandler {
 
             JsonObject activity = cmd.getActivity();
             activity.addProperty("authenticated_user", cmd.getUsername());
-            rIBroadcastService.broadcastToAll(new ActivityBroadcastCommand(activity), conn);
+            broadcastService.broadcastToAll(new ActivityBroadcastCommand(activity), conn);
 
             return true;
         } else {

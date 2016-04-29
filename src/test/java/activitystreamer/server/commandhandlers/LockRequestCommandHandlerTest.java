@@ -2,11 +2,8 @@ package activitystreamer.server.commandhandlers;
 
 import activitystreamer.core.command.*;
 import activitystreamer.core.shared.Connection;
-import activitystreamer.server.services.contracts.IBroadcastService;
-import activitystreamer.server.services.contracts.IServerAuthService;
-import activitystreamer.server.services.contracts.IUserAuthService;
-import activitystreamer.server.services.impl.ServerAuthService;
-import activitystreamer.server.services.impl.UserAuthService;
+import activitystreamer.server.services.contracts.ServerAuthService;
+import activitystreamer.server.services.contracts.UserAuthService;
 import org.junit.Test;
 
 import static org.mockito.Mockito.*;
@@ -14,12 +11,12 @@ import static org.mockito.Mockito.*;
 public class LockRequestCommandHandlerTest {
     @Test
     public void testUsernameMustBeNotNull() {
-        IServerAuthService mockIServerAuthService = mock(ServerAuthService.class);
-        IUserAuthService mockAuthService = mock(UserAuthService.class);
+        ServerAuthService mockServerAuthService = mock(activitystreamer.server.services.impl.ServerAuthService.class);
+        UserAuthService mockAuthService = mock(activitystreamer.server.services.impl.UserAuthService.class);
 
         LockRequestCommandHandler handler = new LockRequestCommandHandler(
                 mockAuthService,
-                mockIServerAuthService
+                mockServerAuthService
         );
 
         LockRequestCommand mockCommand = mock(LockRequestCommand.class);
@@ -35,12 +32,12 @@ public class LockRequestCommandHandlerTest {
 
     @Test
     public void testSecretMustBeNotNull() {
-        IServerAuthService mockIServerAuthService = mock(ServerAuthService.class);
-        IUserAuthService mockAuthService = mock(UserAuthService.class);
+        ServerAuthService mockServerAuthService = mock(activitystreamer.server.services.impl.ServerAuthService.class);
+        UserAuthService mockAuthService = mock(activitystreamer.server.services.impl.UserAuthService.class);
 
         LockRequestCommandHandler handler = new LockRequestCommandHandler(
                 mockAuthService,
-                mockIServerAuthService
+                mockServerAuthService
         );
 
         LockRequestCommand mockCommand = mock(LockRequestCommand.class);
@@ -56,8 +53,8 @@ public class LockRequestCommandHandlerTest {
 
     @Test
     public void testIfTheServerHasNotAuthenticatedThenSendInvalidMessageCommand() {
-        IServerAuthService mockServerAuthService = mock(IServerAuthService.class);
-        IUserAuthService mockAuthService = mock(IUserAuthService.class);
+        ServerAuthService mockServerAuthService = mock(ServerAuthService.class);
+        UserAuthService mockAuthService = mock(UserAuthService.class);
 
         LockRequestCommandHandler handler = new LockRequestCommandHandler(
                 mockAuthService,

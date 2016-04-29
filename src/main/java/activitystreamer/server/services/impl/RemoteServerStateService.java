@@ -1,34 +1,40 @@
 
 package activitystreamer.server.services.impl;
 
-import activitystreamer.server.Control;
+import activitystreamer.core.command.RedirectCommand;
+import activitystreamer.core.command.ServerAnnounceCommand;
+import activitystreamer.core.shared.Connection;
 import activitystreamer.server.ServerState;
-import java.util.Map;
-import java.util.HashMap;
-import java.util.List;
-import java.util.ArrayList;
+import activitystreamer.server.services.contracts.ConnectionManager;
+import activitystreamer.util.Settings;
+
 import java.net.InetAddress;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
-public class RemoteServerStateService {
-    private static final int TIME_LAPSE = 10;
+import com.google.inject.Inject;
 
-    private final Control control;
+public class RemoteServerStateService implements activitystreamer.server.services.contracts.RemoteServerStateService {
     private HashMap<String, ServerState> states;
-    private HashMap<String, Long>        statesLastTime;
 
-    public RemoteServerStateService(Control control) {
-        this.states = new HashMap<String, ServerState>();
-        this.statesLastTime = new HashMap<String, Long>();
-        this.control = control;
+    private final ConnectionManager connectionManager;
+
+    @Inject
+    public RemoteServerStateService(ConnectionManager connectionManager) {
+        this.connectionManager = connectionManager;
+        this.states = new HashMap<>();
     }
 
-    public synchronized void updateState(String id, ServerState state) {
-        states.put(id, state);
-        statesLastTime.put(id, System.currentTimeMillis() / 1000L);
+    @Override
+    public synchronized void updateState(String id, int load, InetAddress hostname, int port) {
+        states.put(id, new ServerState(hostname, port, load));
     }
 
-    public List<String> getKnownServerIds() {
-        List<String> serverIds = new ArrayList<String>();
+    @Override
+    public synchronized Set<String> getKnownServerIds() {
+        Set<String> serverIds = new HashSet<>();
         for (Map.Entry<String, ServerState> s : this.states.entrySet()) {
             serverIds.add(s.getKey());
         }
@@ -36,27 +42,43 @@ public class RemoteServerStateService {
         return serverIds;
     }
 
-    public ServerState getServerToRedirectTo() {
-        synchronized (control) {
-            int threshold = control.getLoad() - 2;
-            for (ServerState server: states.values()) {
-                if (server.getLoad() <= threshold) {
-                    return server;
-                }
-            }
-            return null;
+    @Override
+    public synchronized void announce() {
+        connectionManager.eachServerConnection(new Announcer(connectionManager));
+    }
+
+    @Override
+    public synchronized void loadBalance(Connection connection) {
+        ServerState redirectTo;
+        if ((redirectTo = getServerToRedirectTo()) != null) {
+            connection.pushCommand(new RedirectCommand(redirectTo.getHostname(), redirectTo.getPort()));
+            connection.close();
         }
     }
 
-    public void printDebugState() {
-        for (Map.Entry<String, ServerState> s : this.states.entrySet()) {
-            String id = s.getKey();
-            ServerState state = s.getValue();
-            String tm = "ACTIVE";
-            if ((System.currentTimeMillis() / 1000L) - statesLastTime.get(id) > TIME_LAPSE) {
-                tm = "INACTIVE";
+    private ServerState getServerToRedirectTo() {
+        for (ServerState serverState: states.values()) {
+            if (serverState.getLoad() < connectionManager.getLoad() - 1) {
+                return serverState;
             }
-            System.out.printf(id + " : " + state.getHostname().toString() + " : " + state.getPort() + " : " + state.getLoad() + " : " + tm + "\n");
+        }
+        return null;
+    }
+
+    private class Announcer implements ConnectionManager.ConnectionCallback {
+        private ConnectionManager connectionManager;
+
+        public Announcer(ConnectionManager connectionManager) {
+            this.connectionManager = connectionManager;
+        }
+
+        public void execute(Connection connection) {
+            connection.pushCommand(new ServerAnnounceCommand(
+                    Settings.getId(),
+                    connectionManager.getLoad(),
+                    connection.getSocket().getLocalAddress(),
+                    Settings.getLocalPort()
+            ));
         }
     }
 }

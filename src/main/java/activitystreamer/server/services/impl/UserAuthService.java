@@ -1,24 +1,30 @@
 package activitystreamer.server.services.impl;
 
-import java.util.*;
-
-import activitystreamer.core.shared.Connection;
 import activitystreamer.core.command.*;
-import activitystreamer.server.services.contracts.IBroadcastService;
-import activitystreamer.server.services.contracts.IUserAuthService;
+import activitystreamer.core.shared.Connection;
+import activitystreamer.server.services.contracts.BroadcastService;
+import activitystreamer.server.services.contracts.RemoteServerStateService;
 import activitystreamer.util.Settings;
+import com.google.inject.Inject;
 
-public class UserAuthService implements IUserAuthService {
-    private final RemoteServerStateService rServerService;
-    private final IBroadcastService rIBroadcastService;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
+public class UserAuthService implements activitystreamer.server.services.contracts.UserAuthService {
+    private final RemoteServerStateService serverStateService;
+    private final BroadcastService broadcastService;
+
     private Map<Connection, String> loggedInUsers;
     private Map<String, String> userMap;
     private Map<String, LockRequest> pendingLockRequests;
 
-    public UserAuthService(RemoteServerStateService rServerService,
-                           IBroadcastService rIBroadcastService) {
-        this.rServerService = rServerService;
-        this.rIBroadcastService = rIBroadcastService;
+    @Inject
+    public UserAuthService(RemoteServerStateService serverStateService,
+                           BroadcastService broadcastService) {
+        this.serverStateService = serverStateService;
+        this.broadcastService = broadcastService;
 
         this.userMap = new HashMap<>();
         this.pendingLockRequests = new HashMap<>();
@@ -56,19 +62,17 @@ public class UserAuthService implements IUserAuthService {
 
     private void sendLockRequests(String username, String secret, Connection replyConnection) {
         Set<String> waitingServers = new HashSet<>();
-        synchronized (rServerService) {
-            List<String> knownServerIds = rServerService.getKnownServerIds();
-            for (String serverId: knownServerIds) {
-                waitingServers.add(serverId);
-            }
+        Set<String> knownServerIds = serverStateService.getKnownServerIds();
+        for (String serverId: knownServerIds) {
+            waitingServers.add(serverId);
         }
 
-        if (waitingServers.isEmpty()){
-            registerUser(username,secret,replyConnection);
+        if (waitingServers.isEmpty()) {
+            registerUser(username, secret, replyConnection);
         }
         LockRequest req = new LockRequest(secret, waitingServers, replyConnection);
         pendingLockRequests.put(username, req);
-        rIBroadcastService.broadcastToServers(new LockRequestCommand(username, secret), null);
+        broadcastService.broadcastToServers(new LockRequestCommand(username, secret), null);
     }
 
     @Override
@@ -91,14 +95,11 @@ public class UserAuthService implements IUserAuthService {
     @Override
     public synchronized void lockAllowed(String username, String secret, String serverId) {
         if (pendingLockRequests.containsKey(username)) {
-            LockRequest lockRequest = pendingLockRequests.get(username);
             boolean allowed = pendingLockRequests.get(username).lockAllow(serverId);
 
             if (allowed) {
-                LockRequest req = pendingLockRequests.get(username);
-                pendingLockRequests.remove(username);
-
-                registerUser(username,secret,req.getReplyConnection());
+                LockRequest req = pendingLockRequests.remove(username);
+                registerUser(username, secret, req.getReplyConnection());
             }
         }
     }
@@ -106,19 +107,16 @@ public class UserAuthService implements IUserAuthService {
     @Override
     public synchronized void lockRequest(String username, String secret) {
         if (userMap.containsKey(username)) {
-            rIBroadcastService.broadcastToServers(new LockDeniedCommand(username, secret), null);
+            broadcastService.broadcastToServers(new LockDeniedCommand(username, secret), null);
         } else {
-            rIBroadcastService.broadcastToServers(new LockAllowedCommand(username, secret, Settings.getId()), null);
+            broadcastService.broadcastToServers(new LockAllowedCommand(username, secret, Settings.getId()), null);
         }
     }
 
     @Override
     public synchronized void lockDenied(String username, String secret) {
-        // Check if locally instigated, because we need to notify local client
-        // that originally sent the request
         if (pendingLockRequests.containsKey(username)) {
-            LockRequest req = pendingLockRequests.get(username);
-            pendingLockRequests.remove(username);
+            LockRequest req = pendingLockRequests.remove(username);
 
             ICommand cmd = new RegisterFailedCommand("Username " + username + " already registered");
             req.getReplyConnection().pushCommand(cmd);
@@ -131,10 +129,10 @@ public class UserAuthService implements IUserAuthService {
 
     private synchronized void registerUser(String username,String secret,Connection replyConnection){
         userMap.put(username, secret);
-
         ICommand cmd = new RegisterSuccessCommand("Username " + username + " successfully registered");
         replyConnection.pushCommand(cmd);
     }
+
     private static class LockRequest {
         private String secret;
         private Connection replyConnection;

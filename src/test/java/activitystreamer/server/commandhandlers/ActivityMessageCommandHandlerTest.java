@@ -4,11 +4,9 @@ import activitystreamer.core.command.ActivityBroadcastCommand;
 import activitystreamer.core.command.ActivityMessageCommand;
 import activitystreamer.core.command.AuthenticationFailCommand;
 import activitystreamer.core.shared.Connection;
-import activitystreamer.server.services.contracts.IBroadcastService;
-import activitystreamer.server.services.contracts.IUserAuthService;
-import activitystreamer.server.services.impl.ConnectionStateService;
-import activitystreamer.server.services.impl.RemoteServerStateService;
-import activitystreamer.server.services.impl.UserAuthService;
+import activitystreamer.server.services.contracts.BroadcastService;
+import activitystreamer.server.services.contracts.RemoteServerStateService;
+import activitystreamer.server.services.contracts.UserAuthService;
 import com.google.gson.JsonObject;
 import org.junit.Test;
 
@@ -18,14 +16,14 @@ import static org.mockito.Mockito.*;
 public class ActivityMessageCommandHandlerTest {
     @Test
     public void testCanPostAsAnonymousWhenLoggedIn() {
-        RemoteServerStateService mockServerService = mock(RemoteServerStateService.class);
-        IBroadcastService mockIBroadcastService = mock(ConnectionStateService.class);
+        RemoteServerStateService mockServerService = mock(activitystreamer.server.services.impl.RemoteServerStateService.class);
+        BroadcastService mockBroadcastService = mock(BroadcastService.class);
 
-        IUserAuthService mockAuthService = spy(new UserAuthService(mockServerService, mockIBroadcastService));
+        UserAuthService mockAuthService = spy(new activitystreamer.server.services.impl.UserAuthService(mockServerService, mockBroadcastService));
         when(mockAuthService.isLoggedIn(any(Connection.class))).thenReturn(true);
 
         ActivityMessageCommandHandler handler
-                = new ActivityMessageCommandHandler(mockAuthService, mockIBroadcastService);
+                = new ActivityMessageCommandHandler(mockAuthService, mockBroadcastService);
 
         ActivityMessageCommand mockCommand = mock(ActivityMessageCommand.class);
         when(mockCommand.getUsername()).thenReturn("anonymous");
@@ -42,16 +40,16 @@ public class ActivityMessageCommandHandlerTest {
 
     @Test
     public void testIfNonAnonymousCredentialsDoNotMatchThenSendAuthenticationFailCommand() {
-        IUserAuthService mockAuthService = mock(UserAuthService.class);
+        UserAuthService mockAuthService = mock(activitystreamer.server.services.impl.UserAuthService.class);
         when(mockAuthService.isLoggedIn(any(Connection.class))).thenReturn(true);
         when(mockAuthService
                 .authorise(any(Connection.class), anyString(), anyString()))
                 .thenReturn(false);
 
-        IBroadcastService mockIBroadcastService = mock(ConnectionStateService.class);
+        BroadcastService mockBroadcastService = mock(BroadcastService.class);
 
         ActivityMessageCommandHandler handler
-                = new ActivityMessageCommandHandler(mockAuthService, mockIBroadcastService);
+                = new ActivityMessageCommandHandler(mockAuthService, mockBroadcastService);
 
         ActivityMessageCommand mockCommand = mock(ActivityMessageCommand.class);
         when(mockCommand.getUsername()).thenReturn("username");
@@ -69,16 +67,16 @@ public class ActivityMessageCommandHandlerTest {
 
     @Test
     public void testIfNotLoggedInThenSendAuthenticationFailCommand() {
-        IUserAuthService mockAuthService = mock(UserAuthService.class);
+        UserAuthService mockAuthService = mock(activitystreamer.server.services.impl.UserAuthService.class);
         when(mockAuthService.isLoggedIn(any(Connection.class))).thenReturn(false);
         when(mockAuthService
                 .authorise(any(Connection.class), anyString(), anyString()))
                 .thenReturn(false);
 
-        IBroadcastService mockIBroadcastService = mock(ConnectionStateService.class);
+        BroadcastService mockBroadcastService = mock(BroadcastService.class);
 
         ActivityMessageCommandHandler handler
-                = new ActivityMessageCommandHandler(mockAuthService, mockIBroadcastService);
+                = new ActivityMessageCommandHandler(mockAuthService, mockBroadcastService);
 
         ActivityMessageCommand mockCommand = mock(ActivityMessageCommand.class);
         when(mockCommand.getUsername()).thenReturn("username");
@@ -96,14 +94,14 @@ public class ActivityMessageCommandHandlerTest {
 
     @Test
     public void testIfAuthorisedThenBroadcastTheActivityObject() {
-        IUserAuthService mockAuthService = mock(UserAuthService.class);
+        UserAuthService mockAuthService = mock(activitystreamer.server.services.impl.UserAuthService.class);
         when(mockAuthService.isLoggedIn(any(Connection.class))).thenReturn(true);
         when(mockAuthService.authorise(any(Connection.class), anyString(), anyString())).thenReturn(true);
 
-        IBroadcastService mockIBroadcastService = mock(ConnectionStateService.class);
+        BroadcastService mockBroadcastService = mock(BroadcastService.class);
 
         ActivityMessageCommandHandler handler
-                = new ActivityMessageCommandHandler(mockAuthService, mockIBroadcastService);
+                = new ActivityMessageCommandHandler(mockAuthService, mockBroadcastService);
 
         ActivityMessageCommand mockCommand = mock(ActivityMessageCommand.class);
         when(mockCommand.getUsername()).thenReturn("username");
@@ -116,19 +114,19 @@ public class ActivityMessageCommandHandlerTest {
 
         handler.handleCommand(mockCommand, mockConnection);
 
-        verify(mockIBroadcastService).broadcastToAll(isA(ActivityBroadcastCommand.class), same(mockConnection));
+        verify(mockBroadcastService).broadcastToAll(isA(ActivityBroadcastCommand.class), same(mockConnection));
     }
 
     @Test
     public void testTheActivityObjectShouldHaveTheAuthenticatedUserFieldAdded() {
-        IUserAuthService mockAuthService = mock(UserAuthService.class);
+        UserAuthService mockAuthService = mock(activitystreamer.server.services.impl.UserAuthService.class);
         when(mockAuthService.isLoggedIn(any(Connection.class))).thenReturn(true);
         when(mockAuthService.authorise(any(Connection.class), anyString(), anyString())).thenReturn(true);
 
-        IBroadcastService mockIBroadcastService = mock(ConnectionStateService.class);
+        BroadcastService mockBroadcastService = mock(BroadcastService.class);
 
         ActivityMessageCommandHandler handler
-                = new ActivityMessageCommandHandler(mockAuthService, mockIBroadcastService);
+                = new ActivityMessageCommandHandler(mockAuthService, mockBroadcastService);
 
         ActivityMessageCommand mockCommand = mock(ActivityMessageCommand.class);
         when(mockCommand.getUsername()).thenReturn("username");

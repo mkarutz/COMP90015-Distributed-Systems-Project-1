@@ -3,16 +3,18 @@ package activitystreamer.server.commandhandlers;
 import activitystreamer.core.command.*;
 import activitystreamer.core.commandhandler.*;
 import activitystreamer.core.shared.Connection;
-import activitystreamer.server.services.contracts.IBroadcastService;
-import activitystreamer.server.services.contracts.IServerAuthService;
+import activitystreamer.server.services.contracts.BroadcastService;
+import activitystreamer.server.services.contracts.ServerAuthService;
+import com.google.inject.Inject;
 
 public class ActivityBroadcastCommandHandler implements ICommandHandler {
 
-    private IServerAuthService serverAuthService;
-    private IBroadcastService broadcastService;
+    private ServerAuthService serverAuthService;
+    private BroadcastService broadcastService;
 
-    public ActivityBroadcastCommandHandler(IServerAuthService serverAuthService,
-                                           IBroadcastService broadcastService) {
+    @Inject
+    public ActivityBroadcastCommandHandler(ServerAuthService serverAuthService,
+                                           BroadcastService broadcastService) {
         this.serverAuthService = serverAuthService;
         this.broadcastService = broadcastService;
     }
