@@ -41,7 +41,7 @@ public class ActivityMessageCommandHandlerTest {
     }
 
     @Test
-    public void testIfNonAnonymousCredentialsDoNotMatchThenSendAuthenticaionFailCommand() {
+    public void testIfNonAnonymousCredentialsDoNotMatchThenSendAuthenticationFailCommand() {
         IUserAuthService mockAuthService = mock(UserAuthService.class);
         when(mockAuthService.isLoggedIn(any(Connection.class))).thenReturn(true);
         when(mockAuthService
@@ -129,8 +129,6 @@ public class ActivityMessageCommandHandlerTest {
 
         ActivityMessageCommandHandler handler
                 = new ActivityMessageCommandHandler(mockAuthService, mockIBroadcastService);
-
-
 
         ActivityMessageCommand mockCommand = mock(ActivityMessageCommand.class);
         when(mockCommand.getUsername()).thenReturn("username");
