@@ -1,55 +1,40 @@
 package activitystreamer.server;
 
-import activitystreamer.core.command.transmission.gson.GsonCommandSerializationAdaptor;
-import activitystreamer.core.shared.*;
-import activitystreamer.core.commandprocessor.*;
-import activitystreamer.server.commandprocessors.*;
-import activitystreamer.server.services.contracts.IServerAuthService;
-import activitystreamer.server.services.contracts.IUserAuthService;
-import activitystreamer.server.services.impl.ConnectionStateService;
-import activitystreamer.server.services.impl.RemoteServerStateService;
-import activitystreamer.server.services.impl.ServerAuthService;
-import activitystreamer.server.services.impl.UserAuthService;
+import activitystreamer.core.command.AuthenticateCommand;
+import activitystreamer.core.shared.Connection;
+import activitystreamer.server.services.contracts.ConnectionManager;
+import activitystreamer.server.services.contracts.RemoteServerStateService;
 import activitystreamer.util.Settings;
+import com.google.inject.Inject;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 import java.net.Socket;
-import java.util.ArrayList;
-import java.util.List;
-
-import activitystreamer.core.command.*;
 
 public class Control implements Runnable, IncomingConnectionHandler {
     private Logger log = LogManager.getLogger();
-    private List<Connection> connections = new ArrayList<Connection>();
     private boolean term = false;
 
     private Listener listener;
 
-    private ConnectionStateService rConnectionStateService;
-    private RemoteServerStateService rServerService;
-    private IUserAuthService rIUserAuthService;
-    private IServerAuthService rIServerAuthService;
+    private ConnectionFactory connectionFactory;
+    private RemoteServerStateService remoteServerStateService;
+    private ConnectionManager connectionManager;
 
-    public Control() {
-        this.rServerService = new RemoteServerStateService(this);
-        this.rConnectionStateService = new ConnectionStateService();
-        this.rIUserAuthService = new UserAuthService(this.rServerService, rConnectionStateService);
-        this.rIServerAuthService = new ServerAuthService(rConnectionStateService);
-        try {
-            listener = new Listener(this, Settings.getLocalPort());
-        } catch (IOException e1) {
-            log.fatal("failed to startup a listening thread: " + e1);
-            System.exit(-1);
-        }
+    @Inject
+    public Control(ConnectionFactory connectionFactory,
+                   RemoteServerStateService remoteServerStateService,
+                   ConnectionManager connectionManager) {
+        this.connectionFactory = connectionFactory;
+        this.remoteServerStateService = remoteServerStateService;
+        this.connectionManager = connectionManager;
     }
 
-	@Override
+    @Override
     public void run() {
         initiateConnection();
-        new Thread(listener).start();
+        startListener();
         log.info("using activity interval of " + Settings.getActivityInterval() + " milliseconds");
         while (!term) {
             try {
@@ -59,15 +44,20 @@ public class Control implements Runnable, IncomingConnectionHandler {
                 break;
             }
             if (!term) {
-                garbageCollectConnections();
                 announce();
             }
         }
-        log.info("closing " + connections.size() + " connections");
-        for (Connection connection : connections) {
-            connection.close();
-        }
         listener.setTerm(true);
+    }
+
+    private void startListener() {
+        try {
+            listener = new Listener(this, Settings.getLocalPort());
+            new Thread(listener).start();
+        } catch (IOException e1) {
+            log.fatal("failed to startup a listening thread: " + e1);
+            System.exit(-1);
+        }
     }
 
     public void initiateConnection() {
@@ -81,120 +71,28 @@ public class Control implements Runnable, IncomingConnectionHandler {
         }
     }
 
-    public synchronized boolean process(Connection con, String msg) {
-        return false;
-    }
-
-    public synchronized void connectionClosed(Connection con) {
-        if (!term) { connections.remove(con); }
-    }
-
-    // Remove connections with no longer operating threads
-    private void garbageCollectConnections() {
-        List<Connection> toRemove = new ArrayList<Connection>();
-        for (Connection c : connections) {
-            if (!c.getIsRunning()) {
-                toRemove.add(c);
-            }
-        }
-        for (Connection c : toRemove) {
-            //this.rServerService.removeStateByHostAndPort(c.getSocket().getInetAddress(), c.getSocket().getPort());
-            connections.remove(c);
-        }
-    }
-
     @Override
-    public synchronized void incomingConnection(Socket s) throws IOException {
-        log.debug("incomming connection: " + Settings.socketAddress(s));
-        Connection c = new Connection(s,
-                new GsonCommandSerializationAdaptor(),
-                new GsonCommandSerializationAdaptor(),
-                new MainCommandProcessor(
-                        rServerService,
-                        rIUserAuthService,
-                        rIServerAuthService,
-                        rConnectionStateService
-                )
-        );
-        rConnectionStateService.registerConnection(c);
-        connections.add(c);
-        new Thread(c).start();
+    public synchronized void incomingConnection(Socket socket) throws IOException {
+        log.debug("incomming connection: " + Settings.socketAddress(socket));
+        Connection connection = connectionFactory.newConnection(socket);
+        connectionManager.addConnection(connection);
+        new Thread(connection).start();
     }
 
-    public synchronized Connection outgoingConnection(Socket s) throws IOException {
+    public synchronized void outgoingConnection(Socket s) throws IOException {
         log.debug("outgoing connection: " + Settings.socketAddress(s));
-        Connection c = new Connection(s,
-                new GsonCommandSerializationAdaptor(),
-                new GsonCommandSerializationAdaptor(),
-                new MainCommandProcessor(
-                        rServerService,
-                        rIUserAuthService,
-                        rIServerAuthService,
-                        rConnectionStateService
-                )
-        );
-        rConnectionStateService.registerConnection(c);
-        rConnectionStateService.setConnectionType(c, ConnectionStateService.ConnectionType.SERVER);
-        connections.add(c);
-        new Thread(c).start();
-        ICommand cmd = new AuthenticateCommand(Settings.getSecret());
-        c.pushCommand(cmd);
-        return c;
+        Connection connection = connectionFactory.newConnection(s);
+        connectionManager.addServerConnection(connection);
+        connection.pushCommand(new AuthenticateCommand(Settings.getSecret()));
+        new Thread(connection).start();
     }
 
     public void announce() {
         log.debug("Broadcasting announce message.");
-
-        // Obviously instanceof is bad design here, but...
-        // FOR DEBUG PURPOSES TO SEE LIST OF CONNECTIONS - should be eventually removed!
-        System.out.printf("\n================= CONNECTION STATUS =================\n");
-        String tf;
-        for (Connection c : connections) {
-            CommandProcessor cp = c.getCommandProcessor();
-            Socket socket = c.getSocket();
-            String rsa = socket.getRemoteSocketAddress().toString();
-            String[] rsaSplit = rsa.split("/");
-            if (rsaSplit[0].equals("localhost")) {
-                tf = "to:  ";
-            } else {
-                tf = "from:";
-            }
-            ConnectionStateService.ConnectionType t = this.rConnectionStateService.getConnectionType(c);
-            if (t == ConnectionStateService.ConnectionType.UNKNOWN) {
-                System.out.printf("Connection " + tf + " UNKNOWN  /" + rsaSplit[1] + "\n");
-            } else if (t == ConnectionStateService.ConnectionType.SERVER) {
-                System.out.printf("Connection " + tf + " SERVER   /" + rsaSplit[1] + "\n");
-            } else {
-                System.out.printf("Connection " + tf + " CLIENT   /" + rsaSplit[1] + "\n");
-            }
-        }
-        System.out.printf("=====================================================\n\n");
-        this.rServerService.printDebugState();
-        System.out.printf("\n");
-
-        for (Connection connection : connections){
-            ServerAnnounceCommand cmd = new ServerAnnounceCommand(
-                Settings.getId(),
-                connections.size(),
-                connection.getSocket().getLocalAddress(),
-                Settings.getLocalPort()
-            );
-
-            if (this.rConnectionStateService.getConnectionType(connection) == ConnectionStateService.ConnectionType.SERVER) {
-                connection.pushCommand(cmd);
-            }
-        }
+        remoteServerStateService.announce();
     }
 
     public final void setTerm(boolean t) {
         term = t;
-    }
-
-    public final List<Connection> getConnections() {
-        return connections;
-    }
-
-    public int getLoad() {
-        return getConnections().size();
     }
 }

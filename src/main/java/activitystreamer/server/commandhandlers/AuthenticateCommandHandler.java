@@ -3,17 +3,19 @@ package activitystreamer.server.commandhandlers;
 import activitystreamer.core.command.*;
 import activitystreamer.core.commandhandler.*;
 import activitystreamer.core.shared.Connection;
-import activitystreamer.server.services.contracts.IServerAuthService;
+import activitystreamer.server.services.contracts.ServerAuthService;
+import com.google.inject.Inject;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 public class AuthenticateCommandHandler implements ICommandHandler {
     private Logger log = LogManager.getLogger();
 
-    private IServerAuthService rIServerAuthService;
+    private ServerAuthService serverAuthService;
 
-    public AuthenticateCommandHandler(IServerAuthService rIServerAuthService) {
-        this.rIServerAuthService = rIServerAuthService;
+    @Inject
+    public AuthenticateCommandHandler(ServerAuthService serverAuthService) {
+        this.serverAuthService = serverAuthService;
     }
 
     @Override
@@ -27,7 +29,7 @@ public class AuthenticateCommandHandler implements ICommandHandler {
                 return true;
             }
 
-            if (!rIServerAuthService.authenticate(conn, cmd.getSecret())) {
+            if (!serverAuthService.authenticate(conn, cmd.getSecret())) {
                 conn.pushCommand(new AuthenticationFailCommand("Incorrect secret"));
                 conn.close();
             }

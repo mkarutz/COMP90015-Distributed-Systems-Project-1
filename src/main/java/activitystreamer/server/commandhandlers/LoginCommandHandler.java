@@ -1,24 +1,21 @@
 package activitystreamer.server.commandhandlers;
 
 import activitystreamer.core.command.*;
-import activitystreamer.core.commandhandler.*;
+import activitystreamer.core.commandhandler.ICommandHandler;
 import activitystreamer.core.shared.Connection;
-import activitystreamer.server.ServerState;
-import activitystreamer.server.services.contracts.IUserAuthService;
-import activitystreamer.server.services.impl.ConnectionStateService;
-import activitystreamer.server.services.impl.RemoteServerStateService;
+import activitystreamer.server.services.contracts.RemoteServerStateService;
+import activitystreamer.server.services.contracts.UserAuthService;
+import com.google.inject.Inject;
 
 public class LoginCommandHandler implements ICommandHandler {
-    private final IUserAuthService rAuthService;
-    private final RemoteServerStateService rServerStateService;
-    private final ConnectionStateService rConnectionStateService;
+    private final UserAuthService userAuthService;
+    private final RemoteServerStateService remoteServerStateService;
 
-    public LoginCommandHandler(IUserAuthService rAuthService,
-                               RemoteServerStateService rServerStateService,
-                               ConnectionStateService rConnectionStateService) {
-        this.rAuthService = rAuthService;
-        this.rServerStateService = rServerStateService;
-        this.rConnectionStateService = rConnectionStateService;
+    @Inject
+    public LoginCommandHandler(UserAuthService userAuthService,
+                               RemoteServerStateService remoteServerStateService) {
+        this.userAuthService = userAuthService;
+        this.remoteServerStateService = remoteServerStateService;
     }
 
     @Override
@@ -32,13 +29,10 @@ public class LoginCommandHandler implements ICommandHandler {
                 return true;
             }
 
-            if (loginCommand.getUsername().equals(IUserAuthService.ANONYMOUS)) {
-                rAuthService.loginAsAnonymous(conn);
+            if (loginCommand.getUsername().equals(UserAuthService.ANONYMOUS)) {
+                userAuthService.loginAsAnonymous(conn);
                 sendLoginSuccess(conn, loginCommand.getUsername());
-                // Dealing with a client connection
-                rConnectionStateService.setConnectionType(conn, ConnectionStateService.ConnectionType.CLIENT);
-
-                loadBalance(conn);
+                remoteServerStateService.loadBalance(conn);
                 return true;
             }
 
@@ -48,12 +42,9 @@ public class LoginCommandHandler implements ICommandHandler {
                 return true;
             }
 
-            if (rAuthService.login(conn, loginCommand.getUsername(), loginCommand.getSecret())) {
+            if (userAuthService.login(conn, loginCommand.getUsername(), loginCommand.getSecret())) {
                 sendLoginSuccess(conn, loginCommand.getUsername());
-                // Dealing with a client connection
-                rConnectionStateService.setConnectionType(conn, ConnectionStateService.ConnectionType.CLIENT);
-
-                loadBalance(conn);
+                remoteServerStateService.loadBalance(conn);
             } else {
                 conn.pushCommand(new LoginFailedCommand("Username or secret incorrect"));
                 conn.close();
@@ -62,17 +53,6 @@ public class LoginCommandHandler implements ICommandHandler {
             return true;
         } else {
             return false;
-        }
-    }
-
-    private void loadBalance(Connection conn) {
-        synchronized (rServerStateService) {
-            ServerState redirectTo;
-            if ((redirectTo = rServerStateService.getServerToRedirectTo()) != null) {
-                RedirectCommand cmd = new RedirectCommand(redirectTo.getHostname(), redirectTo.getPort());
-                conn.pushCommand(cmd);
-                conn.close();
-            }
         }
     }
 

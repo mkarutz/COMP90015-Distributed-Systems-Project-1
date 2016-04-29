@@ -23,7 +23,6 @@ public class Server {
         String footer = "\ncontact aharwood@unimelb.edu.au for issues.";
         HelpFormatter formatter = new HelpFormatter();
         formatter.printHelp("ActivityStreamer.Server", header, options, footer, true);
-        System.exit(-1);
     }
 
     public static void main(String[] args) {
@@ -45,6 +44,7 @@ public class Server {
             cmd = parser.parse(options, args);
         } catch (ParseException e1) {
             help(options);
+            System.exit(-1);
         }
 
         if (cmd.hasOption("d")) {
@@ -114,9 +114,9 @@ public class Server {
         Settings.setId(Settings.nextSecret());
         log.info("starting server");
 
-        Control c = new Control();
-        new Thread(c).start();
-        Runtime.getRuntime().addShutdownHook(new Thread(new ShutDownHook(c)));
+//        Control c = new Control();
+//        new Thread(c).start();
+//        Runtime.getRuntime().addShutdownHook(new Thread(new ShutDownHook(c)));
     }
 
     private static class ShutDownHook implements Runnable {

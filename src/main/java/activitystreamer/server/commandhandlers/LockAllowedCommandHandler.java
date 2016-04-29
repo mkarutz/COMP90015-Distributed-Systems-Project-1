@@ -3,32 +3,31 @@ package activitystreamer.server.commandhandlers;
 import activitystreamer.core.command.*;
 import activitystreamer.core.commandhandler.*;
 import activitystreamer.core.shared.Connection;
-import activitystreamer.server.services.contracts.IBroadcastService;
-import activitystreamer.server.services.contracts.IUserAuthService;
+import activitystreamer.server.services.contracts.BroadcastService;
+import activitystreamer.server.services.contracts.UserAuthService;
+import com.google.inject.Inject;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 public class LockAllowedCommandHandler implements ICommandHandler {
     private Logger log = LogManager.getLogger();
 
-    private IUserAuthService rAuthService;
-    private IBroadcastService rIBroadcastService;
+    private UserAuthService userAuthService;
+    private BroadcastService broadcastService;
 
-    public LockAllowedCommandHandler(IUserAuthService rAuthService, IBroadcastService rIBroadcastService) {
-        this.rAuthService = rAuthService;
-        this.rIBroadcastService = rIBroadcastService;
+    @Inject
+    public LockAllowedCommandHandler(UserAuthService userAuthService, BroadcastService broadcastService) {
+        this.userAuthService = userAuthService;
+        this.broadcastService = broadcastService;
     }
 
     @Override
     public boolean handleCommand(ICommand command, Connection conn) {
         if (command instanceof LockAllowedCommand) {
-            LockAllowedCommand lCommand = (LockAllowedCommand)command;
+            LockAllowedCommand cmd = (LockAllowedCommand) command;
 
-            // Register lock allowed with auth service
-            rAuthService.lockAllowed(lCommand.getUsername(), lCommand.getSecret(), lCommand.getServerId());
-
-            // Broadcast out
-            rIBroadcastService.broadcastToServers(lCommand, conn);
+            userAuthService.lockAllowed(cmd.getUsername(), cmd.getSecret(), cmd.getServerId());
+            broadcastService.broadcastToServers(cmd, conn);
 
             return true;
         } else {

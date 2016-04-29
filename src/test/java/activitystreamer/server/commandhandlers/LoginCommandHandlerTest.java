@@ -1,12 +1,13 @@
 package activitystreamer.server.commandhandlers;
 
-import activitystreamer.core.command.*;
+import activitystreamer.core.command.InvalidMessageCommand;
+import activitystreamer.core.command.LoginCommand;
+import activitystreamer.core.command.LoginFailedCommand;
+import activitystreamer.core.command.LoginSuccessCommand;
 import activitystreamer.core.shared.Connection;
-import activitystreamer.server.ServerState;
-import activitystreamer.server.services.contracts.IUserAuthService;
-import activitystreamer.server.services.impl.ConnectionStateService;
-import activitystreamer.server.services.impl.RemoteServerStateService;
-import activitystreamer.server.services.impl.UserAuthService;
+import activitystreamer.server.services.contracts.BroadcastService;
+import activitystreamer.server.services.contracts.RemoteServerStateService;
+import activitystreamer.server.services.contracts.UserAuthService;
 import org.junit.Test;
 
 import static org.mockito.Mockito.*;
@@ -14,12 +15,12 @@ import static org.mockito.Mockito.*;
 public class LoginCommandHandlerTest {
     @Test
     public void aUsernameMustBePreset() {
-        IUserAuthService mockAuthService = mock(UserAuthService.class);
-        RemoteServerStateService mockRemoteServerStateService = mock(RemoteServerStateService.class);
+        UserAuthService mockAuthService = mock(activitystreamer.server.services.impl.UserAuthService.class);
+        RemoteServerStateService mockRemoteServerStateService = mock(activitystreamer.server.services.impl.RemoteServerStateService.class);
 
-        ConnectionStateService mockConnectionStateService = mock(ConnectionStateService.class);
+        BroadcastService broadcastService = mock(BroadcastService.class);
 
-        LoginCommandHandler handler = new LoginCommandHandler(mockAuthService, mockRemoteServerStateService, mockConnectionStateService);
+        LoginCommandHandler handler = new LoginCommandHandler(mockAuthService, mockRemoteServerStateService);
 
         LoginCommand cmd = mock(LoginCommand.class);
         when(cmd.getUsername()).thenReturn(null);
@@ -33,30 +34,32 @@ public class LoginCommandHandlerTest {
 
     @Test
     public void ifTheUsernameIsAnonymousThenTheUsernameIsIgnored() {
-        IUserAuthService mockAuthService = mock(UserAuthService.class);
-        RemoteServerStateService mockRemoteServerStateService = mock(RemoteServerStateService.class);
+        UserAuthService mockAuthService = mock(activitystreamer.server.services.impl.UserAuthService.class);
+        RemoteServerStateService remoteServerStateService = mock(activitystreamer.server.services.impl.RemoteServerStateService.class);
 
-        ConnectionStateService mockConnectionStateService = mock(ConnectionStateService.class);
-
-        LoginCommandHandler handler = new LoginCommandHandler(mockAuthService, mockRemoteServerStateService, mockConnectionStateService);
+        LoginCommandHandler handler = new LoginCommandHandler(mockAuthService, remoteServerStateService);
 
         LoginCommand cmd = mock(LoginCommand.class);
         when(cmd.getUsername()).thenReturn("anonymous");
+
+        Connection conn = mock(Connection.class);
+
+        handler.handleCommand(cmd, conn);
 
         verify(cmd, never()).getSecret();
     }
 
     @Test
     public void ifTheUserIsRegisteredALoginSuccessCommandIsSent() {
-        IUserAuthService authService = mock(UserAuthService.class);
+        UserAuthService authService = mock(activitystreamer.server.services.impl.UserAuthService.class);
         when(authService.isUserRegistered(anyString(), anyString())).thenReturn(true);
         when(authService.login(any(Connection.class), anyString(), anyString())).thenReturn(true);
 
-        RemoteServerStateService serverStateService = mock(RemoteServerStateService.class);
+        RemoteServerStateService serverStateService = mock(activitystreamer.server.services.impl.RemoteServerStateService.class);
 
-        ConnectionStateService mockConnectionStateService = mock(ConnectionStateService.class);
+        BroadcastService mockConnectionStateService = mock(BroadcastService.class);
 
-        LoginCommandHandler handler = new LoginCommandHandler(authService, serverStateService, mockConnectionStateService);
+        LoginCommandHandler handler = new LoginCommandHandler(authService, serverStateService);
 
         LoginCommand cmd = mock(LoginCommand.class);
         when(cmd.getUsername()).thenReturn("username");
@@ -70,18 +73,13 @@ public class LoginCommandHandlerTest {
 
     @Test
     public void ifThereIsAServerToRedirectToThenARedirectCommandIsSent() {
-        IUserAuthService authService = mock(UserAuthService.class);
+        UserAuthService authService = mock(activitystreamer.server.services.impl.UserAuthService.class);
         when(authService.isUserRegistered(anyString(), anyString())).thenReturn(true);
         when(authService.login(any(Connection.class), anyString(), anyString())).thenReturn(true);
 
-        ServerState mockServer = mock(ServerState.class);
+        RemoteServerStateService remoteServerStateService = mock(RemoteServerStateService.class);
 
-        RemoteServerStateService serverStateService = mock(RemoteServerStateService.class);
-        when(serverStateService.getServerToRedirectTo()).thenReturn(mockServer);
-
-        ConnectionStateService mockConnectionStateService = mock(ConnectionStateService.class);
-
-        LoginCommandHandler handler = new LoginCommandHandler(authService, serverStateService, mockConnectionStateService);
+        LoginCommandHandler handler = new LoginCommandHandler(authService, remoteServerStateService);
 
         LoginCommand cmd = mock(LoginCommand.class);
         when(cmd.getUsername()).thenReturn("username");
@@ -90,21 +88,20 @@ public class LoginCommandHandlerTest {
         Connection conn = mock(Connection.class);
 
         handler.handleCommand(cmd, conn);
-        verify(conn).pushCommand(isA(LoginSuccessCommand.class));
-        verify(conn).pushCommand(isA(RedirectCommand.class));
+        verify(remoteServerStateService).loadBalance(conn);
     }
 
     @Test
     public void ifTheUserIsNotRegisteredALoginFailedCommandIsSent() {
-        IUserAuthService authService = mock(UserAuthService.class);
+        UserAuthService authService = mock(activitystreamer.server.services.impl.UserAuthService.class);
         when(authService.isUserRegistered(anyString(), anyString())).thenReturn(false);
         when(authService.login(any(Connection.class), anyString(), anyString())).thenReturn(false);
 
-        RemoteServerStateService serverStateService = mock(RemoteServerStateService.class);
+        RemoteServerStateService remoteServerStateService = mock(activitystreamer.server.services.impl.RemoteServerStateService.class);
 
-        ConnectionStateService mockConnectionStateService = mock(ConnectionStateService.class);
+        BroadcastService mockConnectionStateService = mock(BroadcastService.class);
 
-        LoginCommandHandler handler = new LoginCommandHandler(authService, serverStateService, mockConnectionStateService);
+        LoginCommandHandler handler = new LoginCommandHandler(authService, remoteServerStateService);
 
         LoginCommand cmd = mock(LoginCommand.class);
         when(cmd.getUsername()).thenReturn("username");
@@ -113,6 +110,7 @@ public class LoginCommandHandlerTest {
         Connection conn = mock(Connection.class);
 
         handler.handleCommand(cmd, conn);
+        verify(remoteServerStateService, never()).loadBalance(conn);
         verify(conn).pushCommand(isA(LoginFailedCommand.class));
     }
 }

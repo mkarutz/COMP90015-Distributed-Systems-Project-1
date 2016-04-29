@@ -14,8 +14,8 @@ public class AuthenticationFailCommandHandler implements ICommandHandler {
     @Override
     public boolean handleCommand(ICommand command, Connection conn) {
         if (command instanceof AuthenticationFailCommand) {
-            AuthenticationFailCommand failCommand = (AuthenticationFailCommand)command;
-            log.error("Authentication failed: " + failCommand.getInfo());
+            AuthenticationFailCommand cmd = (AuthenticationFailCommand) command;
+            log.error("Authentication failed: " + cmd.getInfo());
             conn.close();
             return true;
         } else {

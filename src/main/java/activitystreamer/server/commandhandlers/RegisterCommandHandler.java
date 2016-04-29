@@ -6,29 +6,31 @@ import activitystreamer.core.command.RegisterCommand;
 import activitystreamer.core.command.RegisterFailedCommand;
 import activitystreamer.core.commandhandler.ICommandHandler;
 import activitystreamer.core.shared.Connection;
-import activitystreamer.server.services.contracts.IUserAuthService;
+import activitystreamer.server.services.contracts.UserAuthService;
+import com.google.inject.Inject;
 
 public class RegisterCommandHandler implements ICommandHandler {
 
-    IUserAuthService rUserAuthService;
+    UserAuthService userAuthService;
 
-    public RegisterCommandHandler(IUserAuthService rUserAuthService) {
-        this.rUserAuthService = rUserAuthService;
+    @Inject
+    public RegisterCommandHandler(UserAuthService userAuthService) {
+        this.userAuthService = userAuthService;
     }
 
     @Override
     public boolean handleCommand(ICommand command, Connection conn) {
         if (command instanceof RegisterCommand) {
-            RegisterCommand registerCommand = (RegisterCommand) command;
+            RegisterCommand cmd = (RegisterCommand) command;
 
-            if (registerCommand.getUsername() == null || registerCommand.getSecret() == null) {
+            if (cmd.getUsername() == null || cmd.getSecret() == null) {
                 conn.pushCommand(new InvalidMessageCommand("Username and secret must be present."));
                 conn.close();
                 return true;
             }
 
-            if (!rUserAuthService.register(registerCommand.getUsername(), registerCommand.getSecret(), conn)) {
-                conn.pushCommand(new RegisterFailedCommand("Username " + registerCommand.getUsername() + "  already exists."));
+            if (!userAuthService.register(cmd.getUsername(), cmd.getSecret(), conn)) {
+                conn.pushCommand(new RegisterFailedCommand("Username " + cmd.getUsername() + " already exists."));
             }
 
             return true;

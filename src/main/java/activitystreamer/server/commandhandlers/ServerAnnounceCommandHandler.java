@@ -1,12 +1,14 @@
 package activitystreamer.server.commandhandlers;
 
-import activitystreamer.core.command.*;
-import activitystreamer.core.commandhandler.*;
-import activitystreamer.core.shared.*;
-import activitystreamer.server.*;
-import activitystreamer.server.services.contracts.IBroadcastService;
-import activitystreamer.server.services.contracts.IServerAuthService;
-import activitystreamer.server.services.impl.RemoteServerStateService;
+import activitystreamer.core.command.ICommand;
+import activitystreamer.core.command.InvalidMessageCommand;
+import activitystreamer.core.command.ServerAnnounceCommand;
+import activitystreamer.core.commandhandler.ICommandHandler;
+import activitystreamer.core.shared.Connection;
+import activitystreamer.server.services.contracts.BroadcastService;
+import activitystreamer.server.services.contracts.RemoteServerStateService;
+import activitystreamer.server.services.contracts.ServerAuthService;
+import com.google.inject.Inject;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -14,12 +16,13 @@ public class ServerAnnounceCommandHandler implements ICommandHandler {
     private Logger log = LogManager.getLogger();
 
     private RemoteServerStateService remoteServerStateService;
-    private IBroadcastService broadcastService;
-    private IServerAuthService serverAuthService;
+    private BroadcastService broadcastService;
+    private ServerAuthService serverAuthService;
 
-    public ServerAnnounceCommandHandler(IServerAuthService serverAuthService,
+    @Inject
+    public ServerAnnounceCommandHandler(ServerAuthService serverAuthService,
                                         RemoteServerStateService remoteServerStateService,
-                                        IBroadcastService broadcastService) {
+                                        BroadcastService broadcastService) {
         this.serverAuthService = serverAuthService;
         this.remoteServerStateService = remoteServerStateService;
         this.broadcastService = broadcastService;
@@ -44,10 +47,12 @@ public class ServerAnnounceCommandHandler implements ICommandHandler {
 
             remoteServerStateService.updateState(
                     cmd.getId(),
-                    new ServerState(cmd.getHostname(), cmd.getPort(), cmd.getLoad())
+                    cmd.getLoad(),
+                    cmd.getHostname(),
+                    cmd.getPort()
             );
 
-            broadcastService.broadcastToServers(command, conn);
+            broadcastService.broadcastToServers(cmd, conn);
 
             return true;
         } else {
