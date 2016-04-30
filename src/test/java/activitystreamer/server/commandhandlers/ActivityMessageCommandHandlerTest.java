@@ -7,6 +7,8 @@ import activitystreamer.core.shared.Connection;
 import activitystreamer.server.services.contracts.BroadcastService;
 import activitystreamer.server.services.contracts.RemoteServerStateService;
 import activitystreamer.server.services.contracts.UserAuthService;
+import activitystreamer.server.services.impl.ConcreteRemoteServerStateService;
+import activitystreamer.server.services.impl.ConcreteUserAuthService;
 import com.google.gson.JsonObject;
 import org.junit.Test;
 
@@ -16,10 +18,10 @@ import static org.mockito.Mockito.*;
 public class ActivityMessageCommandHandlerTest {
     @Test
     public void testCanPostAsAnonymousWhenLoggedIn() {
-        RemoteServerStateService mockServerService = mock(activitystreamer.server.services.impl.RemoteServerStateService.class);
+        RemoteServerStateService mockServerService = mock(ConcreteRemoteServerStateService.class);
         BroadcastService mockBroadcastService = mock(BroadcastService.class);
 
-        UserAuthService mockAuthService = spy(new activitystreamer.server.services.impl.UserAuthService(mockServerService, mockBroadcastService));
+        UserAuthService mockAuthService = spy(new ConcreteUserAuthService(mockServerService, mockBroadcastService));
         when(mockAuthService.isLoggedIn(any(Connection.class))).thenReturn(true);
 
         ActivityMessageCommandHandler handler
@@ -40,7 +42,7 @@ public class ActivityMessageCommandHandlerTest {
 
     @Test
     public void testIfNonAnonymousCredentialsDoNotMatchThenSendAuthenticationFailCommand() {
-        UserAuthService mockAuthService = mock(activitystreamer.server.services.impl.UserAuthService.class);
+        UserAuthService mockAuthService = mock(ConcreteUserAuthService.class);
         when(mockAuthService.isLoggedIn(any(Connection.class))).thenReturn(true);
         when(mockAuthService
                 .authorise(any(Connection.class), anyString(), anyString()))
@@ -67,7 +69,7 @@ public class ActivityMessageCommandHandlerTest {
 
     @Test
     public void testIfNotLoggedInThenSendAuthenticationFailCommand() {
-        UserAuthService mockAuthService = mock(activitystreamer.server.services.impl.UserAuthService.class);
+        UserAuthService mockAuthService = mock(ConcreteUserAuthService.class);
         when(mockAuthService.isLoggedIn(any(Connection.class))).thenReturn(false);
         when(mockAuthService
                 .authorise(any(Connection.class), anyString(), anyString()))
@@ -94,7 +96,7 @@ public class ActivityMessageCommandHandlerTest {
 
     @Test
     public void testIfAuthorisedThenBroadcastTheActivityObject() {
-        UserAuthService mockAuthService = mock(activitystreamer.server.services.impl.UserAuthService.class);
+        UserAuthService mockAuthService = mock(ConcreteUserAuthService.class);
         when(mockAuthService.isLoggedIn(any(Connection.class))).thenReturn(true);
         when(mockAuthService.authorise(any(Connection.class), anyString(), anyString())).thenReturn(true);
 
@@ -119,7 +121,7 @@ public class ActivityMessageCommandHandlerTest {
 
     @Test
     public void testTheActivityObjectShouldHaveTheAuthenticatedUserFieldAdded() {
-        UserAuthService mockAuthService = mock(activitystreamer.server.services.impl.UserAuthService.class);
+        UserAuthService mockAuthService = mock(ConcreteUserAuthService.class);
         when(mockAuthService.isLoggedIn(any(Connection.class))).thenReturn(true);
         when(mockAuthService.authorise(any(Connection.class), anyString(), anyString())).thenReturn(true);
 

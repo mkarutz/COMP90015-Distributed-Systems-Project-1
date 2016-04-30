@@ -1,8 +1,6 @@
 package activitystreamer.core.command.transmission.gson;
 
 import activitystreamer.core.command.*;
-import activitystreamer.core.command.transmission.gson.CommandAdapter;
-import activitystreamer.core.command.transmission.gson.JsonObjectAdapter;
 import com.google.gson.*;
 import org.junit.Test;
 
@@ -16,7 +14,7 @@ import static org.junit.Assert.*;
 public class CommandAdapterTest {
     @Test
     public void testUnexpectedFieldAreIgnored() {
-        Class<ICommand> type = ICommand.class;
+        Class<Command> type = Command.class;
 
         Gson gson = new GsonBuilder()
                 .registerTypeAdapter(type, new CommandAdapter())
@@ -28,7 +26,7 @@ public class CommandAdapterTest {
 
         String msg = "{\"command\":\"AUTHENTICATE\",\"secret\":\"hvsdjhabvjdhvadsas3\",\"unexpected\":9000}";
         JsonObject elem = new JsonParser().parse(msg).getAsJsonObject();
-        ICommand actual = gson.fromJson(elem, type);
+        Command actual = gson.fromJson(elem, type);
 
         // System.out.println(((ActivityBroadcastCommand)actual).getActivity().toString());
 
@@ -37,7 +35,7 @@ public class CommandAdapterTest {
 
     @Test
     public void testMissingFieldsAreNull() {
-        Class<ICommand> type = ICommand.class;
+        Class<Command> type = Command.class;
 
         Gson gson = new GsonBuilder()
                 .registerTypeAdapter(type, new CommandAdapter())
@@ -54,7 +52,7 @@ public class CommandAdapterTest {
 
     @Test
     public void testDeserializeActivityBroadcastCommand() {
-        Class<ICommand> type = ICommand.class;
+        Class<Command> type = Command.class;
 
         Gson gson = new GsonBuilder()
                 .registerTypeAdapter(type, new CommandAdapter())
@@ -67,7 +65,7 @@ public class CommandAdapterTest {
 
         String msg = "{\"command\":\"ACTIVITY_BROADCAST\",\"activity\":{\"foo\":\"bar\"}}";
         JsonObject elem = new JsonParser().parse(msg).getAsJsonObject();
-        ICommand actual = gson.fromJson(elem, type);
+        Command actual = gson.fromJson(elem, type);
 
         System.out.println(((ActivityBroadcastCommand) actual).getActivity().toString());
 
@@ -76,7 +74,7 @@ public class CommandAdapterTest {
 
     @Test
     public void testDeserializeActivityMessageCommand() {
-        Class<ICommand> type = ICommand.class;
+        Class<Command> type = Command.class;
 
         Gson gson = new GsonBuilder()
                 .registerTypeAdapter(type, new CommandAdapter())
@@ -89,14 +87,14 @@ public class CommandAdapterTest {
 
         String msg = "{\"command\":\"ACTIVITY_MESSAGE\",\"username\":\"aaron\",\"secret\":\"fmnmpp3ai91qb3gc2bvs14g3ue\",\"activity\":{\"foo\":\"bar\"}}";
         JsonObject elem = new JsonParser().parse(msg).getAsJsonObject();
-        ICommand actual = gson.fromJson(elem, type);
+        Command actual = gson.fromJson(elem, type);
 
         assertEquals(expected, actual);
     }
 
     @Test
     public void testDeserializeAuthenticateCommand() {
-        Class<ICommand> type = ICommand.class;
+        Class<Command> type = Command.class;
 
         Gson gson = new GsonBuilder()
                 .registerTypeAdapter(type, new CommandAdapter())
@@ -106,14 +104,14 @@ public class CommandAdapterTest {
 
         String msg = "{\"command\":\"AUTHENTICATE\",\"secret\":\"fmnmpp3ai91qb3gc2bvs14g3ue\"}";
         JsonObject elem = new JsonParser().parse(msg).getAsJsonObject();
-        ICommand actual = gson.fromJson(elem, type);
+        Command actual = gson.fromJson(elem, type);
 
         assertEquals(expected, actual);
     }
 
     @Test
     public void testDeserializeAuthenticationFailCommand() {
-        Class<ICommand> type = ICommand.class;
+        Class<Command> type = Command.class;
 
         Gson gson = new GsonBuilder()
                 .registerTypeAdapter(type, new CommandAdapter())
@@ -123,14 +121,14 @@ public class CommandAdapterTest {
 
         String msg = "{\"command\":\"AUTHENTICATION_FAIL\",\"info\":\"the supplied secret is incorrect: fmnmpp3ai91qb3gc2bvs14g3ue\"}";
         JsonObject elem = new JsonParser().parse(msg).getAsJsonObject();
-        ICommand actual = gson.fromJson(elem, type);
+        Command actual = gson.fromJson(elem, type);
 
         assertEquals(expected, actual);
     }
 
     @Test
     public void testDeserializeInvalidMessageCommand() {
-        Class<ICommand> type = ICommand.class;
+        Class<Command> type = Command.class;
 
         Gson gson = new GsonBuilder()
                 .registerTypeAdapter(type, new CommandAdapter())
@@ -140,14 +138,14 @@ public class CommandAdapterTest {
 
         String msg = "{\"command\":\"INVALID_MESSAGE\",\"info\":\"an error occured\"}";
         JsonObject elem = new JsonParser().parse(msg).getAsJsonObject();
-        ICommand actual = gson.fromJson(elem, type);
+        Command actual = gson.fromJson(elem, type);
 
         assertEquals(expected, actual);
     }
 
     @Test
     public void testDeserializeLockAllowedCommand() {
-        Class<ICommand> type = ICommand.class;
+        Class<Command> type = Command.class;
 
         Gson gson = new GsonBuilder()
                 .registerTypeAdapter(type, new CommandAdapter())
@@ -157,14 +155,14 @@ public class CommandAdapterTest {
 
         String msg = "{\"command\":\"LOCK_ALLOWED\",\"username\":\"aaron\",\"secret\":\"fmnmpp3ai91qb3gc2bvs14g3ue\",\"server\":\"p2qj82abyr7ut8losa1erhnqd2\"}";
         JsonObject elem = new JsonParser().parse(msg).getAsJsonObject();
-        ICommand actual = gson.fromJson(elem, type);
+        Command actual = gson.fromJson(elem, type);
 
         assertEquals(expected, actual);
     }
 
     @Test
     public void testDeserializeLockDeniedCommand() {
-        Class<ICommand> type = ICommand.class;
+        Class<Command> type = Command.class;
 
         Gson gson = new GsonBuilder()
                 .registerTypeAdapter(type, new CommandAdapter())
@@ -174,14 +172,14 @@ public class CommandAdapterTest {
 
         String msg = "{\"command\":\"LOCK_DENIED\",\"username\":\"aaron\",\"secret\":\"fmnmpp3ai91qb3gc2bvs14g3ue\"}";
         JsonObject elem = new JsonParser().parse(msg).getAsJsonObject();
-        ICommand actual = gson.fromJson(elem, type);
+        Command actual = gson.fromJson(elem, type);
 
         assertEquals(expected, actual);
     }
 
     @Test
     public void testDeserializeLockRequestCommand() {
-        Class<ICommand> type = ICommand.class;
+        Class<Command> type = Command.class;
 
         Gson gson = new GsonBuilder()
                 .registerTypeAdapter(type, new CommandAdapter())
@@ -191,14 +189,14 @@ public class CommandAdapterTest {
 
         String msg = "{\"command\":\"LOCK_REQUEST\",\"username\":\"aaron\",\"secret\":\"fmnmpp3ai91qb3gc2bvs14g3ue\"}";
         JsonObject elem = new JsonParser().parse(msg).getAsJsonObject();
-        ICommand actual = gson.fromJson(elem, type);
+        Command actual = gson.fromJson(elem, type);
 
         assertEquals(expected, actual);
     }
 
     @Test
     public void testDeserializeLoginCommand() {
-        Class<ICommand> type = ICommand.class;
+        Class<Command> type = Command.class;
 
         Gson gson = new GsonBuilder()
                 .registerTypeAdapter(type, new CommandAdapter())
@@ -208,14 +206,14 @@ public class CommandAdapterTest {
 
         String msg = "{\"command\":\"LOGIN\",\"username\":\"aaron\",\"secret\":\"fmnmpp3ai91qb3gc2bvs14g3ue\"}";
         JsonObject elem = new JsonParser().parse(msg).getAsJsonObject();
-        ICommand actual = gson.fromJson(elem, type);
+        Command actual = gson.fromJson(elem, type);
 
         assertEquals(expected, actual);
     }
 
     @Test
     public void testDeserializeLoginFailedCommand() {
-        Class<ICommand> type = ICommand.class;
+        Class<Command> type = Command.class;
 
         Gson gson = new GsonBuilder()
                 .registerTypeAdapter(type, new CommandAdapter())
@@ -225,14 +223,14 @@ public class CommandAdapterTest {
 
         String msg = "{\"command\":\"LOGIN_FAILED\",\"info\":\"the secret was incorrect\"}";
         JsonObject elem = new JsonParser().parse(msg).getAsJsonObject();
-        ICommand actual = gson.fromJson(elem, type);
+        Command actual = gson.fromJson(elem, type);
 
         assertEquals(expected, actual);
     }
 
     @Test
     public void testDeserializeLoginSuccessCommand() {
-        Class<ICommand> type = ICommand.class;
+        Class<Command> type = Command.class;
 
         Gson gson = new GsonBuilder()
                 .registerTypeAdapter(type, new CommandAdapter())
@@ -242,14 +240,14 @@ public class CommandAdapterTest {
 
         String msg = "{\"command\":\"LOGIN_SUCCESS\",\"info\":\"logged in as user aaron\"}";
         JsonObject elem = new JsonParser().parse(msg).getAsJsonObject();
-        ICommand actual = gson.fromJson(elem, type);
+        Command actual = gson.fromJson(elem, type);
 
         assertEquals(expected, actual);
     }
 
     @Test
     public void testLogoutCommand() {
-        Class<ICommand> type = ICommand.class;
+        Class<Command> type = Command.class;
 
         Gson gson = new GsonBuilder()
                 .registerTypeAdapter(type, new CommandAdapter())
@@ -259,14 +257,14 @@ public class CommandAdapterTest {
 
         String msg = "{\"command\":\"LOGOUT\"}";
         JsonObject elem = new JsonParser().parse(msg).getAsJsonObject();
-        ICommand actual = gson.fromJson(elem, type);
+        Command actual = gson.fromJson(elem, type);
 
         assertEquals(expected, actual);
     }
 
     @Test
     public void testDeserializeRedirectCommand() throws UnknownHostException {
-        Class<ICommand> type = ICommand.class;
+        Class<Command> type = Command.class;
 
         Gson gson = new GsonBuilder()
                 .registerTypeAdapter(type, new CommandAdapter())
@@ -276,14 +274,14 @@ public class CommandAdapterTest {
 
         String msg = "{\"command\":\"REDIRECT\",\"hostname\":\"123.222.221.1\",\"port\":1234}";
         JsonObject elem = new JsonParser().parse(msg).getAsJsonObject();
-        ICommand actual = gson.fromJson(elem, type);
+        Command actual = gson.fromJson(elem, type);
 
         assertEquals(expected, actual);
     }
 
     @Test
     public void testDeserializeRegisterCommand() {
-        Class<ICommand> type = ICommand.class;
+        Class<Command> type = Command.class;
 
         Gson gson = new GsonBuilder()
                 .registerTypeAdapter(type, new CommandAdapter())
@@ -293,14 +291,14 @@ public class CommandAdapterTest {
 
         String msg = "{\"command\":\"REGISTER\",\"username\":\"aaron\",\"secret\":\"fmnmpp3ai91qb3gc2bvs14g3ue\"}";
         JsonObject elem = new JsonParser().parse(msg).getAsJsonObject();
-        ICommand actual = gson.fromJson(elem, type);
+        Command actual = gson.fromJson(elem, type);
 
         assertEquals(expected, actual);
     }
 
     @Test
     public void testDeserializeRegisterFailedCommand() {
-        Class<ICommand> type = ICommand.class;
+        Class<Command> type = Command.class;
 
         Gson gson = new GsonBuilder()
                 .registerTypeAdapter(type, new CommandAdapter())
@@ -310,14 +308,14 @@ public class CommandAdapterTest {
 
         String msg = "{\"command\":\"REGISTER_FAILED\",\"info\":\"aaron is already registered with the system\"}";
         JsonObject elem = new JsonParser().parse(msg).getAsJsonObject();
-        ICommand actual = gson.fromJson(elem, type);
+        Command actual = gson.fromJson(elem, type);
 
         assertEquals(expected, actual);
     }
 
     @Test
     public void testDeserializeRegisterSuccessCommand() {
-        Class<ICommand> type = ICommand.class;
+        Class<Command> type = Command.class;
 
         Gson gson = new GsonBuilder()
                 .registerTypeAdapter(type, new CommandAdapter())
@@ -327,14 +325,14 @@ public class CommandAdapterTest {
 
         String msg = "{\"command\":\"REGISTER_SUCCESS\",\"info\":\"register success for aaron\"}";
         JsonObject elem = new JsonParser().parse(msg).getAsJsonObject();
-        ICommand actual = gson.fromJson(elem, type);
+        Command actual = gson.fromJson(elem, type);
 
         assertEquals(expected, actual);
     }
 
     @Test
     public void testDeserializeServerAnnounceCommand() throws UnknownHostException {
-        Class<ICommand> type = ICommand.class;
+        Class<Command> type = Command.class;
 
         Gson gson = new GsonBuilder()
                 .registerTypeAdapter(type, new CommandAdapter())
@@ -344,7 +342,7 @@ public class CommandAdapterTest {
 
         String msg = "{\"command\":\"SERVER_ANNOUNCE\",\"id\":\"fmnmpp3ai91qb3gc2bvs14g3ue\",\"load\":5,\"hostname\":\"128.250.13.46\",\"port\":5370}";
         JsonObject elem = new JsonParser().parse(msg).getAsJsonObject();
-        ICommand actual = gson.fromJson(elem, type);
+        Command actual = gson.fromJson(elem, type);
 
         assertEquals(expected, actual);
     }
@@ -352,7 +350,7 @@ public class CommandAdapterTest {
 
     @Test
     public void testAdaptorIsCalled() {
-        Class<ICommand> type = ICommand.class;
+        Class<Command> type = Command.class;
         CommandAdapter adapter = spy(new CommandAdapter());
 
         Gson gson = new GsonBuilder()
@@ -368,7 +366,7 @@ public class CommandAdapterTest {
 
     @Test
     public void testSerializeDeserializePreservesEquality() {
-        Class<ICommand> type = ICommand.class;
+        Class<Command> type = Command.class;
         CommandAdapter adapter = new CommandAdapter();
 
         Gson gson = new GsonBuilder()
@@ -378,7 +376,7 @@ public class CommandAdapterTest {
         AuthenticateCommand cmd = new AuthenticateCommand("foo bar");
 
         String json = gson.toJson(cmd, type);
-        ICommand cmd2 = gson.fromJson(json, type);
+        Command cmd2 = gson.fromJson(json, type);
 
         assertEquals(cmd, cmd2);
     }

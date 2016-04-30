@@ -1,6 +1,6 @@
 package activitystreamer.core.command.transmission.gson;
 
-import activitystreamer.core.command.ICommand;
+import activitystreamer.core.command.Command;
 import activitystreamer.core.command.LoginCommand;
 import activitystreamer.core.command.transmission.CommandParseException;
 import org.junit.Assert;
@@ -15,7 +15,7 @@ public class GsonCommandSerializationAdaptorTest {
                 "    \"username\" : \"aaron\",\n" +
                 "    \"secret\" : \"fmnmpp3ai91qb3gc2bvs14g3ue\"\n" +
                 "}";
-        ICommand command = deserializer.deserialize(message);
+        Command command = deserializer.deserialize(message);
         LoginCommand expected = new LoginCommand("aaron", "fmnmpp3ai91qb3gc2bvs14g3ue");
         Assert.assertEquals(command, expected);
     }

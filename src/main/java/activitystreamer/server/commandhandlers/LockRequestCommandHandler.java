@@ -23,7 +23,7 @@ public class LockRequestCommandHandler implements ICommandHandler {
     }
 
     @Override
-    public boolean handleCommand(ICommand command, Connection conn) {
+    public boolean handleCommand(Command command, Connection conn) {
         if (command instanceof LockRequestCommand) {
             LockRequestCommand cmd = (LockRequestCommand) command;
 

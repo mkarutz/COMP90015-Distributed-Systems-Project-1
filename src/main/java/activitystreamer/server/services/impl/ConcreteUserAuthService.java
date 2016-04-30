@@ -3,6 +3,7 @@ package activitystreamer.server.services.impl;
 import activitystreamer.core.command.*;
 import activitystreamer.core.shared.Connection;
 import activitystreamer.server.services.contracts.BroadcastService;
+import activitystreamer.server.services.contracts.ConnectionManager;
 import activitystreamer.server.services.contracts.RemoteServerStateService;
 import activitystreamer.util.Settings;
 import com.google.inject.Inject;
@@ -12,8 +13,9 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-public class UserAuthService implements activitystreamer.server.services.contracts.UserAuthService {
+public class ConcreteUserAuthService implements activitystreamer.server.services.contracts.UserAuthService {
     private final RemoteServerStateService serverStateService;
+    private final ConnectionManager connectionManager;
     private final BroadcastService broadcastService;
 
     private Map<Connection, String> loggedInUsers;
@@ -21,9 +23,11 @@ public class UserAuthService implements activitystreamer.server.services.contrac
     private Map<String, LockRequest> pendingLockRequests;
 
     @Inject
-    public UserAuthService(RemoteServerStateService serverStateService,
-                           BroadcastService broadcastService) {
+    public ConcreteUserAuthService(RemoteServerStateService serverStateService,
+                                   ConnectionManager connectionManager,
+                                   BroadcastService broadcastService) {
         this.serverStateService = serverStateService;
+        this.connectionManager = connectionManager;
         this.broadcastService = broadcastService;
 
         this.userMap = new HashMap<>();
@@ -37,6 +41,7 @@ public class UserAuthService implements activitystreamer.server.services.contrac
             return false;
         }
         loggedInUsers.put(conn, username);
+        connectionManager.addClientConnection(conn);
         return true;
     }
 
@@ -87,9 +92,7 @@ public class UserAuthService implements activitystreamer.server.services.contrac
 
     @Override
     public synchronized boolean authorise(Connection conn, String username, String secret) {
-        return isLoggedIn(conn) && username != null
-                && (ANONYMOUS.equals(username)
-                || secret != null && secret.equals(userMap.get(loggedInUsers.get(conn))));
+        return isLoggedIn(conn) && (ANONYMOUS.equals(username) || username.equals(loggedInUsers.get(conn)) && secret.equals(userMap.get(username)));
     }
 
     @Override
@@ -118,7 +121,7 @@ public class UserAuthService implements activitystreamer.server.services.contrac
         if (pendingLockRequests.containsKey(username)) {
             LockRequest req = pendingLockRequests.remove(username);
 
-            ICommand cmd = new RegisterFailedCommand("Username " + username + " already registered");
+            Command cmd = new RegisterFailedCommand("Username " + username + " already registered");
             req.getReplyConnection().pushCommand(cmd);
         }
 
@@ -129,7 +132,7 @@ public class UserAuthService implements activitystreamer.server.services.contrac
 
     private synchronized void registerUser(String username,String secret,Connection replyConnection){
         userMap.put(username, secret);
-        ICommand cmd = new RegisterSuccessCommand("Username " + username + " successfully registered");
+        Command cmd = new RegisterSuccessCommand("Username " + username + " successfully registered");
         replyConnection.pushCommand(cmd);
     }
 

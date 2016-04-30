@@ -2,7 +2,7 @@ package activitystreamer.core.command;
 
 import activitystreamer.core.command.transmission.gson.JsonRequired;
 
-public class LockAllowedCommand implements ICommand {
+public class LockAllowedCommand implements Command {
     private final String command = "LOCK_ALLOWED";
     @JsonRequired
     private String username;
@@ -15,20 +15,6 @@ public class LockAllowedCommand implements ICommand {
         this.username = username;
         this.secret = secret;
         this.server = server;
-    }
-
-    @Override
-    public String filter() {
-        if (username == null) {
-            return "Lock allowed command should contain a username";
-        }
-        if (secret == null) {
-            return "Lock allowed command should contain a secret";
-        }
-        if (server == null) {
-            return "Lock allowed command should contain a server id";
-        }
-        return null;
     }
 
     @Override

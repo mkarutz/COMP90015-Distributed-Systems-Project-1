@@ -10,9 +10,9 @@ import java.io.IOException;
 import java.net.Socket;
 
 public class ConnectionFactory {
-    private CommandSerializer commandSerializer;
-    private CommandDeserializer commandDeserializer;
-    private CommandProcessor commandProcessor;
+    private final CommandSerializer commandSerializer;
+    private final CommandDeserializer commandDeserializer;
+    private final CommandProcessor commandProcessor;
 
     @Inject
     public ConnectionFactory(CommandSerializer commandSerializer,

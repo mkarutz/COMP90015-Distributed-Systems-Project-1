@@ -2,20 +2,12 @@ package activitystreamer.core.command;
 
 import activitystreamer.core.command.transmission.gson.JsonRequired;
 
-public class AuthenticationFailCommand implements ICommand {
+public class AuthenticationFailCommand implements Command {
     @JsonRequired
     private String info;
 
     public AuthenticationFailCommand(String info) {
         this.info = info;
-    }
-
-    @Override
-    public String filter() {
-        if (info == null) {
-            return "Authentication fail command should contain an info field";
-        }
-        return null;
     }
 
     @Override

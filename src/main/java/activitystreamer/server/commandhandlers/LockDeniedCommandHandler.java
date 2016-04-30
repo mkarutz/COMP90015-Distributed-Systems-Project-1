@@ -22,7 +22,7 @@ public class LockDeniedCommandHandler implements ICommandHandler {
     }
 
     @Override
-    public boolean handleCommand(ICommand command, Connection conn) {
+    public boolean handleCommand(Command command, Connection conn) {
         if (command instanceof LockDeniedCommand) {
             LockDeniedCommand cmd = (LockDeniedCommand) command;
 

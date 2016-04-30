@@ -4,6 +4,8 @@ import activitystreamer.core.command.*;
 import activitystreamer.core.shared.Connection;
 import activitystreamer.server.services.contracts.ServerAuthService;
 import activitystreamer.server.services.contracts.UserAuthService;
+import activitystreamer.server.services.impl.ConcreteServerAuthService;
+import activitystreamer.server.services.impl.ConcreteUserAuthService;
 import org.junit.Test;
 
 import static org.mockito.Mockito.*;
@@ -11,8 +13,8 @@ import static org.mockito.Mockito.*;
 public class LockRequestCommandHandlerTest {
     @Test
     public void testUsernameMustBeNotNull() {
-        ServerAuthService mockServerAuthService = mock(activitystreamer.server.services.impl.ServerAuthService.class);
-        UserAuthService mockAuthService = mock(activitystreamer.server.services.impl.UserAuthService.class);
+        ServerAuthService mockServerAuthService = mock(ConcreteServerAuthService.class);
+        UserAuthService mockAuthService = mock(ConcreteUserAuthService.class);
 
         LockRequestCommandHandler handler = new LockRequestCommandHandler(
                 mockAuthService,
@@ -32,8 +34,8 @@ public class LockRequestCommandHandlerTest {
 
     @Test
     public void testSecretMustBeNotNull() {
-        ServerAuthService mockServerAuthService = mock(activitystreamer.server.services.impl.ServerAuthService.class);
-        UserAuthService mockAuthService = mock(activitystreamer.server.services.impl.UserAuthService.class);
+        ServerAuthService mockServerAuthService = mock(ConcreteServerAuthService.class);
+        UserAuthService mockAuthService = mock(ConcreteUserAuthService.class);
 
         LockRequestCommandHandler handler = new LockRequestCommandHandler(
                 mockAuthService,
@@ -71,24 +73,4 @@ public class LockRequestCommandHandlerTest {
 
         verify(mockConnection).pushCommand(isA(InvalidMessageCommand.class));
     }
-
-//    @Test
-//    public void testIfTheUsernameIsAlreadyKnownThenBroadcastLockDeniedCommand() {
-//        UserAuthService mockAuthService = mock(UserAuthService.class);
-//
-//        ICommandBroadcaster mockBroadcastService = mock(ICommandBroadcaster.class);
-//
-//        LockRequestCommandHandler handler
-//                = new LockRequestCommandHandler(mockAuthService, mockBroadcastService);
-//
-//        LockRequestCommand mockCommand = mock(LockRequestCommand.class);
-//        when(mockCommand.getUsername()).thenReturn("username");
-//        when(mockCommand.getSecret()).thenReturn("password");
-//
-//        Connection mockConnection = mock(Connection.class);
-//
-//        handler.handleCommand(mockCommand, mockConnection);
-//
-//        verify(mockConnection).pushCommand(isA(InvalidMessageCommand.class));
-//    }
 }

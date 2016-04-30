@@ -10,11 +10,11 @@ import activitystreamer.core.command.transmission.gson.JsonObjectAdapter;
 import com.google.gson.*;
 
 public abstract class Test {
-    private Queue<ICommand> requests = new LinkedList<ICommand>();
+    private Queue<Command> requests = new LinkedList<Command>();
     private Queue<Expectation> expectations = new LinkedList<Expectation>();
     private Queue<Integer> repeats = new LinkedList<Integer>();
     private List<Process> processes = new LinkedList<Process>();
-    private ICommand nextRequest = null;
+    private Command nextRequest = null;
     private boolean complete = false;
     private int runningCount = -1;
     private boolean lastWasSend;
@@ -26,7 +26,7 @@ public abstract class Test {
         this.testControl = testControl;
 
         Gson gson = new GsonBuilder()
-                .registerTypeAdapter(ICommand.class, new CommandAdapter())
+                .registerTypeAdapter(Command.class, new CommandAdapter())
                 .registerTypeAdapter(JsonObject.class, new JsonObjectAdapter())
                 .create();
 
@@ -40,7 +40,7 @@ public abstract class Test {
     protected abstract void testContext();
     protected abstract void testSpec();
 
-    protected void send(ICommand cmd) {
+    protected void send(Command cmd) {
         if (runningCount == -1) {
             lastWasSend = true;
             runningCount = 0;
@@ -120,7 +120,7 @@ public abstract class Test {
         System.out.println(this.nextRequest);
     }
 
-    private void request(ICommand cmd) {
+    private void request(Command cmd) {
         if (cmd instanceof ChangeConnCommand) {
             ChangeConnCommand ccc = (ChangeConnCommand)cmd;
             testControl.changeConn(ccc.port);
@@ -132,7 +132,7 @@ public abstract class Test {
 
     // Note, the code in this method, let alone this class is truly horrible
     // and I'm aware of it. :)
-    public void response(ICommand cmd) {
+    public void response(Command cmd) {
         Integer count = this.repeats.peek();
         if (count == 1) {
             this.repeats.poll();

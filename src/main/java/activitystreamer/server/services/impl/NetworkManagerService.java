@@ -1,6 +1,6 @@
 package activitystreamer.server.services.impl;
 
-import activitystreamer.core.command.ICommand;
+import activitystreamer.core.command.Command;
 import activitystreamer.core.shared.Connection;
 import activitystreamer.server.services.contracts.BroadcastService;
 import activitystreamer.server.services.contracts.ConnectionManager;
@@ -14,22 +14,22 @@ public class NetworkManagerService implements BroadcastService, ConnectionManage
     private Set<Connection> clientConnections = new HashSet<>();
     
     @Override
-    public synchronized void broadcastToServers(ICommand command) {
+    public synchronized void broadcastToServers(Command command) {
         broadcastToServers(command, null);
     }
 
     @Override
-    public synchronized void broadcastToClients(ICommand command) {
+    public synchronized void broadcastToClients(Command command) {
         broadcastToClients(command, null);
     }
 
     @Override
-    public synchronized void broadcastToAll(ICommand command) {
+    public synchronized void broadcastToAll(Command command) {
         broadcastToAll(command, null);
     }
 
     @Override
-    public synchronized void broadcastToServers(ICommand command, Connection exclude) {
+    public synchronized void broadcastToServers(Command command, Connection exclude) {
         for (Connection connection: serverConnections) {
             if (connection == exclude) { continue; }
             connection.pushCommand(command);
@@ -37,7 +37,7 @@ public class NetworkManagerService implements BroadcastService, ConnectionManage
     }
 
     @Override
-    public synchronized void broadcastToClients(ICommand command, Connection exclude) {
+    public synchronized void broadcastToClients(Command command, Connection exclude) {
         for (Connection connection: serverConnections) {
             if (connection == exclude) { continue; }
             connection.pushCommand(command);
@@ -45,7 +45,7 @@ public class NetworkManagerService implements BroadcastService, ConnectionManage
     }
 
     @Override
-    public synchronized void broadcastToAll(ICommand command, Connection exclude) {
+    public synchronized void broadcastToAll(Command command, Connection exclude) {
         broadcastToServers(command, exclude);
         broadcastToClients(command, exclude);
     }

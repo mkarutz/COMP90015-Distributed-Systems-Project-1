@@ -2,11 +2,11 @@ package activitystreamer.server.commandhandlers;
 
 import activitystreamer.core.command.AuthenticateCommand;
 import activitystreamer.core.command.AuthenticationFailCommand;
-import activitystreamer.core.command.ICommand;
+import activitystreamer.core.command.Command;
 import activitystreamer.core.command.InvalidMessageCommand;
 import activitystreamer.core.shared.Connection;
-import activitystreamer.server.services.contracts.BroadcastService;
 import activitystreamer.server.services.contracts.ServerAuthService;
+import activitystreamer.server.services.impl.ConcreteServerAuthService;
 import activitystreamer.util.Settings;
 import org.junit.Test;
 
@@ -15,7 +15,7 @@ import static org.mockito.Mockito.*;
 public class AuthenticateCommandHandlerTest {
     @Test
     public void testIfThereIsNoSecretThenSendAnInvalidMessageCommand() {
-        ServerAuthService mockServerAuthService = mock(activitystreamer.server.services.impl.ServerAuthService.class);
+        ServerAuthService mockServerAuthService = mock(ConcreteServerAuthService.class);
 
         AuthenticateCommandHandler handler = new AuthenticateCommandHandler(
                 mockServerAuthService
@@ -33,7 +33,7 @@ public class AuthenticateCommandHandlerTest {
 
     @Test
     public void testIfTheSecretIsIncorrectThenSendAnAuthenticationFailCommand() {
-        ServerAuthService mockServerAuthService = mock(activitystreamer.server.services.impl.ServerAuthService.class);
+        ServerAuthService mockServerAuthService = mock(ConcreteServerAuthService.class);
 
         AuthenticateCommandHandler handler = new AuthenticateCommandHandler(
                 mockServerAuthService
@@ -69,7 +69,7 @@ public class AuthenticateCommandHandlerTest {
         handler.handleCommand(mockCommand, mockConnection);
 
         verify(mockServerAuthService).authenticate(mockConnection, mockCommand.getSecret());
-        verify(mockConnection, never()).pushCommand(any(ICommand.class));
+        verify(mockConnection, never()).pushCommand(any(Command.class));
         verify(mockConnection, never()).close();
     }
 }

@@ -1,7 +1,7 @@
 package activitystreamer.server.commandhandlers;
 
 import activitystreamer.core.command.ActivityBroadcastCommand;
-import activitystreamer.core.command.ICommand;
+import activitystreamer.core.command.Command;
 import activitystreamer.core.command.InvalidMessageCommand;
 import activitystreamer.core.command.transmission.CommandParseException;
 import activitystreamer.core.command.transmission.gson.GsonCommandSerializationAdaptor;
@@ -42,7 +42,7 @@ public class ActivityBroadcastCommandHandlerTest {
 
         handler.handleCommand(mockCommand, mockConnection);
 
-        verify(mockBroadcastService, never()).broadcastToAll(any(ICommand.class), any(Connection.class));
+        verify(mockBroadcastService, never()).broadcastToAll(any(Command.class), any(Connection.class));
         verify(mockConnection).pushCommand(isA(InvalidMessageCommand.class));
         verify(mockConnection).close();
     }
@@ -104,7 +104,7 @@ public class ActivityBroadcastCommandHandlerTest {
 
         handler.handleCommand(mockCommand, mockConnection);
 
-        verify(mockBroadcastService, never()).broadcastToAll(any(ICommand.class), any(Connection.class));
+        verify(mockBroadcastService, never()).broadcastToAll(any(Command.class), any(Connection.class));
         verify(mockConnection).pushCommand(isA(InvalidMessageCommand.class));
         verify(mockConnection).close();
     }

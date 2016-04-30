@@ -2,21 +2,13 @@ package activitystreamer.core.command;
 
 import activitystreamer.core.command.transmission.gson.JsonRequired;
 
-public class RegisterFailedCommand implements ICommand {
+public class RegisterFailedCommand implements Command {
     private final String command = "REGISTER_FAILED";
     @JsonRequired
     private String info;
 
     public RegisterFailedCommand(String info) {
         this.info = info;
-    }
-
-    @Override
-    public String filter() {
-        if (info == null) {
-            return "Register failed command should contain an info field";
-        }
-        return null;
     }
 
     @Override

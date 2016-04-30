@@ -1,6 +1,6 @@
 package activitystreamer.server.commandhandlers;
 
-import activitystreamer.core.command.ICommand;
+import activitystreamer.core.command.Command;
 import activitystreamer.core.command.InvalidMessageCommand;
 import activitystreamer.core.command.RegisterCommand;
 import activitystreamer.core.command.RegisterFailedCommand;
@@ -19,7 +19,7 @@ public class RegisterCommandHandler implements ICommandHandler {
     }
 
     @Override
-    public boolean handleCommand(ICommand command, Connection conn) {
+    public boolean handleCommand(Command command, Connection conn) {
         if (command instanceof RegisterCommand) {
             RegisterCommand cmd = (RegisterCommand) command;
 

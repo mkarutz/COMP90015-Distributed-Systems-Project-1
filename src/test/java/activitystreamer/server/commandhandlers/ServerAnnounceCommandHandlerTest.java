@@ -9,6 +9,7 @@ import activitystreamer.server.ServerState;
 import activitystreamer.server.services.contracts.BroadcastService;
 import activitystreamer.server.services.contracts.RemoteServerStateService;
 import activitystreamer.server.services.contracts.ServerAuthService;
+import activitystreamer.server.services.impl.ConcreteRemoteServerStateService;
 import org.junit.Test;
 
 import java.net.InetAddress;
@@ -21,7 +22,7 @@ public class ServerAnnounceCommandHandlerTest {
     public void testIfTheServerIdIsNotPresentThenAnInvalidMessageCommandIsSent() {
         ServerAuthService mockServerAuthService = mock(ServerAuthService.class);
         BroadcastService mockBroadcastService = mock(BroadcastService.class);
-        RemoteServerStateService mockRemoteServerStateService = mock(activitystreamer.server.services.impl.RemoteServerStateService.class);
+        RemoteServerStateService mockRemoteServerStateService = mock(ConcreteRemoteServerStateService.class);
 
         ServerAnnounceCommandHandler handler = new ServerAnnounceCommandHandler(
                 mockServerAuthService,
@@ -45,7 +46,7 @@ public class ServerAnnounceCommandHandlerTest {
         when(mockServerAuthService.isAuthenticated(any(Connection.class))).thenReturn(false);
 
         BroadcastService mockBroadcastService = mock(BroadcastService.class);
-        RemoteServerStateService mockRemoteServerStateService = mock(activitystreamer.server.services.impl.RemoteServerStateService.class);
+        RemoteServerStateService mockRemoteServerStateService = mock(ConcreteRemoteServerStateService.class);
 
         ServerAnnounceCommandHandler handler = new ServerAnnounceCommandHandler(
                 mockServerAuthService,

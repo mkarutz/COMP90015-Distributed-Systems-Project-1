@@ -2,7 +2,7 @@ package activitystreamer.core.command;
 
 import activitystreamer.core.command.transmission.gson.JsonRequired;
 
-public class LockRequestCommand implements ICommand {
+public class LockRequestCommand implements Command {
     private final String command = "LOCK_REQUEST";
     @JsonRequired
     private String username;
@@ -12,17 +12,6 @@ public class LockRequestCommand implements ICommand {
     public LockRequestCommand(String username, String secret) {
         this.setUsername(username);
         this.setSecret(secret);
-    }
-
-    @Override
-    public String filter() {
-        if (username == null) {
-            return "Lock request command should contain a username";
-        }
-        if (secret == null) {
-            return "Lock request command should contain a secret";
-        }
-        return null;
     }
 
     @Override

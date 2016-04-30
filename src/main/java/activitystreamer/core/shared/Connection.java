@@ -45,7 +45,7 @@ public class Connection implements Closeable, Runnable {
     public void run() {
         while (!term) {
             try {
-                ICommand cmd = pullCommand();
+                Command cmd = pullCommand();
                 if (cmd != null) {
                     processor.processCommandIncoming(this, cmd);
                 }
@@ -54,7 +54,7 @@ public class Connection implements Closeable, Runnable {
                 term = true;
             } catch (CommandParseException e) {
                 log.error("Invalid message. Closing connection.");
-                ICommand cmd = new InvalidMessageCommand("Expecting Json Object");
+                Command cmd = new InvalidMessageCommand("Expecting Json Object");
                 this.pushCommand(cmd);
                 term = true;
             }
@@ -62,13 +62,13 @@ public class Connection implements Closeable, Runnable {
         isRunning = false;
     }
     
-    public void pushCommand(ICommand cmd) {
+    public void pushCommand(Command cmd) {
         String message = commandSerializer.serialize(cmd);
         log.info("Sent message: " + message);
         this.writeLine(message);
     }
 
-    private ICommand pullCommand() throws IOException, CommandParseException {
+    private Command pullCommand() throws IOException, CommandParseException {
         String message = this.readLine();
 
         if (message == null) {

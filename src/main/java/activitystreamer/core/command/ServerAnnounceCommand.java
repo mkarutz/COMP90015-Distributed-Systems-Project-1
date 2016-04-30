@@ -4,7 +4,7 @@ import activitystreamer.core.command.transmission.gson.JsonRequired;
 
 import java.net.InetAddress;
 
-public class ServerAnnounceCommand implements ICommand {
+public class ServerAnnounceCommand implements Command {
     private final String command = "SERVER_ANNOUNCE";
 
     @JsonRequired
@@ -21,17 +21,6 @@ public class ServerAnnounceCommand implements ICommand {
         this.load = load;
         this.hostname = hostname;
         this.port = port;
-    }
-
-    @Override
-    public String filter() {
-        if (id == null) {
-            return "Server announce command should contain an id field";
-        }
-        if (hostname == null) {
-            return "Server announce command should contain a hostname field";
-        }
-        return null;
     }
 
     @Override
