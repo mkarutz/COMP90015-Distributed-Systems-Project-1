@@ -1,7 +1,11 @@
-package activitystreamer.core.commandhandler;
+package activitystreamer.client.commandhandlers;
 
-import activitystreamer.core.command.*;
+import activitystreamer.core.command.Command;
+import activitystreamer.core.command.InvalidMessageCommand;
+import activitystreamer.core.commandhandler.ICommandHandler;
 import activitystreamer.core.shared.Connection;
+import activitystreamer.server.services.contracts.ConnectionManager;
+import com.google.inject.Inject;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

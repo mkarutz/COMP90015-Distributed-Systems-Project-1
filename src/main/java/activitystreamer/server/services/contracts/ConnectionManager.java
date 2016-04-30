@@ -6,7 +6,7 @@ public interface ConnectionManager {
     void addServerConnection(Connection conn);
     void addClientConnection(Connection conn);
     void addConnection(Connection conn);
-    void removeConnection(Connection conn);
+    void closeConnection(Connection conn);
     void closeAll();
     int getLoad();
 

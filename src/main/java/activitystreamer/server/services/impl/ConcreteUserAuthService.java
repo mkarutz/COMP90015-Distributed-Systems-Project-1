@@ -53,6 +53,7 @@ public class ConcreteUserAuthService implements activitystreamer.server.services
     @Override
     public synchronized void loginAsAnonymous(Connection conn) {
         loggedInUsers.put(conn, ANONYMOUS);
+        connectionManager.addClientConnection(conn);
     }
 
     @Override

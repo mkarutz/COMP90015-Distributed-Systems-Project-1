@@ -5,13 +5,12 @@ import java.util.ArrayList;
 import activitystreamer.core.command.*;
 import activitystreamer.core.commandhandler.*;
 import activitystreamer.core.shared.*;
+import activitystreamer.server.commandhandlers.InvalidMessageCommandHandler;
 
 public abstract class CommandProcessor {
     protected List<ICommandHandler> handlers = new ArrayList<>();
 
     public CommandProcessor() {
-        InvalidMessageCommandHandler invalidMessageCommandHandler = new InvalidMessageCommandHandler();
-        handlers.add(invalidMessageCommandHandler);
     }
 
     public synchronized void processCommandIncoming(Connection connection, Command command) {
@@ -24,9 +23,9 @@ public abstract class CommandProcessor {
         }
 
         if (!handled) {
-            Command invalidCommand = new InvalidMessageCommand("Command type is invalid.");
-            connection.pushCommand(invalidCommand);
-            connection.close();
+            invalidMessage(connection, command);
         }
     }
+
+    public abstract void invalidMessage(Connection connection, Command command);
 }

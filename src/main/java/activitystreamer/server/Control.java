@@ -41,14 +41,12 @@ public class Control implements Runnable, IncomingConnectionHandler {
         startListener();
         log.info("using activity interval of " + Settings.getActivityInterval() + " milliseconds");
         while (!term) {
+            announce();
             try {
                 Thread.sleep(Settings.getActivityInterval());
             } catch (InterruptedException e) {
                 log.info("received an interrupt, system is shutting down");
                 break;
-            }
-            if (!term) {
-                announce();
             }
         }
         listener.setTerm(true);
@@ -92,7 +90,7 @@ public class Control implements Runnable, IncomingConnectionHandler {
     }
 
     public void announce() {
-        log.debug("Broadcasting announce message.");
+        log.debug("Broadcasting announce message. Load = " + connectionManager.getLoad());
         remoteServerStateService.announce();
     }
 

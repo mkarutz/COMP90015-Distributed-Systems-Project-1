@@ -3,6 +3,7 @@ package activitystreamer.server.commandhandlers;
 import activitystreamer.core.command.*;
 import activitystreamer.core.commandhandler.ICommandHandler;
 import activitystreamer.core.shared.Connection;
+import activitystreamer.server.services.contracts.ConnectionManager;
 import activitystreamer.server.services.contracts.RemoteServerStateService;
 import activitystreamer.server.services.contracts.UserAuthService;
 import com.google.inject.Inject;
@@ -10,12 +11,15 @@ import com.google.inject.Inject;
 public class LoginCommandHandler implements ICommandHandler {
     private final UserAuthService userAuthService;
     private final RemoteServerStateService remoteServerStateService;
+    private final ConnectionManager connectionManager;
 
     @Inject
     public LoginCommandHandler(UserAuthService userAuthService,
-                               RemoteServerStateService remoteServerStateService) {
+                               RemoteServerStateService remoteServerStateService,
+                               ConnectionManager connectionManager) {
         this.userAuthService = userAuthService;
         this.remoteServerStateService = remoteServerStateService;
+        this.connectionManager = connectionManager;
     }
 
     @Override
@@ -25,7 +29,7 @@ public class LoginCommandHandler implements ICommandHandler {
 
             if (loginCommand.getUsername() == null) {
                 conn.pushCommand(new InvalidMessageCommand("Username must be present."));
-                conn.close();
+                connectionManager.closeConnection(conn);
                 return true;
             }
 
@@ -38,7 +42,7 @@ public class LoginCommandHandler implements ICommandHandler {
 
             if (loginCommand.getSecret() == null) {
                 conn.pushCommand(new InvalidMessageCommand("Secret must be present."));
-                conn.close();
+                connectionManager.closeConnection(conn);
                 return true;
             }
 
@@ -47,7 +51,7 @@ public class LoginCommandHandler implements ICommandHandler {
                 remoteServerStateService.loadBalance(conn);
             } else {
                 conn.pushCommand(new LoginFailedCommand("Username or secret incorrect"));
-                conn.close();
+                connectionManager.closeConnection(conn);
             }
 
             return true;
