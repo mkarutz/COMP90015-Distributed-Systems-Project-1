@@ -1,6 +1,8 @@
 package activitystreamer.core.command.transmission.gson;
 
+import activitystreamer.core.command.ActivityMessageCommand;
 import com.google.gson.*;
+import org.apache.logging.log4j.LogManager;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
@@ -12,7 +14,10 @@ public class AnnotatedDeserializer<T> implements JsonDeserializer<T> {
             throw new JsonParseException("No JSON Object found.");
         }
 
+        LogManager.getLogger().debug(json);
+
         T pojo = new Gson().fromJson(json, typeOfT);
+
         JsonObject jsonObject = json.getAsJsonObject();
 
         Field[] fields = pojo.getClass().getDeclaredFields();

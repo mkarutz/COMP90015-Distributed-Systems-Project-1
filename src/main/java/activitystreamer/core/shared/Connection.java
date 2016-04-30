@@ -46,6 +46,7 @@ public class Connection implements Closeable, Runnable {
         while (!term) {
             try {
                 Command cmd = pullCommand();
+                log.info("Deserialized command: " + cmd);
                 if (cmd != null) {
                     processor.processCommandIncoming(this, cmd);
                 }
