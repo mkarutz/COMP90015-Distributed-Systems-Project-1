@@ -2,7 +2,7 @@ package activitystreamer.core.command;
 
 import activitystreamer.core.command.transmission.gson.JsonRequired;
 
-public class RegisterCommand implements ICommand {
+public class RegisterCommand implements Command {
     private final String command = "REGISTER";
     @JsonRequired
     private String username;
@@ -12,17 +12,6 @@ public class RegisterCommand implements ICommand {
     public RegisterCommand(String username, String secret) {
         this.setUsername(username);
         this.setSecret(secret);
-    }
-
-    @Override
-    public String filter() {
-        if (username == null) {
-            return "Register command should contain a username field";
-        }
-        if (secret == null) {
-            return "Register command should contain a secret field";
-        }
-        return null;
     }
 
     @Override

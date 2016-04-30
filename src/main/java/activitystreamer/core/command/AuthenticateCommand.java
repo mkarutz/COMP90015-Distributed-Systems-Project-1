@@ -2,20 +2,12 @@ package activitystreamer.core.command;
 
 import activitystreamer.core.command.transmission.gson.JsonRequired;
 
-public class AuthenticateCommand implements ICommand {
+public class AuthenticateCommand implements Command {
     @JsonRequired
     private String secret;
 
     public AuthenticateCommand(String secret) {
         this.secret = secret;
-    }
-
-    @Override
-    public String filter() {
-        if (secret == null) {
-            secret = "Authenticate command should contain a secret";
-        }
-        return null;
     }
 
     @Override

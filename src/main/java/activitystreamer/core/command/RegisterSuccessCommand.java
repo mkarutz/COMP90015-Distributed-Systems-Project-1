@@ -2,21 +2,13 @@ package activitystreamer.core.command;
 
 import activitystreamer.core.command.transmission.gson.JsonRequired;
 
-public class RegisterSuccessCommand implements ICommand {
+public class RegisterSuccessCommand implements Command {
     private final String command = "REGISTER_SUCCESS";
     @JsonRequired
     private String info;
 
     public RegisterSuccessCommand(String info) {
         this.info = info;
-    }
-
-    @Override
-    public String filter() {
-        if (info == null) {
-            return "Register success command should contain an info field";
-        }
-        return null;
     }
 
     @Override

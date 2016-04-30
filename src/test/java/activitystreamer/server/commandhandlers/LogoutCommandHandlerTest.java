@@ -3,6 +3,7 @@ package activitystreamer.server.commandhandlers;
 import activitystreamer.core.command.*;
 import activitystreamer.core.shared.Connection;
 import activitystreamer.server.services.contracts.UserAuthService;
+import activitystreamer.server.services.impl.ConcreteUserAuthService;
 import org.junit.Test;
 
 import static org.mockito.Mockito.*;
@@ -10,7 +11,7 @@ import static org.mockito.Mockito.*;
 public class LogoutCommandHandlerTest {
     @Test
     public void testTheConnectionIsClosed() {
-        UserAuthService mockUserAuthService = mock(activitystreamer.server.services.impl.UserAuthService.class);
+        UserAuthService mockUserAuthService = mock(ConcreteUserAuthService.class);
 
         LogoutCommandHandler handler = new LogoutCommandHandler(mockUserAuthService);
 
@@ -23,7 +24,7 @@ public class LogoutCommandHandlerTest {
 
     @Test
     public void testTheConnectionIsLoggedOut() {
-        UserAuthService mockUserAuthService = mock(activitystreamer.server.services.impl.UserAuthService.class);
+        UserAuthService mockUserAuthService = mock(ConcreteUserAuthService.class);
 
         LogoutCommandHandler handler = new LogoutCommandHandler(mockUserAuthService);
 

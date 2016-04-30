@@ -81,6 +81,10 @@ task test2(type: Exec, dependsOn: ['serverJar','clientJar','testerJar']) {
 	commandLine 'sh', 'scripts/test.sh'
 }
 
+task test3(type: Exec, dependsOn: ['serverJar','clientJar','testerJar']) {
+	commandLine 'sh', 'scripts/test3.sh'
+}
+
 repositories {
     mavenCentral()
 	jcenter()

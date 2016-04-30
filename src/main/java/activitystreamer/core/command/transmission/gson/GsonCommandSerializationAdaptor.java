@@ -14,7 +14,7 @@ public class GsonCommandSerializationAdaptor implements CommandDeserializer, Com
 
     public GsonCommandSerializationAdaptor() {
         this.gson = new GsonBuilder()
-                .registerTypeAdapter(ICommand.class, new CommandAdapter())
+                .registerTypeAdapter(Command.class, new CommandAdapter())
                 .registerTypeAdapter(JsonObject.class, new JsonObjectAdapter())
                 .registerTypeAdapter(AuthenticateCommand.class, new AnnotatedDeserializer())
                 .registerTypeAdapter(InvalidMessageCommand.class, new AnnotatedDeserializer())
@@ -38,16 +38,16 @@ public class GsonCommandSerializationAdaptor implements CommandDeserializer, Com
     }
 
     @Override
-    public ICommand deserialize(String message) throws CommandParseException {
+    public Command deserialize(String message) throws CommandParseException {
         try {
-            return gson.fromJson(message, ICommand.class);
+            return gson.fromJson(message, Command.class);
         } catch (JsonParseException e) {
             throw new CommandParseException(e.getMessage());
         }
     }
 
     @Override
-    public String serialize(ICommand command) {
-        return gson.toJson(command, ICommand.class);
+    public String serialize(Command command) {
+        return gson.toJson(command, Command.class);
     }
 }

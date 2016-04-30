@@ -3,6 +3,9 @@ package activitystreamer;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
+import activitystreamer.server.container.ServicesModule;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
@@ -114,9 +117,10 @@ public class Server {
         Settings.setId(Settings.nextSecret());
         log.info("starting server");
 
-//        Control c = new Control();
-//        new Thread(c).start();
-//        Runtime.getRuntime().addShutdownHook(new Thread(new ShutDownHook(c)));
+        Injector injector = Guice.createInjector(new ServicesModule());
+        Control c = injector.getInstance(Control.class);
+        new Thread(c).start();
+        Runtime.getRuntime().addShutdownHook(new Thread(new ShutDownHook(c)));
     }
 
     private static class ShutDownHook implements Runnable {

@@ -20,12 +20,18 @@ public class ActivityMessageCommandHandler implements ICommandHandler {
     }
 
     @Override
-    public boolean handleCommand(ICommand command, Connection conn) {
+    public boolean handleCommand(Command command, Connection conn) {
         if (command instanceof ActivityMessageCommand) {
             ActivityMessageCommand cmd = (ActivityMessageCommand) command;
 
             if (cmd.getUsername() == null) {
                 conn.pushCommand(new InvalidMessageCommand("Username must be present."));
+                conn.close();
+                return true;
+            }
+
+            if (!cmd.getUsername().equals(UserAuthService.ANONYMOUS) && cmd.getSecret() == null) {
+                conn.pushCommand(new InvalidMessageCommand("Secret must be present."));
                 conn.close();
                 return true;
             }

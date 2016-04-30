@@ -9,7 +9,7 @@ public class InvalidMessageCommandHandler implements ICommandHandler {
     private Logger log = LogManager.getLogger();
 
     @Override
-    public boolean handleCommand(ICommand command, Connection conn) {
+    public boolean handleCommand(Command command, Connection conn) {
         if (command instanceof InvalidMessageCommand) {
             InvalidMessageCommand cmd = (InvalidMessageCommand) command;
             log.error("Invalid message was sent: " + cmd.getInfo());

@@ -1,7 +1,7 @@
 package activitystreamer.core.command.transmission;
 
-import activitystreamer.core.command.ICommand;
+import activitystreamer.core.command.Command;
 
 public interface CommandSerializer {
-    String serialize(ICommand command);
+    String serialize(Command command);
 }

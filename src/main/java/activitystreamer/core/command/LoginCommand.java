@@ -2,7 +2,7 @@ package activitystreamer.core.command;
 
 import activitystreamer.core.command.transmission.gson.JsonRequired;
 
-public class LoginCommand implements ICommand {
+public class LoginCommand implements Command {
     private final String command = "LOGIN";
     @JsonRequired
     private String username;
@@ -11,17 +11,6 @@ public class LoginCommand implements ICommand {
     public LoginCommand(String username, String secret) {
         this.setUsername(username);
         this.setSecret(secret);
-    }
-
-    @Override
-    public String filter() {
-        if (username == null) {
-            return "Login command should contain a username";
-        }
-        if (secret == null) {
-            secret = "";
-        }
-        return null;
     }
 
     @Override

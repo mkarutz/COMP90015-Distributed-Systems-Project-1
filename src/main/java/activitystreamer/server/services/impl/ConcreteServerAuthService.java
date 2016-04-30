@@ -8,13 +8,13 @@ import com.google.inject.Inject;
 import java.util.HashSet;
 import java.util.Set;
 
-public class ServerAuthService implements activitystreamer.server.services.contracts.ServerAuthService {
+public class ConcreteServerAuthService implements activitystreamer.server.services.contracts.ServerAuthService {
     private ConnectionManager connectionManager;
 
     private Set<Connection> authenticatedServers = new HashSet<>();
 
     @Inject
-    public ServerAuthService(ConnectionManager connectionManager){
+    public ConcreteServerAuthService(ConnectionManager connectionManager){
         this.connectionManager = connectionManager;
     }
 
@@ -27,6 +27,7 @@ public class ServerAuthService implements activitystreamer.server.services.contr
     @Override
     public synchronized boolean authenticate(Connection conn, String secret) {
         if (Settings.getSecret().equals(secret)) {
+            authenticatedServers.add(conn);
             connectionManager.addServerConnection(conn);
             return true;
         }

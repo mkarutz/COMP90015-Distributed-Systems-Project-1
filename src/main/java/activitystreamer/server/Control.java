@@ -4,6 +4,7 @@ import activitystreamer.core.command.AuthenticateCommand;
 import activitystreamer.core.shared.Connection;
 import activitystreamer.server.services.contracts.ConnectionManager;
 import activitystreamer.server.services.contracts.RemoteServerStateService;
+import activitystreamer.server.services.contracts.ServerAuthService;
 import activitystreamer.util.Settings;
 import com.google.inject.Inject;
 import org.apache.logging.log4j.LogManager;
@@ -18,16 +19,19 @@ public class Control implements Runnable, IncomingConnectionHandler {
 
     private Listener listener;
 
-    private ConnectionFactory connectionFactory;
-    private RemoteServerStateService remoteServerStateService;
-    private ConnectionManager connectionManager;
+    private final ConnectionFactory connectionFactory;
+    private final RemoteServerStateService remoteServerStateService;
+    private final ServerAuthService serverAuthService;
+    private final ConnectionManager connectionManager;
 
     @Inject
     public Control(ConnectionFactory connectionFactory,
                    RemoteServerStateService remoteServerStateService,
+                   ServerAuthService serverAuthService,
                    ConnectionManager connectionManager) {
         this.connectionFactory = connectionFactory;
         this.remoteServerStateService = remoteServerStateService;
+        this.serverAuthService = serverAuthService;
         this.connectionManager = connectionManager;
     }
 
@@ -82,7 +86,7 @@ public class Control implements Runnable, IncomingConnectionHandler {
     public synchronized void outgoingConnection(Socket s) throws IOException {
         log.debug("outgoing connection: " + Settings.socketAddress(s));
         Connection connection = connectionFactory.newConnection(s);
-        connectionManager.addServerConnection(connection);
+        serverAuthService.authenticate(connection, Settings.getSecret());
         connection.pushCommand(new AuthenticateCommand(Settings.getSecret()));
         new Thread(connection).start();
     }

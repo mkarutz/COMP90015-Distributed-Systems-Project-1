@@ -1,6 +1,6 @@
 package activitystreamer.server.commandhandlers;
 
-import activitystreamer.core.command.ICommand;
+import activitystreamer.core.command.Command;
 import activitystreamer.core.command.InvalidMessageCommand;
 import activitystreamer.core.command.ServerAnnounceCommand;
 import activitystreamer.core.commandhandler.ICommandHandler;
@@ -29,7 +29,7 @@ public class ServerAnnounceCommandHandler implements ICommandHandler {
     }
 
     @Override
-    public boolean handleCommand(ICommand command, Connection conn) {
+    public boolean handleCommand(Command command, Connection conn) {
         if (command instanceof ServerAnnounceCommand) {
             ServerAnnounceCommand cmd = (ServerAnnounceCommand) command;
 

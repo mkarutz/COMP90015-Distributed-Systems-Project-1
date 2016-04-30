@@ -10,7 +10,7 @@ public class ExpectCommandType implements Expectation {
     }
 
     @Override
-    public boolean compare(ICommand cmd) {
+    public boolean compare(Command cmd) {
         return cmd.getClass() == this.cmpType;
     }
 }

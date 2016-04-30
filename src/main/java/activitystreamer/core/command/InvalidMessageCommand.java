@@ -2,21 +2,13 @@ package activitystreamer.core.command;
 
 import activitystreamer.core.command.transmission.gson.JsonRequired;
 
-public class InvalidMessageCommand implements ICommand {
+public class InvalidMessageCommand implements Command {
     private final String command = "INVALID_MESSAGE";
     @JsonRequired
     private String info;
 
     public InvalidMessageCommand(String info){
         this.info = info;
-    }
-
-    @Override
-    public String filter() {
-        if (info == null) {
-            return "Invalid message command should contain an info field";
-        }
-        return null;
     }
 
     @Override

@@ -3,7 +3,7 @@ package activitystreamer.core.command;
 import activitystreamer.core.command.transmission.gson.JsonRequired;
 import com.google.gson.JsonObject;
 
-public class ActivityMessageCommand implements ICommand {
+public class ActivityMessageCommand implements Command {
     private final String command = "ACTIVITY_MESSAGE";
     @JsonRequired
     private String username;
@@ -15,20 +15,6 @@ public class ActivityMessageCommand implements ICommand {
         this.username = username;
         this.secret = secret;
         this.activity = activity;
-    }
-
-    @Override
-    public String filter() {
-        if (username == null) {
-            return "Activity message command should contain a username";
-        }
-        if (secret == null) {
-            secret = "";
-        }
-        if (activity == null) {
-            return "Activity message command should contain an activity message";
-        }
-        return null;
     }
 
     @Override

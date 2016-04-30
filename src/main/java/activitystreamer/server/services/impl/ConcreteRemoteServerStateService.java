@@ -6,6 +6,7 @@ import activitystreamer.core.command.ServerAnnounceCommand;
 import activitystreamer.core.shared.Connection;
 import activitystreamer.server.ServerState;
 import activitystreamer.server.services.contracts.ConnectionManager;
+import activitystreamer.server.services.contracts.RemoteServerStateService;
 import activitystreamer.util.Settings;
 
 import java.net.InetAddress;
@@ -16,13 +17,13 @@ import java.util.Set;
 
 import com.google.inject.Inject;
 
-public class RemoteServerStateService implements activitystreamer.server.services.contracts.RemoteServerStateService {
+public class ConcreteRemoteServerStateService implements RemoteServerStateService {
     private HashMap<String, ServerState> states;
 
     private final ConnectionManager connectionManager;
 
     @Inject
-    public RemoteServerStateService(ConnectionManager connectionManager) {
+    public ConcreteRemoteServerStateService(ConnectionManager connectionManager) {
         this.connectionManager = connectionManager;
         this.states = new HashMap<>();
     }
@@ -35,7 +36,7 @@ public class RemoteServerStateService implements activitystreamer.server.service
     @Override
     public synchronized Set<String> getKnownServerIds() {
         Set<String> serverIds = new HashSet<>();
-        for (Map.Entry<String, ServerState> s : this.states.entrySet()) {
+        for (Map.Entry<String, ServerState> s: this.states.entrySet()) {
             serverIds.add(s.getKey());
         }
 
@@ -44,7 +45,7 @@ public class RemoteServerStateService implements activitystreamer.server.service
 
     @Override
     public synchronized void announce() {
-        connectionManager.eachServerConnection(new Announcer(connectionManager));
+        connectionManager.eachServerConnection(new Announcer(connectionManager.getLoad()));
     }
 
     @Override
@@ -66,16 +67,16 @@ public class RemoteServerStateService implements activitystreamer.server.service
     }
 
     private class Announcer implements ConnectionManager.ConnectionCallback {
-        private ConnectionManager connectionManager;
+        private int load;
 
-        public Announcer(ConnectionManager connectionManager) {
-            this.connectionManager = connectionManager;
+        public Announcer(int load) {
+            this.load = load;
         }
 
         public void execute(Connection connection) {
             connection.pushCommand(new ServerAnnounceCommand(
                     Settings.getId(),
-                    connectionManager.getLoad(),
+                    load,
                     connection.getSocket().getLocalAddress(),
                     Settings.getLocalPort()
             ));

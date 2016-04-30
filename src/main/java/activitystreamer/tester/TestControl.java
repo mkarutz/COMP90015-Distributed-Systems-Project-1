@@ -27,11 +27,11 @@ public class TestControl implements Runnable {
         this.port = port;
     }
 
-    public void response(ICommand cmd) {
+    public void response(Command cmd) {
         currentTest.response(cmd);
     }
 
-    public void request(ICommand cmd) {
+    public void request(Command cmd) {
         connection.pushCommand(cmd);
     }
 

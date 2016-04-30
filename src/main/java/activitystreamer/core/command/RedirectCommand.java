@@ -4,7 +4,7 @@ import activitystreamer.core.command.transmission.gson.JsonRequired;
 
 import java.net.InetAddress;
 
-public class RedirectCommand implements ICommand {
+public class RedirectCommand implements Command {
     private final String command = "REDIRECT";
     @JsonRequired
     private InetAddress hostname;
@@ -14,14 +14,6 @@ public class RedirectCommand implements ICommand {
     public RedirectCommand(InetAddress hostname, int port) {
         this.hostname = hostname;
         this.port = port;
-    }
-
-    @Override
-    public String filter() {
-        if (hostname == null) {
-            return "Redirect command should contain a hostname";
-        }
-        return null;
     }
 
     @Override

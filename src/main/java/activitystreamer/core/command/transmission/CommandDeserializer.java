@@ -1,7 +1,7 @@
 package activitystreamer.core.command.transmission;
 
-import activitystreamer.core.command.ICommand;
+import activitystreamer.core.command.Command;
 
 public interface CommandDeserializer {
-    ICommand deserialize(String message) throws CommandParseException;
+    Command deserialize(String message) throws CommandParseException;
 }
