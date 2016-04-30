@@ -6,7 +6,7 @@ import com.google.gson.JsonObject;
 
 public class ActivityBroadcastCommand implements Command {
     @JsonRequired
-    private JsonElement activity;
+    private JsonObject activity;
 
     public ActivityBroadcastCommand(JsonObject activity) {
         this.activity = activity;

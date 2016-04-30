@@ -5,6 +5,7 @@ import activitystreamer.core.shared.Connection;
 import activitystreamer.server.services.contracts.BroadcastService;
 import activitystreamer.server.services.contracts.ConnectionManager;
 import activitystreamer.server.services.contracts.RemoteServerStateService;
+import activitystreamer.server.services.contracts.UserAuthService;
 import activitystreamer.util.Settings;
 import com.google.inject.Inject;
 
@@ -13,7 +14,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-public class ConcreteUserAuthService implements activitystreamer.server.services.contracts.UserAuthService {
+public class ConcreteUserAuthService implements UserAuthService {
     private final RemoteServerStateService serverStateService;
     private final ConnectionManager connectionManager;
     private final BroadcastService broadcastService;
@@ -99,18 +100,22 @@ public class ConcreteUserAuthService implements activitystreamer.server.services
     @Override
     public synchronized void lockAllowed(String username, String secret, String serverId) {
         if (pendingLockRequests.containsKey(username)) {
-            boolean allowed = pendingLockRequests.get(username).lockAllow(serverId);
+            LockRequest req = pendingLockRequests.get(username);
 
-            if (allowed) {
-                LockRequest req = pendingLockRequests.remove(username);
-                registerUser(username, secret, req.getReplyConnection());
+            if (req.getSecret().equals(secret)) {
+                boolean allowed = req.lockAllow(serverId);
+
+                if (allowed) {
+                    pendingLockRequests.remove(username);
+                    registerUser(username, secret, req.getReplyConnection());
+                }
             }
         }
     }
 
     @Override
     public synchronized void lockRequest(String username, String secret) {
-        if (userMap.containsKey(username)) {
+        if (userMap.containsKey(username) || pendingLockRequests.containsKey(username)) {
             broadcastService.broadcastToServers(new LockDeniedCommand(username, secret), null);
         } else {
             broadcastService.broadcastToServers(new LockAllowedCommand(username, secret, Settings.getId()), null);
@@ -120,10 +125,13 @@ public class ConcreteUserAuthService implements activitystreamer.server.services
     @Override
     public synchronized void lockDenied(String username, String secret) {
         if (pendingLockRequests.containsKey(username)) {
-            LockRequest req = pendingLockRequests.remove(username);
+            LockRequest req = pendingLockRequests.get(username);
 
-            Command cmd = new RegisterFailedCommand("Username " + username + " already registered");
-            req.getReplyConnection().pushCommand(cmd);
+            if (req.getSecret().equals(secret)) {
+                pendingLockRequests.remove(username);
+                Command cmd = new RegisterFailedCommand("Username " + username + " already registered");
+                req.getReplyConnection().pushCommand(cmd);
+            }
         }
 
         if (this.userMap.containsKey(username) && this.userMap.get(username).equals(secret)) {
@@ -131,7 +139,7 @@ public class ConcreteUserAuthService implements activitystreamer.server.services
         }
     }
 
-    private synchronized void registerUser(String username,String secret,Connection replyConnection){
+    private synchronized void registerUser(String username, String secret, Connection replyConnection){
         userMap.put(username, secret);
         Command cmd = new RegisterSuccessCommand("Username " + username + " successfully registered");
         replyConnection.pushCommand(cmd);
@@ -146,6 +154,10 @@ public class ConcreteUserAuthService implements activitystreamer.server.services
             this.secret = secret;
             this.replyConnection = replyConnection;
             this.serverAwaitingIds = serverAwaitingIds;
+        }
+
+        public String getSecret() {
+            return secret;
         }
 
         public boolean lockAllow(String serverId) {

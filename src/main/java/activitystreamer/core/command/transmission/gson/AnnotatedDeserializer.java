@@ -16,7 +16,10 @@ public class AnnotatedDeserializer<T> implements JsonDeserializer<T> {
 
         LogManager.getLogger().debug(json);
 
-        T pojo = new Gson().fromJson(json, typeOfT);
+        T pojo = new GsonBuilder()
+                .registerTypeAdapter(JsonObject.class, new JsonObjectAdapter())
+                .create()
+                .fromJson(json, typeOfT);
 
         JsonObject jsonObject = json.getAsJsonObject();
 

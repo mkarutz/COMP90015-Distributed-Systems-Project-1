@@ -10,7 +10,7 @@ public class ActivityMessageCommand implements Command {
     private String username;
     private String secret;
     @JsonRequired
-    private JsonElement activity;
+    private JsonObject activity;
 
     public ActivityMessageCommand(String username, String secret, JsonObject activity) {
         this.username = username;
