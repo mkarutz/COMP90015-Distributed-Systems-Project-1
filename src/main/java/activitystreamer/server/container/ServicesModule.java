@@ -18,10 +18,13 @@ import com.google.inject.Singleton;
 public class ServicesModule extends AbstractModule {
     @Override
     protected void configure() {
-        bind(BroadcastService.class).to(NetworkManagerService.class).in(Singleton.class);
-        bind(ConnectionManager.class).to(NetworkManagerService.class).in(Singleton.class);
+        bind(BroadcastService.class).to(NetworkManagerService.class);
+        bind(ConnectionManager.class).to(NetworkManagerService.class);
+        bind(ServerAuthService.class).to(NetworkManagerService.class);
+        bind(NetworkManagerService.class).in(Singleton.class);
+
         bind(RemoteServerStateService.class).to(ConcreteRemoteServerStateService.class).in(Singleton.class);
-        bind(ServerAuthService.class).to(ConcreteServerAuthService.class).in(Singleton.class);
+
         bind(UserAuthService.class).to(ConcreteUserAuthService.class).in(Singleton.class);
         bind(IncomingConnectionHandler.class).to(Control.class).in(Singleton.class);
         bind(CommandDeserializer.class).to(GsonCommandSerializationAdaptor.class).in(Singleton.class);

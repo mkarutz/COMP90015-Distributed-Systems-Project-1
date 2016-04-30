@@ -16,8 +16,11 @@ import java.util.Map;
 import java.util.Set;
 
 import com.google.inject.Inject;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class ConcreteRemoteServerStateService implements RemoteServerStateService {
+    Logger log = LogManager.getLogger();
     private HashMap<String, ServerState> states;
 
     private final ConnectionManager connectionManager;
@@ -52,8 +55,9 @@ public class ConcreteRemoteServerStateService implements RemoteServerStateServic
     public synchronized void loadBalance(Connection connection) {
         ServerState redirectTo;
         if ((redirectTo = getServerToRedirectTo()) != null) {
+            log.debug("Redirecting!!!!!!!!!!!!!!!");
             connection.pushCommand(new RedirectCommand(redirectTo.getHostname(), redirectTo.getPort()));
-            connection.close();
+            connectionManager.closeConnection(connection);
         }
     }
 

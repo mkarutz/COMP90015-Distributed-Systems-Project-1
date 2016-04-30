@@ -1,31 +1,41 @@
 package activitystreamer.server.commandprocessors;
 
+import activitystreamer.core.command.Command;
+import activitystreamer.core.command.InvalidMessageCommand;
 import activitystreamer.core.commandprocessor.CommandProcessor;
+import activitystreamer.core.shared.Connection;
 import activitystreamer.server.commandhandlers.*;
-import activitystreamer.server.services.contracts.BroadcastService;
-import activitystreamer.server.services.contracts.RemoteServerStateService;
-import activitystreamer.server.services.contracts.ServerAuthService;
-import activitystreamer.server.services.contracts.UserAuthService;
+import activitystreamer.server.services.contracts.*;
+import com.google.inject.Guice;
 import com.google.inject.Inject;
+import com.google.inject.Injector;
 
 public class MainCommandProcessor extends CommandProcessor {
-    @Inject
-    public MainCommandProcessor(RemoteServerStateService remoteServerStateService,
-                                UserAuthService userAuthService,
-                                ServerAuthService serverAuthService,
-                                BroadcastService broadcastService) {
-        super();
+    private final ConnectionManager connectionManager;
 
-        handlers.add(new ActivityBroadcastCommandHandler(serverAuthService, broadcastService));
-        handlers.add(new ActivityMessageCommandHandler(userAuthService, broadcastService));
-        handlers.add(new AuthenticateCommandHandler(serverAuthService));
-        handlers.add(new AuthenticationFailCommandHandler());
+    @Inject
+    public MainCommandProcessor(ServerAuthService serverAuthService, UserAuthService userAuthService,
+                                ConnectionManager connectionManager, BroadcastService broadcastService,
+                                RemoteServerStateService remoteServerStateService) {
+        super();
+        this.connectionManager = connectionManager;
+        handlers.add(new ActivityBroadcastCommandHandler(serverAuthService, broadcastService, connectionManager));
+        handlers.add(new ActivityMessageCommandHandler(userAuthService, broadcastService, connectionManager));
+        handlers.add(new AuthenticateCommandHandler(serverAuthService, connectionManager));
+        handlers.add(new AuthenticationFailCommandHandler(connectionManager));
         handlers.add(new LockAllowedCommandHandler(userAuthService, broadcastService));
         handlers.add(new LockDeniedCommandHandler(userAuthService, broadcastService));
-        handlers.add(new LockRequestCommandHandler(userAuthService, serverAuthService));
-        handlers.add(new LoginCommandHandler(userAuthService, remoteServerStateService));
-        handlers.add(new RegisterCommandHandler(userAuthService));
-        handlers.add(new ServerAnnounceCommandHandler(serverAuthService, remoteServerStateService, broadcastService));
-        handlers.add(new LogoutCommandHandler(userAuthService));
+        handlers.add(new LockRequestCommandHandler(userAuthService, serverAuthService, connectionManager));
+        handlers.add(new LoginCommandHandler(userAuthService, remoteServerStateService, connectionManager));
+        handlers.add(new RegisterCommandHandler(userAuthService, connectionManager));
+        handlers.add(new ServerAnnounceCommandHandler(remoteServerStateService, broadcastService, serverAuthService, connectionManager));
+        handlers.add(new LogoutCommandHandler(userAuthService, connectionManager));
+    }
+
+    @Override
+    public void invalidMessage(Connection connection, Command command) {
+        Command invalidCommand = new InvalidMessageCommand("Command type is invalid.");
+        connection.pushCommand(invalidCommand);
+        connectionManager.closeConnection(connection);
     }
 }

@@ -6,16 +6,20 @@ import activitystreamer.core.command.RegisterCommand;
 import activitystreamer.core.command.RegisterFailedCommand;
 import activitystreamer.core.commandhandler.ICommandHandler;
 import activitystreamer.core.shared.Connection;
+import activitystreamer.server.services.contracts.ConnectionManager;
 import activitystreamer.server.services.contracts.UserAuthService;
 import com.google.inject.Inject;
 
 public class RegisterCommandHandler implements ICommandHandler {
 
-    UserAuthService userAuthService;
+    private final UserAuthService userAuthService;
+    private final ConnectionManager connectionManager;
 
     @Inject
-    public RegisterCommandHandler(UserAuthService userAuthService) {
+    public RegisterCommandHandler(UserAuthService userAuthService,
+                                  ConnectionManager connectionManager) {
         this.userAuthService = userAuthService;
+        this.connectionManager = connectionManager;
     }
 
     @Override
@@ -25,7 +29,7 @@ public class RegisterCommandHandler implements ICommandHandler {
 
             if (cmd.getUsername() == null || cmd.getSecret() == null) {
                 conn.pushCommand(new InvalidMessageCommand("Username and secret must be present."));
-                conn.close();
+                connectionManager.closeConnection(conn);
                 return true;
             }
 

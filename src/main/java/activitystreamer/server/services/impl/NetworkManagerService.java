@@ -4,15 +4,30 @@ import activitystreamer.core.command.Command;
 import activitystreamer.core.shared.Connection;
 import activitystreamer.server.services.contracts.BroadcastService;
 import activitystreamer.server.services.contracts.ConnectionManager;
+import activitystreamer.server.services.contracts.ServerAuthService;
+import activitystreamer.server.services.contracts.UserAuthService;
+import activitystreamer.util.Settings;
+import com.google.inject.Inject;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.core.jmx.Server;
 
 import java.util.HashSet;
 import java.util.Set;
 
-public class NetworkManagerService implements BroadcastService, ConnectionManager {
+public class NetworkManagerService implements BroadcastService, ConnectionManager, ServerAuthService {
+    private Logger log = LogManager.getLogger();
     private Set<Connection> pendingConnections = new HashSet<>();
     private Set<Connection> serverConnections = new HashSet<>();
     private Set<Connection> clientConnections = new HashSet<>();
-    
+
+    private final UserAuthService userAuthService;
+
+    @Inject
+    public NetworkManagerService(UserAuthService userAuthService) {
+        this.userAuthService = userAuthService;
+    }
+
     @Override
     public synchronized void broadcastToServers(Command command) {
         broadcastToServers(command, null);
@@ -38,7 +53,7 @@ public class NetworkManagerService implements BroadcastService, ConnectionManage
 
     @Override
     public synchronized void broadcastToClients(Command command, Connection exclude) {
-        for (Connection connection: serverConnections) {
+        for (Connection connection: clientConnections) {
             if (connection == exclude) { continue; }
             connection.pushCommand(command);
         }
@@ -46,6 +61,7 @@ public class NetworkManagerService implements BroadcastService, ConnectionManage
 
     @Override
     public synchronized void broadcastToAll(Command command, Connection exclude) {
+        log.debug("Broadcasting command: " + command);
         broadcastToServers(command, exclude);
         broadcastToClients(command, exclude);
     }
@@ -67,6 +83,7 @@ public class NetworkManagerService implements BroadcastService, ConnectionManage
     public synchronized void addClientConnection(Connection conn) {
         removeConnection(conn);
         clientConnections.add(conn);
+        log.debug("Added client connection. Load = " + clientConnections.size());
     }
 
     @Override
@@ -76,16 +93,28 @@ public class NetworkManagerService implements BroadcastService, ConnectionManage
     }
 
     @Override
-    public synchronized void removeConnection(Connection conn) {
+    public synchronized void closeConnection(Connection conn) {
+        log.debug("################ Closing connection: " + conn);
+        removeConnection(conn);
+        logoutConnection(conn);
+        conn.close();
+    }
+
+    private void removeConnection(Connection conn) {
         pendingConnections.remove(conn);
         clientConnections.remove(conn);
         serverConnections.remove(conn);
+    }
+
+    private void logoutConnection(Connection conn) {
+        userAuthService.logout(conn);
     }
 
     @Override
     public synchronized void closeAll() {
         for (Connection connection: serverConnections) {
             connection.close();
+            userAuthService.logout(connection);
         }
         for (Connection connection: pendingConnections) {
             connection.close();
@@ -100,6 +129,27 @@ public class NetworkManagerService implements BroadcastService, ConnectionManage
 
     @Override
     public synchronized int getLoad() {
+        log.info("Load = " + clientConnections.size());
         return clientConnections.size();
+    }
+
+    @Override
+    public synchronized void logout(Connection conn) {
+        serverConnections.remove(conn);
+        closeConnection(conn);
+    }
+
+    @Override
+    public synchronized boolean authenticate(Connection conn, String secret) {
+        if (Settings.getSecret().equals(secret)) {
+            serverConnections.add(conn);
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public synchronized boolean isAuthenticated(Connection conn) {
+        return serverConnections.contains(conn);
     }
 }

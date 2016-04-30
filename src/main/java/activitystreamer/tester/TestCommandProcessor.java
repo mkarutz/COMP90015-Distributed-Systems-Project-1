@@ -15,4 +15,9 @@ public class TestCommandProcessor extends CommandProcessor {
     public void processCommandIncoming(Connection connection, Command command) {
         testControl.response(command);
     }
+
+    @Override
+    public void invalidMessage(Connection connection, Command command) {
+
+    }
 }

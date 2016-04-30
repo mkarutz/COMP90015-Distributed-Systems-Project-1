@@ -1,7 +1,6 @@
 package activitystreamer.server.commandhandlers;
 
 import activitystreamer.core.command.InvalidMessageCommand;
-import activitystreamer.core.commandhandler.InvalidMessageCommandHandler;
 import activitystreamer.core.shared.Connection;
 import org.junit.Test;
 

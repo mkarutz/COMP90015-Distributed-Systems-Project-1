@@ -4,19 +4,23 @@ import activitystreamer.core.command.*;
 import activitystreamer.core.commandhandler.*;
 import activitystreamer.core.shared.Connection;
 import activitystreamer.server.services.contracts.BroadcastService;
+import activitystreamer.server.services.contracts.ConnectionManager;
 import activitystreamer.server.services.contracts.ServerAuthService;
 import com.google.inject.Inject;
 
 public class ActivityBroadcastCommandHandler implements ICommandHandler {
 
-    private ServerAuthService serverAuthService;
-    private BroadcastService broadcastService;
+    private final ServerAuthService serverAuthService;
+    private final BroadcastService broadcastService;
+    private final ConnectionManager connectionManager;
 
     @Inject
     public ActivityBroadcastCommandHandler(ServerAuthService serverAuthService,
-                                           BroadcastService broadcastService) {
+                                           BroadcastService broadcastService,
+                                           ConnectionManager connectionManager) {
         this.serverAuthService = serverAuthService;
         this.broadcastService = broadcastService;
+        this.connectionManager = connectionManager;
     }
 
     @Override
@@ -26,13 +30,13 @@ public class ActivityBroadcastCommandHandler implements ICommandHandler {
 
             if (!serverAuthService.isAuthenticated(conn)) {
                 conn.pushCommand(new InvalidMessageCommand("Not authorised."));
-                conn.close();
+                connectionManager.closeConnection(conn);
                 return true;
             }
 
             if (!cmd.getActivity().has("authenticated_user")) {
                 conn.pushCommand(new InvalidMessageCommand("Invalid activity object."));
-                conn.close();
+                connectionManager.closeConnection(conn);
                 return true;
             }
 
