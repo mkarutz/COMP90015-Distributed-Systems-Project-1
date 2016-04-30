@@ -1,5 +1,6 @@
 package activitystreamer.server.commandhandlers;
 
+import activitystreamer.Server;
 import activitystreamer.core.command.Command;
 import activitystreamer.core.command.InvalidMessageCommand;
 import activitystreamer.core.command.RegisterCommand;
@@ -7,18 +8,22 @@ import activitystreamer.core.command.RegisterFailedCommand;
 import activitystreamer.core.commandhandler.ICommandHandler;
 import activitystreamer.core.shared.Connection;
 import activitystreamer.server.services.contracts.ConnectionManager;
+import activitystreamer.server.services.contracts.ServerAuthService;
 import activitystreamer.server.services.contracts.UserAuthService;
 import com.google.inject.Inject;
 
 public class RegisterCommandHandler implements ICommandHandler {
 
     private final UserAuthService userAuthService;
+    private final ServerAuthService serverAuthService;
     private final ConnectionManager connectionManager;
 
     @Inject
     public RegisterCommandHandler(UserAuthService userAuthService,
+                                  ServerAuthService serverAuthService,
                                   ConnectionManager connectionManager) {
         this.userAuthService = userAuthService;
+        this.serverAuthService = serverAuthService;
         this.connectionManager = connectionManager;
     }
 
@@ -26,6 +31,18 @@ public class RegisterCommandHandler implements ICommandHandler {
     public boolean handleCommand(Command command, Connection conn) {
         if (command instanceof RegisterCommand) {
             RegisterCommand cmd = (RegisterCommand) command;
+
+            if (serverAuthService.isAuthenticated(conn)) {
+                conn.pushCommand(new InvalidMessageCommand("Unexpected logout from server."));
+                connectionManager.closeConnection(conn);
+                return true;
+            }
+
+            if (userAuthService.isLoggedIn(conn)) {
+                conn.pushCommand(new InvalidMessageCommand("Unexpected logout from client."));
+                connectionManager.closeConnection(conn);
+                return true;
+            }
 
             if (cmd.getUsername() == null || cmd.getSecret() == null) {
                 conn.pushCommand(new InvalidMessageCommand("Username and secret must be present."));
