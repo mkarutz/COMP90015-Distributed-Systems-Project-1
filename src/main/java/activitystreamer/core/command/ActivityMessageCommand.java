@@ -1,6 +1,7 @@
 package activitystreamer.core.command;
 
 import activitystreamer.core.command.transmission.gson.JsonRequired;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 public class ActivityMessageCommand implements Command {
@@ -9,7 +10,7 @@ public class ActivityMessageCommand implements Command {
     private String username;
     private String secret;
     @JsonRequired
-    private JsonObject activity;
+    private JsonElement activity;
 
     public ActivityMessageCommand(String username, String secret, JsonObject activity) {
         this.username = username;
@@ -23,6 +24,11 @@ public class ActivityMessageCommand implements Command {
             username.equals(((ActivityMessageCommand) obj).getUsername()) &&
             secret.equals(((ActivityMessageCommand) obj).getSecret()) &&
             activity.equals(((ActivityMessageCommand) obj).getActivity());
+    }
+
+    @Override
+    public String toString() {
+        return "Activity Message Command: " + activity.toString();
     }
 
     public String getSecret() {
@@ -42,7 +48,7 @@ public class ActivityMessageCommand implements Command {
     }
 
     public JsonObject getActivity() {
-        return activity;
+        return activity.getAsJsonObject();
     }
 
     public void setActivity(JsonObject activity) {
