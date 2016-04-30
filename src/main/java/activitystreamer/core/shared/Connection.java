@@ -1,18 +1,17 @@
 package activitystreamer.core.shared;
 
-import java.io.*;
-import java.net.Socket;
-
+import activitystreamer.core.command.Command;
+import activitystreamer.core.command.InvalidMessageCommand;
 import activitystreamer.core.command.transmission.CommandDeserializer;
 import activitystreamer.core.command.transmission.CommandParseException;
 import activitystreamer.core.command.transmission.CommandSerializer;
+import activitystreamer.core.commandprocessor.CommandProcessor;
+import activitystreamer.util.Settings;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import activitystreamer.util.Settings;
-
-import activitystreamer.core.command.*;
-import activitystreamer.core.commandprocessor.*;
+import java.io.*;
+import java.net.Socket;
 
 public class Connection implements Closeable, Runnable {
     private static final Logger log = LogManager.getLogger();
@@ -26,15 +25,18 @@ public class Connection implements Closeable, Runnable {
     private CommandSerializer commandSerializer;
     private CommandDeserializer commandDeserializer;
     private CommandProcessor processor;
+    private DisconnectHandler disconnectHandler;
 
     public Connection(Socket socket,
                       CommandSerializer commandSerializer,
                       CommandDeserializer commandDeserializer,
-                      CommandProcessor processor) throws IOException {
+                      CommandProcessor processor,
+                      DisconnectHandler disconnectHandler) throws IOException {
         this.socket = socket;
         this.commandSerializer = commandSerializer;
         this.commandDeserializer = commandDeserializer;
         this.processor = processor;
+        this.disconnectHandler = disconnectHandler;
 
         in = new BufferedReader(new InputStreamReader(new DataInputStream(socket.getInputStream())));
         out = new PrintWriter(new DataOutputStream(socket.getOutputStream()), true);
@@ -52,11 +54,13 @@ public class Connection implements Closeable, Runnable {
                 }
             } catch (IOException e) {
                 log.error("I/O exception. Closing connection");
+                disconnectHandler.closeConnection(this);
                 term = true;
             } catch (CommandParseException e) {
                 log.error("Invalid message. Closing connection.");
-                Command cmd = new InvalidMessageCommand("Expecting Json Object");
+                Command cmd = new InvalidMessageCommand("Invalid message format.");
                 this.pushCommand(cmd);
+                disconnectHandler.closeConnection(this);
                 term = true;
             }
         }
@@ -73,8 +77,7 @@ public class Connection implements Closeable, Runnable {
         String message = this.readLine();
 
         if (message == null) {
-            close();
-            return null;
+            throw new IOException();
         }
 
         log.info("Received message: " + message);
@@ -131,9 +134,4 @@ public class Connection implements Closeable, Runnable {
     public synchronized boolean isOpen() {
         return open;
     }
-
-    //testing Bad msgs
-    // public void writeBad(String msg){
-    //     this.writeLine(msg);
-    // }
 }

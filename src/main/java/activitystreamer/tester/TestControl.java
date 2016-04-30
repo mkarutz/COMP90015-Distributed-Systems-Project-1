@@ -94,11 +94,11 @@ public class TestControl implements Runnable {
 
     public synchronized Connection outgoingConnection(Socket s) throws IOException {
         log.debug("outgoing connection: " + Settings.socketAddress(s));
-        connection = new Connection(s,
-                new GsonCommandSerializationAdaptor(),
-                new GsonCommandSerializationAdaptor(),
-                new TestCommandProcessor(this)
-        );
+//        connection = new Connection(s,
+//                new GsonCommandSerializationAdaptor(),
+//                new GsonCommandSerializationAdaptor(),
+//                new TestCommandProcessor(this)
+//        );
         new Thread(connection).start();
         return connection;
     }

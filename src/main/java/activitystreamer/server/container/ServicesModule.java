@@ -4,6 +4,7 @@ import activitystreamer.core.command.transmission.CommandDeserializer;
 import activitystreamer.core.command.transmission.CommandSerializer;
 import activitystreamer.core.command.transmission.gson.GsonCommandSerializationAdaptor;
 import activitystreamer.core.commandprocessor.CommandProcessor;
+import activitystreamer.core.shared.DisconnectHandler;
 import activitystreamer.server.Control;
 import activitystreamer.server.IncomingConnectionHandler;
 import activitystreamer.server.commandprocessors.MainCommandProcessor;
@@ -21,6 +22,7 @@ public class ServicesModule extends AbstractModule {
         bind(BroadcastService.class).to(NetworkManagerService.class);
         bind(ConnectionManager.class).to(NetworkManagerService.class);
         bind(ServerAuthService.class).to(NetworkManagerService.class);
+        bind(DisconnectHandler.class).to(NetworkManagerService.class);
         bind(NetworkManagerService.class).in(Singleton.class);
 
         bind(RemoteServerStateService.class).to(ConcreteRemoteServerStateService.class).in(Singleton.class);

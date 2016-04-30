@@ -1,8 +1,9 @@
 package activitystreamer.server.services.contracts;
 
 import activitystreamer.core.shared.Connection;
+import activitystreamer.core.shared.DisconnectHandler;
 
-public interface ConnectionManager {
+public interface ConnectionManager extends DisconnectHandler {
     void addServerConnection(Connection conn);
     void addClientConnection(Connection conn);
     void addConnection(Connection conn);

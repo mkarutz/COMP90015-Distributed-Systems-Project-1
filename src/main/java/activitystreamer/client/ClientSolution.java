@@ -79,7 +79,8 @@ public class ClientSolution implements Runnable {
         connection = new Connection(s,
                 new GsonCommandSerializationAdaptor(),
                 new GsonCommandSerializationAdaptor(),
-                new ServerCommandProcessor(clientReflectionService,this)
+                new ServerCommandProcessor(clientReflectionService,this),
+                new ClientDisconnectionHandler()
         );
 
         new Thread(connection).start();

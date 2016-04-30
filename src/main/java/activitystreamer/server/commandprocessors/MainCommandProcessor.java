@@ -21,13 +21,13 @@ public class MainCommandProcessor extends CommandProcessor {
         this.connectionManager = connectionManager;
         handlers.add(new ActivityBroadcastCommandHandler(serverAuthService, broadcastService, connectionManager));
         handlers.add(new ActivityMessageCommandHandler(userAuthService, broadcastService, connectionManager));
-        handlers.add(new AuthenticateCommandHandler(serverAuthService, connectionManager));
-        handlers.add(new AuthenticationFailCommandHandler(connectionManager));
-        handlers.add(new LockAllowedCommandHandler(userAuthService, broadcastService));
-        handlers.add(new LockDeniedCommandHandler(userAuthService, broadcastService));
+        handlers.add(new AuthenticateCommandHandler(userAuthService, serverAuthService, connectionManager));
+        handlers.add(new AuthenticationFailCommandHandler(serverAuthService, connectionManager));
+        handlers.add(new LockAllowedCommandHandler(userAuthService, serverAuthService, broadcastService, connectionManager));
+        handlers.add(new LockDeniedCommandHandler(userAuthService, serverAuthService, broadcastService, connectionManager));
         handlers.add(new LockRequestCommandHandler(userAuthService, serverAuthService, connectionManager));
-        handlers.add(new LoginCommandHandler(userAuthService, remoteServerStateService, connectionManager));
-        handlers.add(new RegisterCommandHandler(userAuthService, connectionManager));
+        handlers.add(new LoginCommandHandler(userAuthService, serverAuthService, remoteServerStateService, connectionManager));
+        handlers.add(new RegisterCommandHandler(userAuthService, serverAuthService, connectionManager));
         handlers.add(new ServerAnnounceCommandHandler(remoteServerStateService, broadcastService, serverAuthService, connectionManager));
         handlers.add(new LogoutCommandHandler(userAuthService, connectionManager));
     }
