@@ -8,6 +8,7 @@ import activitystreamer.core.command.transmission.gson.GsonCommandSerializationA
 import activitystreamer.core.shared.Connection;
 import activitystreamer.server.services.contracts.BroadcastService;
 import activitystreamer.server.services.contracts.ServerAuthService;
+import activitystreamer.server.services.contracts.ConnectionManager;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -23,9 +24,12 @@ public class ActivityBroadcastCommandHandlerTest {
 
         BroadcastService mockBroadcastService = mock(BroadcastService.class);
 
+        ConnectionManager mockConnectionManager = mock(ConnectionManager.class);
+
         ActivityBroadcastCommandHandler handler = new ActivityBroadcastCommandHandler(
                 mockServerAuthService,
-                mockBroadcastService
+                mockBroadcastService,
+                mockConnectionManager
         );
 
         ActivityBroadcastCommand mockCommand = (ActivityBroadcastCommand)
@@ -44,7 +48,7 @@ public class ActivityBroadcastCommandHandlerTest {
 
         verify(mockBroadcastService, never()).broadcastToAll(any(Command.class), any(Connection.class));
         verify(mockConnection).pushCommand(isA(InvalidMessageCommand.class));
-        verify(mockConnection).close();
+        verify(mockConnectionManager).closeConnection(mockConnection);
     }
 
     @Test
@@ -53,9 +57,12 @@ public class ActivityBroadcastCommandHandlerTest {
         when(mockServerAuthService.isAuthenticated(any(Connection.class))).thenReturn(true);
         BroadcastService mockBroadcastService = mock(BroadcastService.class);
 
+        ConnectionManager mockConnectionManager = mock(ConnectionManager.class);
+
         ActivityBroadcastCommandHandler handler = new ActivityBroadcastCommandHandler(
                 mockServerAuthService,
-                mockBroadcastService
+                mockBroadcastService,
+                mockConnectionManager
         );
 
         ActivityBroadcastCommand command = (ActivityBroadcastCommand)
@@ -78,7 +85,7 @@ public class ActivityBroadcastCommandHandlerTest {
 
         verify(mockBroadcastService).broadcastToAll(command, mockConnection);
         verify(mockConnection, never()).pushCommand(isA(InvalidMessageCommand.class));
-        verify(mockConnection, never()).close();
+        verify(mockConnectionManager, never()).closeConnection(mockConnection);
     }
 
     @Test
@@ -87,9 +94,12 @@ public class ActivityBroadcastCommandHandlerTest {
         when(mockServerAuthService.isAuthenticated(any(Connection.class))).thenReturn(true);
         BroadcastService mockBroadcastService = mock(BroadcastService.class);
 
+        ConnectionManager mockConnectionManager = mock(ConnectionManager.class);
+
         ActivityBroadcastCommandHandler handler = new ActivityBroadcastCommandHandler(
                 mockServerAuthService,
-                mockBroadcastService
+                mockBroadcastService,
+                mockConnectionManager
         );
 
         ActivityBroadcastCommand mockCommand = (ActivityBroadcastCommand)
@@ -106,6 +116,6 @@ public class ActivityBroadcastCommandHandlerTest {
 
         verify(mockBroadcastService, never()).broadcastToAll(any(Command.class), any(Connection.class));
         verify(mockConnection).pushCommand(isA(InvalidMessageCommand.class));
-        verify(mockConnection).close();
+        verify(mockConnectionManager).closeConnection(mockConnection);
     }
 }

@@ -4,6 +4,9 @@ import activitystreamer.core.command.*;
 import activitystreamer.core.shared.Connection;
 import activitystreamer.server.services.contracts.UserAuthService;
 import activitystreamer.server.services.impl.ConcreteUserAuthService;
+import activitystreamer.server.services.contracts.ServerAuthService;
+import activitystreamer.server.services.impl.NetworkManagerService;
+import activitystreamer.server.services.contracts.ConnectionManager;
 import org.junit.Test;
 
 import static org.mockito.Mockito.*;
@@ -12,7 +15,10 @@ public class RegisterCommandHandlerTest {
     @Test
     public void testUsernameMustBeNotNull() {
         UserAuthService mockAuthService = mock(ConcreteUserAuthService.class);
-        RegisterCommandHandler handler = new RegisterCommandHandler(mockAuthService);
+        ServerAuthService mockServerAuthService = mock(NetworkManagerService.class);
+
+        ConnectionManager mockConnectionManager = mock(ConnectionManager.class);
+        RegisterCommandHandler handler = new RegisterCommandHandler(mockAuthService,mockServerAuthService,mockConnectionManager);
 
         RegisterCommand mockCommand = mock(RegisterCommand.class);
         when(mockCommand.getUsername()).thenReturn(null);
@@ -27,7 +33,10 @@ public class RegisterCommandHandlerTest {
     @Test
     public void testSecretMustBeNotNull() {
         UserAuthService mockAuthService = mock(ConcreteUserAuthService.class);
-        RegisterCommandHandler handler = new RegisterCommandHandler(mockAuthService);
+        ServerAuthService mockServerAuthService = mock(NetworkManagerService.class);
+
+        ConnectionManager mockConnectionManager = mock(ConnectionManager.class);
+        RegisterCommandHandler handler = new RegisterCommandHandler(mockAuthService,mockServerAuthService,mockConnectionManager);
 
         RegisterCommand mockCommand = mock(RegisterCommand.class);
         when(mockCommand.getUsername()).thenReturn("username");
@@ -45,7 +54,10 @@ public class RegisterCommandHandlerTest {
         UserAuthService mockAuthService = mock(ConcreteUserAuthService.class);
         when(mockAuthService.register(anyString(), anyString(), any(Connection.class))).thenReturn(false);
 
-        RegisterCommandHandler handler = new RegisterCommandHandler(mockAuthService);
+        ServerAuthService mockServerAuthService = mock(NetworkManagerService.class);
+
+        ConnectionManager mockConnectionManager = mock(ConnectionManager.class);
+        RegisterCommandHandler handler = new RegisterCommandHandler(mockAuthService,mockServerAuthService,mockConnectionManager);
 
         RegisterCommand mockCommand = mock(RegisterCommand.class);
         when(mockCommand.getUsername()).thenReturn("username");
@@ -63,7 +75,10 @@ public class RegisterCommandHandlerTest {
         UserAuthService mockAuthService = mock(ConcreteUserAuthService.class);
         when(mockAuthService.register(anyString(), anyString(), any(Connection.class))).thenReturn(false);
 
-        RegisterCommandHandler handler = new RegisterCommandHandler(mockAuthService);
+        ServerAuthService mockServerAuthService = mock(NetworkManagerService.class);
+
+        ConnectionManager mockConnectionManager = mock(ConnectionManager.class);
+        RegisterCommandHandler handler = new RegisterCommandHandler(mockAuthService,mockServerAuthService,mockConnectionManager);
 
         RegisterCommand mockCommand = mock(RegisterCommand.class);
         when(mockCommand.getUsername()).thenReturn("username");

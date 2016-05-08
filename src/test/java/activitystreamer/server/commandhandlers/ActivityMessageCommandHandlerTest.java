@@ -4,6 +4,7 @@ import activitystreamer.core.command.ActivityBroadcastCommand;
 import activitystreamer.core.command.ActivityMessageCommand;
 import activitystreamer.core.command.AuthenticationFailCommand;
 import activitystreamer.core.shared.Connection;
+import activitystreamer.server.services.contracts.ConnectionManager;
 import activitystreamer.server.services.contracts.BroadcastService;
 import activitystreamer.server.services.contracts.RemoteServerStateService;
 import activitystreamer.server.services.contracts.UserAuthService;
@@ -20,12 +21,15 @@ public class ActivityMessageCommandHandlerTest {
     public void testCanPostAsAnonymousWhenLoggedIn() {
         RemoteServerStateService mockServerService = mock(ConcreteRemoteServerStateService.class);
         BroadcastService mockBroadcastService = mock(BroadcastService.class);
+        ConnectionManager mockConnectionManager = mock(ConnectionManager.class);
 
-        UserAuthService mockAuthService = spy(new ConcreteUserAuthService(mockServerService, mockBroadcastService));
+        UserAuthService mockAuthService = spy(new ConcreteUserAuthService(mockServerService, mockConnectionManager,mockBroadcastService));
         when(mockAuthService.isLoggedIn(any(Connection.class))).thenReturn(true);
 
+
+
         ActivityMessageCommandHandler handler
-                = new ActivityMessageCommandHandler(mockAuthService, mockBroadcastService);
+                = new ActivityMessageCommandHandler(mockAuthService, mockBroadcastService, mockConnectionManager);
 
         ActivityMessageCommand mockCommand = mock(ActivityMessageCommand.class);
         when(mockCommand.getUsername()).thenReturn("anonymous");
@@ -50,8 +54,10 @@ public class ActivityMessageCommandHandlerTest {
 
         BroadcastService mockBroadcastService = mock(BroadcastService.class);
 
+        ConnectionManager mockConnectionManager = mock(ConnectionManager.class);
+
         ActivityMessageCommandHandler handler
-                = new ActivityMessageCommandHandler(mockAuthService, mockBroadcastService);
+                = new ActivityMessageCommandHandler(mockAuthService, mockBroadcastService, mockConnectionManager);
 
         ActivityMessageCommand mockCommand = mock(ActivityMessageCommand.class);
         when(mockCommand.getUsername()).thenReturn("username");
@@ -77,8 +83,10 @@ public class ActivityMessageCommandHandlerTest {
 
         BroadcastService mockBroadcastService = mock(BroadcastService.class);
 
+        ConnectionManager mockConnectionManager = mock(ConnectionManager.class);
+
         ActivityMessageCommandHandler handler
-                = new ActivityMessageCommandHandler(mockAuthService, mockBroadcastService);
+                = new ActivityMessageCommandHandler(mockAuthService, mockBroadcastService, mockConnectionManager);
 
         ActivityMessageCommand mockCommand = mock(ActivityMessageCommand.class);
         when(mockCommand.getUsername()).thenReturn("username");
@@ -102,8 +110,10 @@ public class ActivityMessageCommandHandlerTest {
 
         BroadcastService mockBroadcastService = mock(BroadcastService.class);
 
+        ConnectionManager mockConnectionManager = mock(ConnectionManager.class);
+
         ActivityMessageCommandHandler handler
-                = new ActivityMessageCommandHandler(mockAuthService, mockBroadcastService);
+                = new ActivityMessageCommandHandler(mockAuthService, mockBroadcastService, mockConnectionManager);
 
         ActivityMessageCommand mockCommand = mock(ActivityMessageCommand.class);
         when(mockCommand.getUsername()).thenReturn("username");
@@ -116,7 +126,7 @@ public class ActivityMessageCommandHandlerTest {
 
         handler.handleCommand(mockCommand, mockConnection);
 
-        verify(mockBroadcastService).broadcastToAll(isA(ActivityBroadcastCommand.class), same(mockConnection));
+        verify(mockBroadcastService).broadcastToAll(isA(ActivityBroadcastCommand.class));
     }
 
     @Test
@@ -127,8 +137,10 @@ public class ActivityMessageCommandHandlerTest {
 
         BroadcastService mockBroadcastService = mock(BroadcastService.class);
 
+        ConnectionManager mockConnectionManager = mock(ConnectionManager.class);
+
         ActivityMessageCommandHandler handler
-                = new ActivityMessageCommandHandler(mockAuthService, mockBroadcastService);
+                = new ActivityMessageCommandHandler(mockAuthService, mockBroadcastService, mockConnectionManager);
 
         ActivityMessageCommand mockCommand = mock(ActivityMessageCommand.class);
         when(mockCommand.getUsername()).thenReturn("username");
