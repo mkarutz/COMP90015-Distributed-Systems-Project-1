@@ -10,6 +10,9 @@ import com.google.inject.Inject;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import javax.net.ssl.SSLSocket;
+import javax.net.ssl.SSLSocketFactory;
+
 import java.io.IOException;
 import java.net.Socket;
 
@@ -18,6 +21,7 @@ public class Control implements Runnable, IncomingConnectionHandler {
     private boolean term = false;
 
     private Listener listener;
+    private SecureListener secureListener;
 
     private final ConnectionFactory connectionFactory;
     private final RemoteServerStateService remoteServerStateService;
@@ -50,12 +54,15 @@ public class Control implements Runnable, IncomingConnectionHandler {
             }
         }
         listener.setTerm(true);
+        secureListener.setTerm(true);
     }
 
     private void startListener() {
         try {
             listener = new Listener(this, Settings.getLocalPort());
             new Thread(listener).start();
+            secureListener = new SecureListener(this, Settings.getSecureLocalPort());
+            new Thread(secureListener).start();
         } catch (IOException e1) {
             log.fatal("failed to startup a listening thread: " + e1);
             System.exit(-1);
@@ -65,7 +72,13 @@ public class Control implements Runnable, IncomingConnectionHandler {
     public void initiateConnection() {
         if (Settings.getRemoteHostname() != null) {
             try {
-                outgoingConnection(new Socket(Settings.getRemoteHostname(), Settings.getRemotePort()));
+                if(Settings.getIsSecure()){
+                    SSLSocketFactory sslsocketfactory = (SSLSocketFactory) SSLSocketFactory.getDefault();
+        			SSLSocket sslsocket = (SSLSocket) sslsocketfactory.createSocket(Settings.getRemoteHostname(), Settings.getRemotePort());
+                    outgoingConnection(sslsocket);
+                }else{
+                    outgoingConnection(new Socket(Settings.getRemoteHostname(), Settings.getRemotePort()));
+                }
             } catch (IOException e) {
                 log.error("failed to make connection to " + Settings.getRemoteHostname() + ":" + Settings.getRemotePort() + " :" + e);
                 System.exit(-1);
