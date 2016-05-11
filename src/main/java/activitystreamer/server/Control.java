@@ -10,8 +10,9 @@ import com.google.inject.Inject;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import javax.net.ssl.SSLSocket;
-import javax.net.ssl.SSLSocketFactory;
+import javax.net.ssl.*;
+import java.security.*;
+import java.io.*;
 
 import java.io.IOException;
 import java.net.Socket;
@@ -73,7 +74,21 @@ public class Control implements Runnable, IncomingConnectionHandler {
         if (Settings.getRemoteHostname() != null) {
             try {
                 if(Settings.getIsSecure()){
-                    SSLSocketFactory sslsocketfactory = (SSLSocketFactory) SSLSocketFactory.getDefault();
+                    // TODO: this is so bad and ugly
+                    TrustManagerFactory trustManagerFactory = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+                    KeyStore keystore = KeyStore.getInstance(KeyStore.getDefaultType());
+                    InputStream keystoreStreamP = getClass().getResourceAsStream("/myPubKey"); // note, not getSYSTEMResourceAsStream
+                    keystore.load(keystoreStreamP, "abc123".toCharArray());
+
+                    trustManagerFactory.init(keystore);
+                    TrustManager[] trustManagers = trustManagerFactory.getTrustManagers();
+
+                    SSLContext ctx = SSLContext.getInstance("TLS"); // was SSL
+                    ctx.init(null, trustManagers, null);
+
+                    SSLSocketFactory sslsocketfactory = ctx.getSocketFactory();
+
+                    // SSLSocketFactory sslsocketfactory = (SSLSocketFactory) SSLSocketFactory.getDefault();
         			SSLSocket sslsocket = (SSLSocket) sslsocketfactory.createSocket(Settings.getRemoteHostname(), Settings.getRemotePort());
                     outgoingConnection(sslsocket);
                 }else{
@@ -81,6 +96,9 @@ public class Control implements Runnable, IncomingConnectionHandler {
                 }
             } catch (IOException e) {
                 log.error("failed to make connection to " + Settings.getRemoteHostname() + ":" + Settings.getRemotePort() + " :" + e);
+                System.exit(-1);
+            } catch (Exception e) {
+                log.error("SSL Exception: " + e.getMessage());
                 System.exit(-1);
             }
         }

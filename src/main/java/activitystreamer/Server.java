@@ -136,9 +136,9 @@ public class Server {
         log.info("starting server");
 
         // TODO: get the keys/certs from the JAR
-        System.setProperty("javax.net.ssl.keyStore","/home/shavedmullet/DSdemos/SSLDemo(1)/SSLDemo/src/myKey");
-		System.setProperty("javax.net.ssl.keyStorePassword","foobar");
-        System.setProperty("javax.net.ssl.trustStore", "/home/shavedmullet/DSdemos/SSLDemo(1)/SSLDemo/src/myPubKey");
+        // System.setProperty("javax.net.ssl.keyStore", new Object().getClass().getResource("/myKey").toString());
+		// System.setProperty("javax.net.ssl.keyStorePassword","foobar");
+        // System.setProperty("javax.net.ssl.trustStore", new Object().getClass().getResource("/myPubKey").toString());
 
         System.setProperty("javax.net.debug","all");
 
