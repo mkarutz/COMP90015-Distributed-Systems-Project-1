@@ -48,6 +48,7 @@ public class ActivityMessageCommand implements Command {
     }
 
     public JsonObject getActivity() {
+        if (activity == null) { return null; }
         return activity.getAsJsonObject();
     }
 
