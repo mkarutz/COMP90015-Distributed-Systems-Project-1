@@ -11,8 +11,10 @@ public class Settings {
     private static final Logger log = LogManager.getLogger();
     private static SecureRandom random = new SecureRandom();
     private static int localPort = 3780;
+    private static int localPortSecure = 3781;
     private static String localHostname = "localhost";
     private static String remoteHostname = null;
+    private static boolean remoteIsSecure = false;
     private static int remotePort = 3780;
     private static int activityInterval = 5000; // milliseconds
     private static String secret = "";
@@ -27,6 +29,18 @@ public class Settings {
     public static void setLocalPort(int localPort) {
         if (localPort < 0 || localPort > 65535) {
             log.error("supplied port " + localPort + " is out of range, using " + getLocalPort());
+        } else {
+            Settings.localPort = localPort;
+        }
+    }
+
+    public static int getLocalPortSecure() {
+        return localPort;
+    }
+
+    public static void setLocalPortSecure(int localPortSecure) {
+        if (localPortSecure < 0 || localPortSecure > 65535) {
+            log.error("supplied port " + localPortSecure + " is out of range, using " + getLocalPortSecure());
         } else {
             Settings.localPort = localPort;
         }

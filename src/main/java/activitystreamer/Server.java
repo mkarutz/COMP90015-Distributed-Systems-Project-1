@@ -32,10 +32,12 @@ public class Server {
         log.info("reading command line options");
 
         Options options = new Options();
-        options.addOption("lp", true, "local port number");
-        options.addOption("rp", true, "remote port number");
-        options.addOption("rh", true, "remote hostname");
         options.addOption("lh", true, "local hostname");
+        options.addOption("lp", true, "local port number");
+        options.addOption("lps", true, "local port number (secure)");
+        options.addOption("rh", true, "remote hostname");
+        options.addOption("rp", true, "remote port number");
+        options.addOption("rs", false, "remote server is secure");
         options.addOption("a", true, "activity interval in milliseconds");
         options.addOption("s", true, "secret for the server to use");
         options.addOption("d", false, "debug mode, use static secret");
