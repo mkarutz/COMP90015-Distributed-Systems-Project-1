@@ -29,8 +29,8 @@ public class SecureListener implements Runnable {
         this.port = port;
         try {
             sslContextFactory=new SSLContextFactory(Settings.getPrivateKeyStore(),Settings.getPrivatePass(),null,null);
-            SSLContext ctx=sslContextFactory.getContext();
-            SSLServerSocketFactory sslserversocketfactory = ctx.getServerSocketFactory();
+
+            SSLServerSocketFactory sslserversocketfactory = sslContextFactory.getContext().getServerSocketFactory();
             sslServerSocket = (SSLServerSocket) sslserversocketfactory.createServerSocket(port);
         } catch (Exception e) {
             log.error(e.getMessage());
