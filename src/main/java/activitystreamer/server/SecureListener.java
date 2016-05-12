@@ -12,11 +12,15 @@ import java.io.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import activitystreamer.core.shared.SSLContextFactory;
+import activitystreamer.util.Settings;
+
 public class SecureListener implements Runnable {
     private Logger log = LogManager.getLogger();
     private SSLServerSocket sslServerSocket = null;
     private boolean term = false;
     private int port;
+    private SSLContextFactory sslContextFactory;
 
 	private IncomingConnectionHandler connectionHandler;
 
@@ -24,21 +28,9 @@ public class SecureListener implements Runnable {
 			throws IOException {
         this.port = port;
         try {
-            // TODO: this is ugly too
-            KeyManagerFactory keyManagerFactory = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
-            KeyStore privKeystore = KeyStore.getInstance(KeyStore.getDefaultType());
-            InputStream keystoreStream = getClass().getResourceAsStream("/myKey");
-            privKeystore.load(keystoreStream, "foobar".toCharArray());
-
-            keyManagerFactory.init(privKeystore, "foobar".toCharArray());
-            KeyManager[] keyManagers = keyManagerFactory.getKeyManagers();
-
-            SSLContext ctx = SSLContext.getInstance("TLS"); // was SSL
-            ctx.init(keyManagers, null, null);
-
+            sslContextFactory=new SSLContextFactory(Settings.getPrivateKeyStore(),Settings.getPrivatePass(),null,null);
+            SSLContext ctx=sslContextFactory.getContext();
             SSLServerSocketFactory sslserversocketfactory = ctx.getServerSocketFactory();
-
-            // SSLServerSocketFactory sslserversocketfactory = (SSLServerSocketFactory) SSLServerSocketFactory.getDefault();
             sslServerSocket = (SSLServerSocket) sslserversocketfactory.createServerSocket(port);
         } catch (Exception e) {
             log.error(e.getMessage());

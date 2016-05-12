@@ -22,6 +22,42 @@ public class Settings {
     private static String username = "anonymous";
     private static String id = "";
 
+    private static String privateKeyStore="/myKey";
+    private static String privatePass="foobar";
+    private static String publicKeyStore="/myPubKey";
+    private static String publicPass="abc123";
+
+    //getters and setters for keys and passwords
+    public static void setPrivateKeyStore(String privateKeyStore)
+    {
+        Settings.privateKeyStore=privateKeyStore;
+    }
+    public static String getPrivateKeyStore(){
+        return privateKeyStore;
+    }
+    public static void setPrivatePass(String privatePass)
+    {
+        Settings.privatePass=privatePass;
+    }
+    public static String getPrivatePass(){
+        return privatePass;
+    }
+
+    public static void setPublicKeyStore(String publicKeyStore)
+    {
+        Settings.publicKeyStore=publicKeyStore;
+    }
+    public static String getPublicKeyStore(){
+        return publicKeyStore;
+    }
+    public static void setPublicPass(String publicPass)
+    {
+        Settings.publicPass=publicPass;
+    }
+    public static String getPublicPass(){
+        return publicPass;
+    }
+    // end of getters and setters for keys and passwords
 
     public static boolean getIsSecure() {
         return isSecure;

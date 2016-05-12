@@ -17,12 +17,18 @@ import java.io.*;
 import java.io.IOException;
 import java.net.Socket;
 
+import activitystreamer.core.shared.SSLContextFactory;
+import activitystreamer.util.Settings;
+
 public class Control implements Runnable, IncomingConnectionHandler {
     private Logger log = LogManager.getLogger();
     private boolean term = false;
 
     private Listener listener;
     private SecureListener secureListener;
+
+    private SSLContextFactory sslContextFactory;
+
 
     private final ConnectionFactory connectionFactory;
     private final RemoteServerStateService remoteServerStateService;
@@ -74,21 +80,10 @@ public class Control implements Runnable, IncomingConnectionHandler {
         if (Settings.getRemoteHostname() != null) {
             try {
                 if(Settings.getIsSecure()){
-                    // TODO: this is so bad and ugly
-                    TrustManagerFactory trustManagerFactory = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
-                    KeyStore keystore = KeyStore.getInstance(KeyStore.getDefaultType());
-                    InputStream keystoreStreamP = getClass().getResourceAsStream("/myPubKey"); // note, not getSYSTEMResourceAsStream
-                    keystore.load(keystoreStreamP, "abc123".toCharArray());
-
-                    trustManagerFactory.init(keystore);
-                    TrustManager[] trustManagers = trustManagerFactory.getTrustManagers();
-
-                    SSLContext ctx = SSLContext.getInstance("TLS"); // was SSL
-                    ctx.init(null, trustManagers, null);
+                    sslContextFactory=new SSLContextFactory(null,null,Settings.getPublicKeyStore(),Settings.getPublicPass());
+                    SSLContext ctx=sslContextFactory.getContext();
 
                     SSLSocketFactory sslsocketfactory = ctx.getSocketFactory();
-
-                    // SSLSocketFactory sslsocketfactory = (SSLSocketFactory) SSLSocketFactory.getDefault();
         			SSLSocket sslsocket = (SSLSocket) sslsocketfactory.createSocket(Settings.getRemoteHostname(), Settings.getRemotePort());
                     outgoingConnection(sslsocket);
                 }else{
