@@ -13,12 +13,21 @@ import activitystreamer.util.Settings;
 import java.io.IOException;
 import java.net.Socket;
 
+import javax.net.ssl.*;
+import java.security.*;
+import java.io.*;
+
+import activitystreamer.core.shared.SSLContextFactory;
+
 public class ClientSolution implements Runnable {
     private static final Logger log = LogManager.getLogger();
     private TextFrame textFrame;
     private boolean term = false;
 
     private Connection connection;
+
+    private SSLContextFactory sslContextFactory;
+    
 
     private ClientReflectionService clientReflectionService;
 
@@ -66,9 +75,20 @@ public class ClientSolution implements Runnable {
     public void initiateConnection() {
         if (Settings.getRemoteHostname() != null) {
             try {
-                outgoingConnection(new Socket(Settings.getRemoteHostname(), Settings.getRemotePort()));
+                if(Settings.getIsSecure()){
+                    sslContextFactory=new SSLContextFactory(null,null,Settings.getPublicKeyStore(),Settings.getPublicPass());
+
+                    SSLSocketFactory sslsocketfactory = sslContextFactory.getContext().getSocketFactory();
+        			SSLSocket sslsocket = (SSLSocket) sslsocketfactory.createSocket(Settings.getRemoteHostname(), Settings.getRemotePort());
+                    outgoingConnection(sslsocket);
+                }else{
+                    outgoingConnection(new Socket(Settings.getRemoteHostname(), Settings.getRemotePort()));
+                }
             } catch (IOException e) {
                 log.error("failed to make connection to " + Settings.getRemoteHostname() + ":" + Settings.getRemotePort() + " :" + e);
+                System.exit(-1);
+            } catch (Exception e) {
+                log.error("SSL Exception: " + e.getMessage());
                 System.exit(-1);
             }
         }

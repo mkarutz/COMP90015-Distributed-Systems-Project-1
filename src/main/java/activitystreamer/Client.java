@@ -33,6 +33,7 @@ public class Client {
         options.addOption("rp", true, "remote port number");
         options.addOption("rh", true, "remote hostname");
         options.addOption("s", true, "secret for username");
+        options.addOption("secure",false, "connect securely");
 
 
         // build the parser
@@ -70,6 +71,10 @@ public class Client {
             log.info("No username supplied, assuming anonymous.");
         }
 
+        if(cmd.hasOption("secure")){
+            Settings.setIsSecure(true);
+        }
+        
         log.info("starting client");
 
 
