@@ -135,11 +135,7 @@ public class Server {
         Settings.setId(Settings.nextSecret());
         log.info("starting server");
 
-        // TODO: get the keys/certs from the JAR
-        // System.setProperty("javax.net.ssl.keyStore", new Object().getClass().getResource("/myKey").toString());
-		// System.setProperty("javax.net.ssl.keyStorePassword","foobar");
-        // System.setProperty("javax.net.ssl.trustStore", new Object().getClass().getResource("/myPubKey").toString());
-
+        //TODO: remove debugger
         System.setProperty("javax.net.debug","all");
 
         Injector injector = Guice.createInjector(new ServicesModule());
