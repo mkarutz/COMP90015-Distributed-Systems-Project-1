@@ -32,8 +32,8 @@ public class ConcreteRemoteServerStateService implements RemoteServerStateServic
     }
 
     @Override
-    public synchronized void updateState(String id, int load, InetAddress hostname, int port) {
-        states.put(id, new ServerState(hostname, port, load));
+    public synchronized void updateState(String id, int load, InetAddress hostname, int port, int securePort) {
+        states.put(id, new ServerState(hostname, port, load, securePort));
     }
 
     @Override
@@ -54,14 +54,31 @@ public class ConcreteRemoteServerStateService implements RemoteServerStateServic
     @Override
     public synchronized void loadBalance(Connection connection) {
         ServerState redirectTo;
-        if ((redirectTo = getServerToRedirectTo()) != null) {
-            log.debug("Redirecting!!!!!!!!!!!!!!!");
-            connection.pushCommand(new RedirectCommand(redirectTo.getHostname(), redirectTo.getPort()));
-            connectionManager.closeConnection(connection);
+        if (connection.getSocket().getLocalPort() == Settings.getSecureLocalPort()) {
+            if ((redirectTo = getSecureServerToRedirectTo()) != null) {
+                log.debug("Redirecting Securely!!!!!!!!!!!!!!!");
+                connection.pushCommand(new RedirectCommand(redirectTo.getHostname(), redirectTo.getSecurePort()));
+                connectionManager.closeConnection(connection);
+            }
+        } else {
+            if ((redirectTo = getInsecureServerToRedirectTo()) != null) {
+                log.debug("Redirecting Insecurely!!!!!!!!!!!!!!!");
+                connection.pushCommand(new RedirectCommand(redirectTo.getHostname(), redirectTo.getPort()));
+                connectionManager.closeConnection(connection);
+            }
         }
     }
 
-    private ServerState getServerToRedirectTo() {
+    private ServerState getSecureServerToRedirectTo() {
+        for (ServerState serverState: states.values()) {
+            if (serverState.isSecure() && serverState.getLoad() < connectionManager.getLoad() - 1) {
+                return serverState;
+            }
+        }
+        return null;
+    }
+
+    private ServerState getInsecureServerToRedirectTo() {
         for (ServerState serverState: states.values()) {
             if (serverState.getLoad() < connectionManager.getLoad() - 1) {
                 return serverState;
@@ -82,7 +99,8 @@ public class ConcreteRemoteServerStateService implements RemoteServerStateServic
                     Settings.getId(),
                     load,
                     connection.getSocket().getLocalAddress(),
-                    Settings.getLocalPort()
+                    Settings.getLocalPort(),
+                    Settings.getSecureLocalPort()
             ));
         }
     }

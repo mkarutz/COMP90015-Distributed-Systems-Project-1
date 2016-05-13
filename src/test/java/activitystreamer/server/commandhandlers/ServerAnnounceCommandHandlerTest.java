@@ -110,7 +110,8 @@ public class ServerAnnounceCommandHandlerTest {
                 "    \"id\" : \"fmnmpp3ai91qb3gc2bvs14g3ue\",\n" +
                 "    \"load\" : 5,\n" +
                 "    \"hostname\" : \"128.250.13.46\",\n" +
-                "    \"port\" : 3570\n" +
+                "    \"port\" : 3570,\n" +
+                "    \"securePort\" : 3571\n" +
                 "}"
         );
 
@@ -119,9 +120,50 @@ public class ServerAnnounceCommandHandlerTest {
         handler.handleCommand(mockCommand, mockConnection);
 
         InetAddress address = InetAddress.getByName("128.250.13.46");
-        ServerState state = new ServerState(address, 3570, 5);
+        ServerState state = new ServerState(address, 3570, 5, -1);
 
-        verify(mockRemoteServerStateService).updateState(eq("fmnmpp3ai91qb3gc2bvs14g3ue"), eq(5), eq(address), eq(3570));
+        verify(mockRemoteServerStateService).updateState(eq("fmnmpp3ai91qb3gc2bvs14g3ue"), eq(5), eq(address), eq(3570), eq(3571));
+
+        verify(mockConnection, never()).pushCommand(isA(InvalidMessageCommand.class));
+        verify(mockConnectionManager,never()).closeConnection(mockConnection);
+    }
+
+    @Test
+    public void testHandleMissingFieldsForBackwardsCompatibility() throws CommandParseException, UnknownHostException {
+        ServerAuthService mockServerAuthService = mock(NetworkManagerService.class);
+        when(mockServerAuthService.isAuthenticated(any(Connection.class))).thenReturn(true);
+
+        BroadcastService mockBroadcastService = mock(BroadcastService.class);
+        ConnectionManager mockConnectionManager = mock(ConnectionManager.class);
+
+        UserAuthService mockAuthService = mock(ConcreteUserAuthService.class);
+
+        RemoteServerStateService mockRemoteServerStateService = mock(ConcreteRemoteServerStateService.class);
+
+        ServerAnnounceCommandHandler handler = new ServerAnnounceCommandHandler(
+                mockRemoteServerStateService,
+                mockBroadcastService,
+                mockServerAuthService,
+                mockConnectionManager);
+
+        ServerAnnounceCommand mockCommand = (ServerAnnounceCommand) new GsonCommandSerializationAdaptor().deserialize(
+                "{\n" +
+                        "    \"command\" : \"SERVER_ANNOUNCE\",\n" +
+                        "    \"id\" : \"fmnmpp3ai91qb3gc2bvs14g3ue\",\n" +
+                        "    \"load\" : 5,\n" +
+                        "    \"hostname\" : \"128.250.13.46\",\n" +
+                        "    \"port\" : 3570\n" +
+                        "}"
+        );
+
+        Connection mockConnection = mock(Connection.class);
+
+        handler.handleCommand(mockCommand, mockConnection);
+
+        InetAddress address = InetAddress.getByName("128.250.13.46");
+        ServerState state = new ServerState(address, 3570, 5, -1);
+
+        verify(mockRemoteServerStateService).updateState(eq("fmnmpp3ai91qb3gc2bvs14g3ue"), eq(5), eq(address), eq(3570), eq(-1));
 
         verify(mockConnection, never()).pushCommand(isA(InvalidMessageCommand.class));
         verify(mockConnectionManager,never()).closeConnection(mockConnection);

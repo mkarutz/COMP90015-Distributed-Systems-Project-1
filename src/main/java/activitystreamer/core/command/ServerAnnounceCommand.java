@@ -16,11 +16,17 @@ public class ServerAnnounceCommand implements Command {
     @JsonRequired
     private int port;
 
-    public ServerAnnounceCommand(String id, int load, InetAddress hostname, int port) {
+    private int securePort = -1;
+
+    public ServerAnnounceCommand() {
+    }
+
+    public ServerAnnounceCommand(String id, int load, InetAddress hostname, int port, int securePort) {
         this.id = id;
         this.load = load;
         this.hostname = hostname;
         this.port = port;
+        this.securePort = securePort;
     }
 
     @Override
@@ -29,7 +35,8 @@ public class ServerAnnounceCommand implements Command {
             id.equals(((ServerAnnounceCommand) obj).getId()) &&
             hostname.equals(((ServerAnnounceCommand) obj).getHostname()) &&
             load == (((ServerAnnounceCommand) obj).getLoad()) &&
-            port == (((ServerAnnounceCommand) obj).getPort());
+            port == (((ServerAnnounceCommand) obj).getPort()) &&
+            securePort == (((ServerAnnounceCommand) obj).getSecurePort());
     }
 
     public String getId() {
@@ -62,5 +69,13 @@ public class ServerAnnounceCommand implements Command {
 
     public void setLoad(int load) {
         this.load = load;
+    }
+
+    public int getSecurePort() {
+        return securePort;
+    }
+
+    public void setSecurePort(int securePort) {
+        this.securePort = securePort;
     }
 }

@@ -22,13 +22,13 @@ public class SecureListener implements Runnable {
     private int port;
     private SSLContextFactory sslContextFactory;
 
-	private IncomingConnectionHandler connectionHandler;
+    private IncomingConnectionHandler connectionHandler;
 
     public SecureListener(IncomingConnectionHandler connectionHandler, int port)
-			throws IOException {
+            throws IOException {
         this.port = port;
         try {
-            sslContextFactory=new SSLContextFactory(Settings.getPrivateKeyStore(),Settings.getPrivatePass(),null,null);
+            sslContextFactory = new SSLContextFactory(Settings.getPrivateKeyStore(), Settings.getPrivatePass(), null, null);
 
             SSLServerSocketFactory sslserversocketfactory = sslContextFactory.getContext().getServerSocketFactory();
             sslServerSocket = (SSLServerSocket) sslserversocketfactory.createServerSocket(port);

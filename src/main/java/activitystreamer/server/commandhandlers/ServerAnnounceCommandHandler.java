@@ -49,11 +49,14 @@ public class ServerAnnounceCommandHandler implements ICommandHandler {
                 return true;
             }
 
+            System.out.println("RECIEVED SERVER ANNOUNCE. SECURE PORT: " + cmd.getSecurePort());
+
             remoteServerStateService.updateState(
                     cmd.getId(),
                     cmd.getLoad(),
                     cmd.getHostname(),
-                    cmd.getPort()
+                    cmd.getPort(),
+                    cmd.getSecurePort()
             );
 
             broadcastService.broadcastToServers(cmd, conn);
