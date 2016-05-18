@@ -119,6 +119,7 @@ public class ConcreteUserAuthService implements UserAuthService {
             broadcastService.broadcastToServers(new LockDeniedCommand(username, secret), null);
         } else {
             broadcastService.broadcastToServers(new LockAllowedCommand(username, secret, Settings.getId()), null);
+            userMap.put(username, secret);
         }
     }
 
