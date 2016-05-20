@@ -8,6 +8,7 @@ import activitystreamer.server.services.impl.ConcreteUserAuthService;
 import activitystreamer.server.services.contracts.ConnectionManager;
 import activitystreamer.server.services.contracts.ServerAuthService;
 import activitystreamer.server.services.impl.NetworkManagerService;
+import activitystreamer.server.services.contracts.BroadcastService;
 import org.junit.Test;
 
 import static org.mockito.Mockito.*;
@@ -18,11 +19,13 @@ public class LockRequestCommandHandlerTest {
         ServerAuthService mockServerAuthService = mock(NetworkManagerService.class);
         UserAuthService mockAuthService = mock(ConcreteUserAuthService.class);
         ConnectionManager mockConnectionManager = mock(ConnectionManager.class);
+        BroadcastService mockBroadcastService = mock(BroadcastService.class);
 
         LockRequestCommandHandler handler = new LockRequestCommandHandler(
                 mockAuthService,
                 mockServerAuthService,
-                mockConnectionManager
+                mockConnectionManager,
+                mockBroadcastService
         );
 
         LockRequestCommand mockCommand = mock(LockRequestCommand.class);
@@ -41,11 +44,13 @@ public class LockRequestCommandHandlerTest {
         ServerAuthService mockServerAuthService = mock(NetworkManagerService.class);
         UserAuthService mockAuthService = mock(ConcreteUserAuthService.class);
         ConnectionManager mockConnectionManager = mock(ConnectionManager.class);
+        BroadcastService mockBroadcastService = mock(BroadcastService.class);
 
         LockRequestCommandHandler handler = new LockRequestCommandHandler(
                 mockAuthService,
                 mockServerAuthService,
-                mockConnectionManager
+                mockConnectionManager,
+                mockBroadcastService
         );
 
         LockRequestCommand mockCommand = mock(LockRequestCommand.class);
@@ -64,11 +69,13 @@ public class LockRequestCommandHandlerTest {
         ServerAuthService mockServerAuthService = mock(NetworkManagerService.class);
         UserAuthService mockAuthService = mock(ConcreteUserAuthService.class);
         ConnectionManager mockConnectionManager = mock(ConnectionManager.class);
+        BroadcastService mockBroadcastService = mock(BroadcastService.class);
 
         LockRequestCommandHandler handler = new LockRequestCommandHandler(
                 mockAuthService,
                 mockServerAuthService,
-                mockConnectionManager
+                mockConnectionManager,
+                mockBroadcastService
         );
 
         LockRequestCommand mockCommand = mock(LockRequestCommand.class);

@@ -6,6 +6,7 @@ import activitystreamer.core.shared.Connection;
 import activitystreamer.server.services.contracts.ConnectionManager;
 import activitystreamer.server.services.contracts.ServerAuthService;
 import activitystreamer.server.services.contracts.UserAuthService;
+import activitystreamer.server.services.contracts.BroadcastService;
 import com.google.inject.Inject;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -16,14 +17,17 @@ public class LockRequestCommandHandler implements ICommandHandler {
     private final UserAuthService userAuthService;
     private final ServerAuthService serverAuthService;
     private final ConnectionManager connectionManager;
+    private final BroadcastService broadcastService;
 
     @Inject
     public LockRequestCommandHandler(UserAuthService userAuthService,
                                      ServerAuthService serverAuthService,
-                                     ConnectionManager connectionManager) {
+                                     ConnectionManager connectionManager,
+                                     BroadcastService broadcastService) {
         this.userAuthService = userAuthService;
         this.serverAuthService = serverAuthService;
         this.connectionManager = connectionManager;
+        this.broadcastService = broadcastService;
     }
 
     @Override
@@ -49,6 +53,7 @@ public class LockRequestCommandHandler implements ICommandHandler {
                 return true;
             }
 
+            broadcastService.broadcastToServers(cmd,conn);
             userAuthService.lockRequest(cmd.getUsername(), cmd.getSecret());
             return true;
         } else {

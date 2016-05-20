@@ -118,6 +118,7 @@ public class ConcreteUserAuthService implements UserAuthService {
         if (userMap.containsKey(username) || pendingLockRequests.containsKey(username)) {
             broadcastService.broadcastToServers(new LockDeniedCommand(username, secret), null);
         } else {
+            userMap.put(username,secret);
             broadcastService.broadcastToServers(new LockAllowedCommand(username, secret, Settings.getId()), null);
         }
     }
