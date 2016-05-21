@@ -7,7 +7,7 @@ import activitystreamer.core.shared.Connection;
 public class LoginFailedCommandHandler implements ICommandHandler {
     @Override
     public boolean handleCommand(Command command, Connection conn) {
-        if (command instanceof LoginSuccessCommand) {
+        if (command instanceof LoginFailedCommand) {
             conn.close();
             return true;
         }

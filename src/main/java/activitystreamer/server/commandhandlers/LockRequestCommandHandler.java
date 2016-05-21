@@ -54,7 +54,9 @@ public class LockRequestCommandHandler implements ICommandHandler {
             }
 
             broadcastService.broadcastToServers(cmd,conn);
-            userAuthService.lockRequest(cmd.getUsername(), cmd.getSecret());
+            // userAuthService.lockRequest(cmd.getUsername(), cmd.getSecret());
+            // change
+            userAuthService.lockRequest(cmd.getUsername(), cmd.getSecret(),cmd.getId());
             return true;
         } else {
             return false;
