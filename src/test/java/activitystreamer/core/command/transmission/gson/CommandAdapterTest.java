@@ -185,9 +185,9 @@ public class CommandAdapterTest {
                 .registerTypeAdapter(type, new CommandAdapter())
                 .create();
 
-        LockRequestCommand expected = new LockRequestCommand("aaron", "fmnmpp3ai91qb3gc2bvs14g3ue");
+        LockRequestCommand expected = new LockRequestCommand("aaron", "fmnmpp3ai91qb3gc2bvs14g3ue","abtdhi3ai91qb3gc2bvs14g3ue");
 
-        String msg = "{\"command\":\"LOCK_REQUEST\",\"username\":\"aaron\",\"secret\":\"fmnmpp3ai91qb3gc2bvs14g3ue\"}";
+        String msg = "{\"command\":\"LOCK_REQUEST\",\"username\":\"aaron\",\"secret\":\"fmnmpp3ai91qb3gc2bvs14g3ue\",\"id\":\"abtdhi3ai91qb3gc2bvs14g3ue\"}";
         JsonObject elem = new JsonParser().parse(msg).getAsJsonObject();
         Command actual = gson.fromJson(elem, type);
 

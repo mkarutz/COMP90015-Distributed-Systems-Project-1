@@ -64,8 +64,12 @@ public class ConcreteUserAuthService implements UserAuthService {
         }
 
         sendLockRequests(username, secret, replyConnection);
+        // broadcastService.broadcastToServers(new LockRequestCommand(username, secret), null);
+        //change
+        // broadcastService.broadcastToServers(new LockRequestCommand(username, secret, Settings.getId()), null);
         return true;
     }
+
 
     private void sendLockRequests(String username, String secret, Connection replyConnection) {
         Set<String> waitingServers = new HashSet<>();
@@ -79,7 +83,9 @@ public class ConcreteUserAuthService implements UserAuthService {
         }
         LockRequest req = new LockRequest(secret, waitingServers, replyConnection);
         pendingLockRequests.put(username, req);
-        broadcastService.broadcastToServers(new LockRequestCommand(username, secret), null);
+        // broadcastService.broadcastToServers(new LockRequestCommand(username, secret), null);
+        // change
+        broadcastService.broadcastToServers(new LockRequestCommand(username, secret, Settings.getId()), null);
     }
 
     @Override
@@ -114,10 +120,17 @@ public class ConcreteUserAuthService implements UserAuthService {
     }
 
     @Override
-    public synchronized void lockRequest(String username, String secret) {
+    public synchronized void lockRequest(String username, String secret, String id) {
+    // public synchronized void lockRequest(String username, String secret) {
         if (userMap.containsKey(username) || pendingLockRequests.containsKey(username)) {
             broadcastService.broadcastToServers(new LockDeniedCommand(username, secret), null);
         } else {
+            // userMap.put(username,secret);
+            //change
+            Set<String> waitingServers=new HashSet<>();
+            waitingServers.add(id);
+            LockRequest req = new LockRequest(secret,waitingServers,null);
+            pendingLockRequests.put(username,req);
             broadcastService.broadcastToServers(new LockAllowedCommand(username, secret, Settings.getId()), null);
         }
     }
@@ -129,8 +142,16 @@ public class ConcreteUserAuthService implements UserAuthService {
 
             if (req.getSecret().equals(secret)) {
                 pendingLockRequests.remove(username);
-                Command cmd = new RegisterFailedCommand("Username " + username + " already registered");
-                req.getReplyConnection().pushCommand(cmd);
+
+                // Command cmd = new RegisterFailedCommand("Username " + username + " already registered");
+                // req.getReplyConnection().pushCommand(cmd);
+
+                // change
+                if(req.replyConnection!=null){
+                    Command cmd = new RegisterFailedCommand("Username " + username + " already registered");
+                    req.getReplyConnection().pushCommand(cmd);
+                }
+
             }
         }
 
@@ -141,8 +162,15 @@ public class ConcreteUserAuthService implements UserAuthService {
 
     private synchronized void registerUser(String username, String secret, Connection replyConnection){
         userMap.put(username, secret);
-        Command cmd = new RegisterSuccessCommand("Username " + username + " successfully registered");
-        replyConnection.pushCommand(cmd);
+        // Command cmd = new RegisterSuccessCommand("Username " + username + " successfully registered");
+        // replyConnection.pushCommand(cmd);
+
+        //change
+        if(replyConnection!=null){
+            Command cmd = new RegisterSuccessCommand("Username " + username + " successfully registered");
+            replyConnection.pushCommand(cmd);
+        }
+
     }
 
     private static class LockRequest {
