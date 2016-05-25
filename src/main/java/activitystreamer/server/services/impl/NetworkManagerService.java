@@ -17,9 +17,10 @@ import java.util.Set;
 
 public class NetworkManagerService implements BroadcastService, ConnectionManager, ServerAuthService {
     private Logger log = LogManager.getLogger();
-    private Set<Connection> pendingConnections = new HashSet<>();
-    private Set<Connection> serverConnections = new HashSet<>();
-    private Set<Connection> clientConnections = new HashSet<>();
+    private final Set<Connection> pendingConnections = new HashSet<>();
+    private final Set<Connection> serverConnections = new HashSet<>();
+    private final Set<Connection> clientConnections = new HashSet<>();
+    private Connection parent;
 
     private final UserAuthService userAuthService;
 
@@ -151,5 +152,20 @@ public class NetworkManagerService implements BroadcastService, ConnectionManage
     @Override
     public synchronized boolean isAuthenticated(Connection conn) {
         return serverConnections.contains(conn);
+    }
+
+    @Override
+    public boolean hasParent() {
+        return parent != null;
+    }
+
+    @Override
+    public synchronized Connection getParentConnection() {
+        return parent;
+    }
+
+    @Override
+    public synchronized void setParentConnection(Connection connection) {
+        parent = connection;
     }
 }

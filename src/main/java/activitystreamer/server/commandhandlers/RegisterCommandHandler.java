@@ -32,12 +32,6 @@ public class RegisterCommandHandler implements ICommandHandler {
         if (command instanceof RegisterCommand) {
             RegisterCommand cmd = (RegisterCommand) command;
 
-            if (serverAuthService.isAuthenticated(conn)) {
-                conn.pushCommand(new InvalidMessageCommand("Unexpected register from server."));
-                connectionManager.closeConnection(conn);
-                return true;
-            }
-
             if (userAuthService.isLoggedIn(conn)) {
                 conn.pushCommand(new InvalidMessageCommand("Unexpected register from client."));
                 connectionManager.closeConnection(conn);

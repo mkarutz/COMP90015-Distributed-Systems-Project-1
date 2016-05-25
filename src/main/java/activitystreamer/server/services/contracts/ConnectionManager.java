@@ -15,4 +15,8 @@ public interface ConnectionManager extends DisconnectHandler {
     interface ConnectionCallback {
         void execute(Connection connection);
     }
+
+    boolean hasParent();
+    Connection getParentConnection();
+    void setParentConnection(Connection connection);
 }
