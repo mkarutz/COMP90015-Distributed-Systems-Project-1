@@ -21,8 +21,8 @@ public class ConcreteUserAuthService implements UserAuthService {
 
   private final Map<Connection, String> loggedInUsers;
   private final Map<String, String> userMap;
-  private final Map<String, LockRequest> pendingLockRequests;
   private final Map<String, PendingRegistrationRequest> pendingRegistrationRequestMap;
+  private final Map<UsernameSecretPair, Set<Connection>> pendingLogins;
 
   @Inject
   public ConcreteUserAuthService(RemoteServerStateService serverStateService,
@@ -33,19 +33,63 @@ public class ConcreteUserAuthService implements UserAuthService {
     this.broadcastService = broadcastService;
 
     this.userMap = new HashMap<>();
-    this.pendingLockRequests = new HashMap<>();
     this.loggedInUsers = new HashMap<>();
     this.pendingRegistrationRequestMap = new HashMap<>();
+    this.pendingLogins = new HashMap<>();
   }
 
   @Override
-  public synchronized boolean login(Connection conn, String username, String secret) {
-    if (!isUserRegistered(username, secret)) {
-      return false;
+  public synchronized void login(String username, String secret, Connection conn) {
+    if (!userMap.containsKey(username)) {
+      addPendingLogin(username, secret, conn);
+      if (connectionManager.hasParent()) {
+        connectionManager.getParentConnection().pushCommand(new LoginCommand(username, secret));
+      } else {
+        conn.pushCommand(new LoginFailedCommand("Login failed.", username, secret));
+      }
+      return;
     }
-    loggedInUsers.put(conn, username);
-    connectionManager.addClientConnection(conn);
-    return true;
+
+    if (userMap.get(username).equals(secret)) {
+      loginConnection(conn, username);
+      conn.pushCommand(new LoginSuccessCommand("Login successful.", username, secret));
+      return;
+    }
+
+    conn.pushCommand(new LoginFailedCommand("Login failed.", username, secret));
+  }
+
+  private void addPendingLogin(String username, String secret, Connection conn) {
+    UsernameSecretPair key = new UsernameSecretPair(username, secret);
+    if (!pendingLogins.containsKey(key)) {
+      pendingLogins.put(key, new HashSet<Connection>());
+    }
+    pendingLogins.get(key).add(conn);
+  }
+
+  @Override
+  public void loginFailed(String username, String secret) {
+    UsernameSecretPair key = new UsernameSecretPair(username, secret);
+    if (pendingLogins.containsKey(key)) {
+      Set<Connection> conns = pendingLogins.get(key);
+      for (Connection conn : conns) {
+        conn.pushCommand(new LoginFailedCommand("Login failed.", username, secret));
+      }
+    }
+  }
+
+  @Override
+  public void loginSuccess(String username, String secret) {
+    UsernameSecretPair key = new UsernameSecretPair(username, secret);
+    if (pendingLogins.containsKey(key)) {
+      Set<Connection> conns = pendingLogins.get(key);
+      for (Connection conn : conns) {
+        if (!connectionManager.isServerConnection(conn)) {
+          loginConnection(conn, username);
+        }
+        conn.pushCommand(new LoginSuccessCommand("Login success.", username, secret));
+      }
+    }
   }
 
   @Override
@@ -55,8 +99,7 @@ public class ConcreteUserAuthService implements UserAuthService {
 
   @Override
   public synchronized void loginAsAnonymous(Connection conn) {
-    loggedInUsers.put(conn, ANONYMOUS);
-    connectionManager.addClientConnection(conn);
+    loginConnection(conn, ANONYMOUS);
   }
 
   @Override
@@ -92,56 +135,6 @@ public class ConcreteUserAuthService implements UserAuthService {
   }
 
   @Override
-  public synchronized void lockAllowed(String username, String secret, String serverId) {
-    if (pendingLockRequests.containsKey(username)) {
-      LockRequest req = pendingLockRequests.get(username);
-
-      if (req.getSecret().equals(secret)) {
-        boolean allowed = req.lockAllow(serverId);
-
-        if (allowed) {
-          pendingLockRequests.remove(username);
-          registerUser(username, secret, req.getReplyConnection());
-        }
-      }
-    }
-  }
-
-  @Override
-  public synchronized void lockRequest(String username, String secret, String id) {
-    // public synchronized void lockRequest(String username, String secret) {
-    if (userMap.containsKey(username) || pendingLockRequests.containsKey(username)) {
-      broadcastService.broadcastToServers(new LockDeniedCommand(username, secret), null);
-    } else {
-      Set<String> waitingServers = new HashSet<>();
-      waitingServers.add(id);
-      LockRequest req = new LockRequest(secret, waitingServers, null);
-      pendingLockRequests.put(username, req);
-      broadcastService.broadcastToServers(new LockAllowedCommand(username, secret, Settings.getId()), null);
-    }
-  }
-
-  @Override
-  public synchronized void lockDenied(String username, String secret) {
-    if (pendingLockRequests.containsKey(username)) {
-      LockRequest req = pendingLockRequests.get(username);
-
-      if (req.getSecret().equals(secret)) {
-        pendingLockRequests.remove(username);
-
-        if (req.replyConnection != null) {
-          Command cmd = new RegisterFailedCommand("Username " + username + " already registered");
-          req.getReplyConnection().pushCommand(cmd);
-        }
-      }
-    }
-
-    if (this.userMap.containsKey(username) && this.userMap.get(username).equals(secret)) {
-      userMap.remove(username);
-    }
-  }
-
-  @Override
   public void registerSuccess(String username, String secret) {
     if (pendingRegistrationRequestMap.containsKey(username)) {
       PendingRegistrationRequest registrationRequest = pendingRegistrationRequestMap.get(username);
@@ -171,6 +164,11 @@ public class ConcreteUserAuthService implements UserAuthService {
         }
       }
     }
+  }
+
+  private void loginConnection(Connection conn, String username) {
+    loggedInUsers.put(conn, username);
+    connectionManager.addClientConnection(conn);
   }
 
   private synchronized void registerUser(String username, String secret, Connection replyConnection) {
@@ -209,28 +207,43 @@ public class ConcreteUserAuthService implements UserAuthService {
     }
   }
 
-  private static class LockRequest {
-    private String secret;
-    private Connection replyConnection;
-    private Set<String> serverAwaitingIds;
+  private static class UsernameSecretPair {
+    private final String username;
+    private final String secret;
 
-    public LockRequest(String secret, Set<String> serverAwaitingIds, Connection replyConnection) {
+    public UsernameSecretPair(String username, String secret) {
+      if (username == null || secret == null) {
+        throw new IllegalArgumentException("Null");
+      }
+      this.username = username;
       this.secret = secret;
-      this.replyConnection = replyConnection;
-      this.serverAwaitingIds = serverAwaitingIds;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+      if (this == o) return true;
+      if (o == null || getClass() != o.getClass()) return false;
+
+      UsernameSecretPair that = (UsernameSecretPair) o;
+
+      if (!username.equals(that.username)) return false;
+      return secret.equals(that.secret);
+
+    }
+
+    @Override
+    public int hashCode() {
+      int result = username.hashCode();
+      result = 31 * result + secret.hashCode();
+      return result;
+    }
+
+    public String getUsername() {
+      return username;
     }
 
     public String getSecret() {
       return secret;
-    }
-
-    public boolean lockAllow(String serverId) {
-      serverAwaitingIds.remove(serverId);
-      return serverAwaitingIds.isEmpty();
-    }
-
-    public Connection getReplyConnection() {
-      return this.replyConnection;
     }
   }
 }

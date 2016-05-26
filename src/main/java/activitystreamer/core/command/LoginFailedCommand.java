@@ -6,9 +6,24 @@ public class LoginFailedCommand implements Command {
     private final String command = "LOGIN_FAILED";
     @JsonRequired
     private String info;
+    private String username;
+    private String secret;
 
-    public LoginFailedCommand(String info) {
+    public LoginFailedCommand() {
+    }
+
+    public LoginFailedCommand(String info, String username, String secret) {
         this.info = info;
+        this.username = username;
+        this.secret = secret;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public String getSecret() {
+        return secret;
     }
 
     @Override

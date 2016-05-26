@@ -6,9 +6,24 @@ public class LoginSuccessCommand implements Command {
     private final String command = "LOGIN_SUCCESS";
     @JsonRequired
     private String info;
+    private String username;
+    private String secret;
 
-    public LoginSuccessCommand(String info) {
+    public LoginSuccessCommand() {
+    }
+
+    public LoginSuccessCommand(String info, String username, String secret) {
         this.info = info;
+        this.username = username;
+        this.secret = secret;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public String getSecret() {
+        return secret;
     }
 
     @Override

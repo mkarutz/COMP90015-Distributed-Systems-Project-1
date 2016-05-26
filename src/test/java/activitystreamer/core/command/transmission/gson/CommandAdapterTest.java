@@ -219,7 +219,7 @@ public class CommandAdapterTest {
                 .registerTypeAdapter(type, new CommandAdapter())
                 .create();
 
-        LoginFailedCommand expected = new LoginFailedCommand("the secret was incorrect");
+        LoginFailedCommand expected = new LoginFailedCommand("the secret was incorrect", "aaron", "harwood");
 
         String msg = "{\"command\":\"LOGIN_FAILED\",\"info\":\"the secret was incorrect\"}";
         JsonObject elem = new JsonParser().parse(msg).getAsJsonObject();
@@ -236,7 +236,7 @@ public class CommandAdapterTest {
                 .registerTypeAdapter(type, new CommandAdapter())
                 .create();
 
-        LoginSuccessCommand expected = new LoginSuccessCommand("logged in as user aaron");
+        LoginSuccessCommand expected = new LoginSuccessCommand("logged in as user aaron", "aaron", "harwood");
 
         String msg = "{\"command\":\"LOGIN_SUCCESS\",\"info\":\"logged in as user aaron\"}";
         JsonObject elem = new JsonParser().parse(msg).getAsJsonObject();
