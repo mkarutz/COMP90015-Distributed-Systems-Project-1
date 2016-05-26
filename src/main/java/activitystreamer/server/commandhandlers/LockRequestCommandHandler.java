@@ -17,14 +17,17 @@ public class LockRequestCommandHandler implements ICommandHandler {
     private final UserAuthService userAuthService;
     private final ServerAuthService serverAuthService;
     private final ConnectionManager connectionManager;
+    private final BroadcastService broadcastService;
 
     @Inject
     public LockRequestCommandHandler(UserAuthService userAuthService,
-                                  ServerAuthService serverAuthService,
-                                  ConnectionManager connectionManager) {
+                                     ServerAuthService serverAuthService,
+                                     ConnectionManager connectionManager,
+                                     BroadcastService broadcastService) {
         this.userAuthService = userAuthService;
         this.serverAuthService = serverAuthService;
         this.connectionManager = connectionManager;
+        this.broadcastService = broadcastService;
     }
 
     @Override
@@ -44,9 +47,10 @@ public class LockRequestCommandHandler implements ICommandHandler {
                 return true;
             }
 
-            if (!connectionManager.isLegacyServer(conn)) {
-                conn.pushCommand(new InvalidMessageCommand("Invalid message."));
-                connectionManager.closeConnection(conn);
+            log.debug("FOOBAR");
+            if (connectionManager.isParentConnection(conn)) {
+                log.debug("BAZBUZ");
+                broadcastService.broadcastToServers(command, conn);
                 return true;
             }
 

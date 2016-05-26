@@ -107,21 +107,18 @@ public class ConcreteUserAuthService implements UserAuthService {
 
   @Override
   public synchronized boolean register(String username, String secret, Connection replyConnection) {
-    System.out.println("FOO");
     if (userMap.containsKey(username) || pendingRegistrationRequestMap.containsKey(username)) {
-      System.out.println("BAR");
       return false;
     }
 
     if (connectionManager.hasParent()) {
-      System.out.println("BAZ");
       pendingRegistrationRequestMap.put(
           username,
           new PendingRegistrationRequest(secret, replyConnection, connectionManager.getParentConnection())
       );
       connectionManager.getParentConnection().pushCommand(new RegisterCommand(username, secret));
     } else {
-      System.out.println("BUZ");
+      broadcastService.broadcastToServers(new LockRequestCommand(username, secret, Settings.getId())); // This is a hack to sync new users with old servers
       registerUser(username, secret, replyConnection);
     }
 
@@ -185,9 +182,7 @@ public class ConcreteUserAuthService implements UserAuthService {
 
   private synchronized void registerUser(String username, String secret, Connection replyConnection) {
     userMap.put(username, secret);
-    System.out.println("REGISTERED");
     if (replyConnection == null) { return; }
-    System.out.println("NOT NULL");
 
     if (connectionManager.isLegacyServer(replyConnection)) {
       replyConnection.pushCommand(new LockAllowedCommand(username, secret, Settings.getId()));

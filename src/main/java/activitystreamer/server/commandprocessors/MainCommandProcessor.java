@@ -25,7 +25,7 @@ public class MainCommandProcessor extends CommandProcessor {
         handlers.add(new AuthenticationFailCommandHandler(serverAuthService, connectionManager));
         handlers.add(new LockAllowedCommandHandler());
         handlers.add(new LockDeniedCommandHandler());
-        handlers.add(new LockRequestCommandHandler(userAuthService, serverAuthService, connectionManager));
+        handlers.add(new LockRequestCommandHandler(userAuthService, serverAuthService, connectionManager, broadcastService));
         handlers.add(new LoginCommandHandler(userAuthService, serverAuthService, remoteServerStateService, connectionManager));
         handlers.add(new RegisterCommandHandler(userAuthService, serverAuthService, connectionManager));
         handlers.add(new ServerAnnounceCommandHandler(remoteServerStateService, broadcastService, serverAuthService, connectionManager));

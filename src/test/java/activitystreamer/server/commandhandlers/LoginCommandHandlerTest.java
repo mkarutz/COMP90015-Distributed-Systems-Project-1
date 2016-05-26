@@ -99,7 +99,7 @@ public class LoginCommandHandlerTest {
     );
 
     Connection mockConnection = mock(Connection.class);
-    when(mockConnectionManager.isClientConnection(mockConnection)).thenReturn(true);
+    when(mockConnectionManager.isPendingConnection(mockConnection)).thenReturn(true);
 
     authService.register("aaron", "harwood", mockConnection);
 
@@ -237,6 +237,7 @@ public class LoginCommandHandlerTest {
     );
 
     Connection mockConnection = mock(Connection.class);
+    when(mockConnectionManager.isPendingConnection(mockConnection)).thenReturn(true);
 
     ServerAuthService mockServerAuthService = mock(NetworkManagerService.class);
     RemoteServerStateService mockRemoteServerStateService = mock(ConcreteRemoteServerStateService.class);
@@ -276,6 +277,7 @@ public class LoginCommandHandlerTest {
     );
 
     Connection mockConnection = mock(Connection.class);
+    when(mockConnectionManager.isPendingConnection(mockConnection)).thenReturn(true);
 
     ServerAuthService mockServerAuthService = mock(NetworkManagerService.class);
     RemoteServerStateService mockRemoteServerStateService = mock(ConcreteRemoteServerStateService.class);
@@ -321,6 +323,7 @@ public class LoginCommandHandlerTest {
     );
 
     Connection mockConnection = mock(Connection.class);
+    when(mockConnectionManager.isPendingConnection(mockConnection)).thenReturn(true);
 
     ServerAuthService mockServerAuthService = mock(NetworkManagerService.class);
     RemoteServerStateService mockRemoteServerStateService = mock(ConcreteRemoteServerStateService.class);
@@ -335,6 +338,7 @@ public class LoginCommandHandlerTest {
     LoginCommand command = new LoginCommand("aaron", "harwood");
 
     Connection mockConnection2 = mock(Connection.class);
+    when(mockConnectionManager.isPendingConnection(mockConnection2)).thenReturn(true);
 
     handler.handleCommand(command, mockConnection);
     handler.handleCommand(command, mockConnection2);

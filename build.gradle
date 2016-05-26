@@ -1,6 +1,6 @@
 apply plugin: 'java'
 
-task clientJar(type: Jar) {
+task clientJar(type: Jar, dependsOn: test) {
 	manifest {
         attributes 'Implementation-Title': 'Activity Streamer Client',
         	'Main-Class': 'activitystreamer.Client'
@@ -10,7 +10,7 @@ task clientJar(type: Jar) {
     with jar
 }
 
-task serverJar(type: Jar) {
+task serverJar(type: Jar, dependsOn: test) {
 	manifest {
         attributes 'Implementation-Title': 'Activity Streamer Server',
         	'Main-Class': 'activitystreamer.Server'
@@ -91,6 +91,14 @@ task testSecure(type: Exec, dependsOn: ['serverJar','clientJar','testerJar']){
 
 task testRegistration(type: Exec, dependsOn: ['serverJar','clientJar']){
 	commandLine 'sh', 'scripts/testRegistration.sh'
+}
+
+task testBack(type: Exec, dependsOn: ['serverJar','clientJar']){
+	commandLine 'sh', 'scripts/testBack.sh'
+}
+
+task testLockRequest(type: Exec, dependsOn: ['serverJar','clientJar']){
+	commandLine 'sh', 'scripts/testLockRequest.sh'
 }
 
 repositories {
