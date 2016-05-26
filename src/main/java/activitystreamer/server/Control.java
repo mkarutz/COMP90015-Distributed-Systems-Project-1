@@ -111,6 +111,7 @@ public class Control implements Runnable, IncomingConnectionHandler {
         Connection connection = connectionFactory.newConnection(s);
         serverAuthService.authenticate(connection, Settings.getSecret());
         connection.pushCommand(new AuthenticateCommand(Settings.getSecret()));
+        connectionManager.setParentConnection(connection);
         new Thread(connection).start();
     }
 
