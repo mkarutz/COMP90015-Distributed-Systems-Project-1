@@ -15,7 +15,6 @@ import java.util.Map;
 import java.util.Set;
 
 public class ConcreteUserAuthService implements UserAuthService {
-  private final RemoteServerStateService serverStateService;
   private final ConnectionManager connectionManager;
   private final BroadcastService broadcastService;
 
@@ -27,10 +26,8 @@ public class ConcreteUserAuthService implements UserAuthService {
   private final Map<UsernameSecretPair, Connection> originator;
 
   @Inject
-  public ConcreteUserAuthService(RemoteServerStateService serverStateService,
-                                 ConnectionManager connectionManager,
+  public ConcreteUserAuthService(ConnectionManager connectionManager,
                                  BroadcastService broadcastService) {
-    this.serverStateService = serverStateService;
     this.connectionManager = connectionManager;
     this.broadcastService = broadcastService;
 
@@ -111,6 +108,7 @@ public class ConcreteUserAuthService implements UserAuthService {
   @Override
   public synchronized void loginAsAnonymous(Connection conn) {
     loginConnection(conn, ANONYMOUS);
+    conn.pushCommand(new LoginSuccessCommand("Logged in as anonymous", ANONYMOUS, null));
   }
 
   @Override

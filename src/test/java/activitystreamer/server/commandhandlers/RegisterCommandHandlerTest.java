@@ -99,7 +99,7 @@ public class RegisterCommandHandlerTest {
     RemoteServerStateService mockRSSS = mock(RemoteServerStateService.class);
     BroadcastService mockBS = mock(BroadcastService.class);
 
-    UserAuthService authService = new ConcreteUserAuthService(mockRSSS, mockConnectionManager, mockBS);
+    UserAuthService authService = new ConcreteUserAuthService(mockConnectionManager, mockBS);
 
     ServerAuthService mockServerAuthService = mock(NetworkManagerService.class);
 
@@ -128,7 +128,7 @@ public class RegisterCommandHandlerTest {
     RemoteServerStateService mockRSSS = mock(RemoteServerStateService.class);
     BroadcastService mockBS = mock(BroadcastService.class);
 
-    UserAuthService authService = new ConcreteUserAuthService(mockRSSS, mockConnectionManager, mockBS);
+    UserAuthService authService = new ConcreteUserAuthService(mockConnectionManager, mockBS);
 
     ServerAuthService mockServerAuthService = mock(NetworkManagerService.class);
 
@@ -158,7 +158,7 @@ public class RegisterCommandHandlerTest {
     RemoteServerStateService mockRSSS = mock(RemoteServerStateService.class);
     BroadcastService mockBS = mock(BroadcastService.class);
 
-    UserAuthService authService = new ConcreteUserAuthService(mockRSSS, mockConnectionManager, mockBS);
+    UserAuthService authService = new ConcreteUserAuthService(mockConnectionManager, mockBS);
 
     ServerAuthService mockServerAuthService = mock(NetworkManagerService.class);
 

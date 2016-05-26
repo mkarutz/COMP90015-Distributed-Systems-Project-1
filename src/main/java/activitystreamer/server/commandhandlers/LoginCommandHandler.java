@@ -44,17 +44,8 @@ public class LoginCommandHandler implements ICommandHandler {
             }
 
             if (loginCommand.getUsername().equals(UserAuthService.ANONYMOUS)) {
-                System.exit(1);
-//                userAuthService.loginAsAnonymous(conn);
-//                sendLoginSuccess(conn, loginCommand.getUsername());
-//                LoginSuccessCommand cmd = new LoginSuccessCommand(
-//                    "Logged in successfully as user " + loginCommand.getUsername(),
-//                    loginCommand.getUsername(),
-//                    loginCommand.getSecret()
-//                );
-//                conn.pushCommand(cmd);
-//                remoteServerStateService.loadBalance(conn);
-//                return true;
+                userAuthService.loginAsAnonymous(conn);
+                return true;
             }
 
             if (loginCommand.getSecret() == null) {
@@ -68,9 +59,5 @@ public class LoginCommandHandler implements ICommandHandler {
         } else {
             return false;
         }
-    }
-
-    private void sendLoginSuccess(Connection conn, String username) {
-
     }
 }

@@ -7,7 +7,6 @@ import activitystreamer.core.command.RegisterSuccessCommand;
 import activitystreamer.core.shared.Connection;
 import activitystreamer.server.services.contracts.BroadcastService;
 import activitystreamer.server.services.contracts.ConnectionManager;
-import activitystreamer.server.services.contracts.RemoteServerStateService;
 import activitystreamer.server.services.impl.ConcreteUserAuthService;
 import org.junit.Test;
 
@@ -23,7 +22,6 @@ public class ConcreteUserAuthServiceTest {
         when(mockConnectionManager.getParentConnection()).thenReturn(mock(Connection.class));
 
         ConcreteUserAuthService authService = new ConcreteUserAuthService(
-            mock(RemoteServerStateService.class),
             mockConnectionManager,
             mock(BroadcastService.class)
         );
@@ -41,7 +39,6 @@ public class ConcreteUserAuthServiceTest {
         when(mockConnectionManager.getParentConnection()).thenReturn(mock(Connection.class));
 
         ConcreteUserAuthService authService = new ConcreteUserAuthService(
-            mock(RemoteServerStateService.class),
             mockConnectionManager,
             mock(BroadcastService.class)
         );
@@ -58,7 +55,6 @@ public class ConcreteUserAuthServiceTest {
         when(mockConnectionManager.getParentConnection()).thenReturn(mock(Connection.class));
 
         ConcreteUserAuthService authService = new ConcreteUserAuthService(
-            mock(RemoteServerStateService.class),
             mockConnectionManager,
             mock(BroadcastService.class)
         );
@@ -79,7 +75,6 @@ public class ConcreteUserAuthServiceTest {
         when(mockConnectionManager.getParentConnection()).thenReturn(mock(Connection.class));
 
         ConcreteUserAuthService authService = new ConcreteUserAuthService(
-            mock(RemoteServerStateService.class),
             mockConnectionManager,
             mock(BroadcastService.class)
         );
@@ -104,7 +99,6 @@ public class ConcreteUserAuthServiceTest {
         when(mockConnectionManager.getParentConnection()).thenReturn(mock(Connection.class));
 
         ConcreteUserAuthService authService = new ConcreteUserAuthService(
-            mock(RemoteServerStateService.class),
             mockConnectionManager,
             mock(BroadcastService.class)
         );
@@ -127,7 +121,6 @@ public class ConcreteUserAuthServiceTest {
         when(mockConnectionManager.getParentConnection()).thenReturn(mock(Connection.class));
 
         ConcreteUserAuthService authService = new ConcreteUserAuthService(
-            mock(RemoteServerStateService.class),
             mockConnectionManager,
             mock(BroadcastService.class)
         );
@@ -153,7 +146,6 @@ public class ConcreteUserAuthServiceTest {
         when(mockConnectionManager.getParentConnection()).thenReturn(mock(Connection.class));
 
         ConcreteUserAuthService authService = new ConcreteUserAuthService(
-            mock(RemoteServerStateService.class),
             mockConnectionManager,
             mock(BroadcastService.class)
         );
@@ -180,7 +172,6 @@ public class ConcreteUserAuthServiceTest {
         when(mockConnectionManager.getParentConnection()).thenReturn(mock(Connection.class));
 
         ConcreteUserAuthService authService = new ConcreteUserAuthService(
-            mock(RemoteServerStateService.class),
             mockConnectionManager,
             mock(BroadcastService.class)
         );
@@ -200,7 +191,6 @@ public class ConcreteUserAuthServiceTest {
         when(mockConnectionManager.getParentConnection()).thenReturn(mock(Connection.class));
 
         ConcreteUserAuthService authService = new ConcreteUserAuthService(
-            mock(RemoteServerStateService.class),
             mockConnectionManager,
             mock(BroadcastService.class)
         );
@@ -222,7 +212,6 @@ public class ConcreteUserAuthServiceTest {
         when(mockConnectionManager.getParentConnection()).thenReturn(mock(Connection.class));
 
         ConcreteUserAuthService authService = new ConcreteUserAuthService(
-            mock(RemoteServerStateService.class),
             mockConnectionManager,
             mock(BroadcastService.class)
         );
@@ -243,7 +232,6 @@ public class ConcreteUserAuthServiceTest {
         when(mockConnectionManager.getParentConnection()).thenReturn(mock(Connection.class));
 
         ConcreteUserAuthService authService = new ConcreteUserAuthService(
-            mock(RemoteServerStateService.class),
             mockConnectionManager,
             mock(BroadcastService.class)
         );

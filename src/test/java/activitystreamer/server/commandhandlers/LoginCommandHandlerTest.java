@@ -61,7 +61,6 @@ public class LoginCommandHandlerTest {
   @Test
   public void ifTheUsernameAndSecretAreCachedAndCorrectLoginSuccessCommandIsSent() {
     UserAuthService authService = new ConcreteUserAuthService(
-        mock(RemoteServerStateService.class),
         mock(ConnectionManager.class),
         mock(BroadcastService.class)
     );
@@ -93,7 +92,6 @@ public class LoginCommandHandlerTest {
     ConnectionManager mockConnectionManager = mock(ConnectionManager.class);
 
     UserAuthService authService = new ConcreteUserAuthService(
-        mock(RemoteServerStateService.class),
         mockConnectionManager,
         mock(BroadcastService.class)
     );
@@ -126,7 +124,6 @@ public class LoginCommandHandlerTest {
     ConnectionManager mockConnectionManager = mock(ConnectionManager.class);
 
     UserAuthService authService = new ConcreteUserAuthService(
-        mock(RemoteServerStateService.class),
         mockConnectionManager,
         mock(BroadcastService.class)
     );
@@ -157,7 +154,6 @@ public class LoginCommandHandlerTest {
   @Test
   public void ifTheUsernameAndSecretAreCachedAndIncorrectSendALoginFailedCommand() {
     UserAuthService authService = new ConcreteUserAuthService(
-        mock(RemoteServerStateService.class),
         mock(ConnectionManager.class),
         mock(BroadcastService.class)
     );
@@ -195,7 +191,6 @@ public class LoginCommandHandlerTest {
     when(mockConnectionManager.getParentConnection()).thenReturn(mockParentConnection);
 
     UserAuthService authService = new ConcreteUserAuthService(
-        mock(RemoteServerStateService.class),
         mockConnectionManager,
         mock(BroadcastService.class)
     );
@@ -231,7 +226,6 @@ public class LoginCommandHandlerTest {
     when(mockConnectionManager.getParentConnection()).thenReturn(mockParentConnection);
 
     UserAuthService authService = new ConcreteUserAuthService(
-        mock(RemoteServerStateService.class),
         mockConnectionManager,
         mock(BroadcastService.class)
     );
@@ -271,7 +265,6 @@ public class LoginCommandHandlerTest {
     when(mockConnectionManager.getParentConnection()).thenReturn(mockParentConnection);
 
     UserAuthService authService = new ConcreteUserAuthService(
-        mock(RemoteServerStateService.class),
         mockConnectionManager,
         mock(BroadcastService.class)
     );
@@ -317,7 +310,6 @@ public class LoginCommandHandlerTest {
     when(mockConnectionManager.getParentConnection()).thenReturn(mockParentConnection);
 
     UserAuthService authService = new ConcreteUserAuthService(
-        mock(RemoteServerStateService.class),
         mockConnectionManager,
         mock(BroadcastService.class)
     );
@@ -365,7 +357,6 @@ public class LoginCommandHandlerTest {
     when(mockConnectionManager.getParentConnection()).thenReturn(mockParentConnection);
 
     UserAuthService authService = new ConcreteUserAuthService(
-        mock(RemoteServerStateService.class),
         mockConnectionManager,
         mock(BroadcastService.class)
     );
@@ -406,7 +397,6 @@ public class LoginCommandHandlerTest {
     when(mockConnectionManager.hasParent()).thenReturn(false);
 
     UserAuthService authService = new ConcreteUserAuthService(
-        mock(RemoteServerStateService.class),
         mockConnectionManager,
         mock(BroadcastService.class)
     );

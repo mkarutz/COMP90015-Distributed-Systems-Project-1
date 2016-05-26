@@ -23,7 +23,7 @@ public class ActivityMessageCommandHandlerTest {
         BroadcastService mockBroadcastService = mock(BroadcastService.class);
         ConnectionManager mockConnectionManager = mock(ConnectionManager.class);
 
-        UserAuthService mockAuthService = spy(new ConcreteUserAuthService(mockServerService, mockConnectionManager,mockBroadcastService));
+        UserAuthService mockAuthService = spy(new ConcreteUserAuthService(mockConnectionManager,mockBroadcastService));
         when(mockAuthService.isLoggedIn(any(Connection.class))).thenReturn(true);
 
 
