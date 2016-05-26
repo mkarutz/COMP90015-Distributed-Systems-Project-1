@@ -54,6 +54,14 @@ public class NetworkManagerService implements BroadcastService, ConnectionManage
     }
 
     @Override
+    public void broadcastToServersExcludingMany(Command command, Set<Connection> exclude) {
+        for (Connection connection: serverConnections) {
+            if (exclude.contains(connection)) { continue; }
+            connection.pushCommand(command);
+        }
+    }
+
+    @Override
     public synchronized void broadcastToClients(Command command, Connection exclude) {
         for (Connection connection: clientConnections) {
             if (connection == exclude) { continue; }

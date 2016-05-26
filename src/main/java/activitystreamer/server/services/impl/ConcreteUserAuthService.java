@@ -24,6 +24,8 @@ public class ConcreteUserAuthService implements UserAuthService {
   private final Map<String, PendingRegistrationRequest> pendingRegistrationRequestMap;
   private final Map<UsernameSecretPair, Set<Connection>> pendingLogins;
 
+  private final Map<UsernameSecretPair, Connection> originator;
+
   @Inject
   public ConcreteUserAuthService(RemoteServerStateService serverStateService,
                                  ConnectionManager connectionManager,
@@ -36,6 +38,12 @@ public class ConcreteUserAuthService implements UserAuthService {
     this.loggedInUsers = new HashMap<>();
     this.pendingRegistrationRequestMap = new HashMap<>();
     this.pendingLogins = new HashMap<>();
+    this.originator = new HashMap<>();
+  }
+
+  @Override
+  public Connection getOriginator(String username, String secret) {
+    return originator.get(new UsernameSecretPair(username, secret));
   }
 
   @Override
@@ -112,13 +120,28 @@ public class ConcreteUserAuthService implements UserAuthService {
     }
 
     if (connectionManager.hasParent()) {
+      /*
+      START OF DIRTY HACK
+       */
+      if (connectionManager.isLegacyServer(replyConnection)) {
+        originator.put(new UsernameSecretPair(username, secret), replyConnection);
+      }
+      /*
+      END OF DIRTY HACK
+       */
       pendingRegistrationRequestMap.put(
           username,
           new PendingRegistrationRequest(secret, replyConnection, connectionManager.getParentConnection())
       );
       connectionManager.getParentConnection().pushCommand(new RegisterCommand(username, secret));
     } else {
-      broadcastService.broadcastToServers(new LockRequestCommand(username, secret, Settings.getId())); // This is a hack to sync new users with old servers
+      // This is a dirty hack to sync registrations with legacy servers
+      if (connectionManager.isLegacyServer(replyConnection)) {
+        broadcastService.broadcastToServers(new LockRequestCommand(username, secret, Settings.getId()), replyConnection);
+      } else {
+        broadcastService.broadcastToServers(new LockRequestCommand(username, secret, Settings.getId()));
+      }
+
       registerUser(username, secret, replyConnection);
     }
 

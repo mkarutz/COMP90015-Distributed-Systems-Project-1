@@ -11,6 +11,9 @@ import com.google.inject.Inject;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.util.HashSet;
+import java.util.Set;
+
 public class LockRequestCommandHandler implements ICommandHandler {
     private Logger log = LogManager.getLogger();
 
@@ -47,10 +50,13 @@ public class LockRequestCommandHandler implements ICommandHandler {
                 return true;
             }
 
-            log.debug("FOOBAR");
             if (connectionManager.isParentConnection(conn)) {
-                log.debug("BAZBUZ");
-                broadcastService.broadcastToServers(command, conn);
+                // Exclude the legacy server that originated the REGISTER
+                Set<Connection> exclude = new HashSet<>();
+                exclude.add(conn);
+                exclude.add(userAuthService.getOriginator(cmd.getUsername(), cmd.getSecret()));
+
+                broadcastService.broadcastToServersExcludingMany(command, exclude);
                 return true;
             }
 

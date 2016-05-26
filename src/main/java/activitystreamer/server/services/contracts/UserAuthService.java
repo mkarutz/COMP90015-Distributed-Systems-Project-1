@@ -14,6 +14,8 @@ public interface UserAuthService {
     void registerSuccess(String username, String secret);
     void registerFailed(String username, String secret);
 
+    Connection getOriginator(String username, String secret);
+
     boolean isUserRegistered(String username, String secret);
     boolean isLoggedIn(Connection conn);
     boolean authorise(Connection conn, String username, String secret);
