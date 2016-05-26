@@ -24,4 +24,5 @@ public interface ConnectionManager extends DisconnectHandler {
     boolean isParentConnection(Connection connection);
     boolean isClientConnection(Connection connection);
     boolean isServerConnection(Connection connection);
+    boolean isPendingConnection(Connection connection);
 }

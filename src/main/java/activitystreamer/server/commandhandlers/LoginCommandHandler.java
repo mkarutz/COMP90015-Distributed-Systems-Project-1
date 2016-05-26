@@ -31,12 +31,6 @@ public class LoginCommandHandler implements ICommandHandler {
         if (command instanceof LoginCommand) {
             LoginCommand loginCommand = (LoginCommand) command;
 
-            if (serverAuthService.isAuthenticated(conn)) {
-                conn.pushCommand(new InvalidMessageCommand("Unexpected login from server."));
-                connectionManager.closeConnection(conn);
-                return true;
-            }
-
             if (userAuthService.isLoggedIn(conn)) {
                 conn.pushCommand(new InvalidMessageCommand("Unexpected login from client."));
                 connectionManager.closeConnection(conn);
@@ -50,16 +44,17 @@ public class LoginCommandHandler implements ICommandHandler {
             }
 
             if (loginCommand.getUsername().equals(UserAuthService.ANONYMOUS)) {
-                userAuthService.loginAsAnonymous(conn);
-                sendLoginSuccess(conn, loginCommand.getUsername());
-                LoginSuccessCommand cmd = new LoginSuccessCommand(
-                    "Logged in successfully as user " + loginCommand.getUsername(),
-                    loginCommand.getUsername(),
-                    loginCommand.getSecret()
-                );
-                conn.pushCommand(cmd);
-                remoteServerStateService.loadBalance(conn);
-                return true;
+                System.exit(1);
+//                userAuthService.loginAsAnonymous(conn);
+//                sendLoginSuccess(conn, loginCommand.getUsername());
+//                LoginSuccessCommand cmd = new LoginSuccessCommand(
+//                    "Logged in successfully as user " + loginCommand.getUsername(),
+//                    loginCommand.getUsername(),
+//                    loginCommand.getSecret()
+//                );
+//                conn.pushCommand(cmd);
+//                remoteServerStateService.loadBalance(conn);
+//                return true;
             }
 
             if (loginCommand.getSecret() == null) {

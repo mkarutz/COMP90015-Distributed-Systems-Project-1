@@ -22,7 +22,7 @@ public class RegisterSuccessCommandHandlerTest {
         mock(ConnectionManager.class)
     );
 
-    RegisterSuccessCommand cmd = new RegisterSuccessCommand("info");
+    RegisterSuccessCommand cmd = new RegisterSuccessCommand("info", "username", "password");
     Connection mockConnection = mock(Connection.class);
 
     handler.handleCommand(cmd, mockConnection);
@@ -44,7 +44,7 @@ public class RegisterSuccessCommandHandlerTest {
         mockConnectionManager
     );
 
-    RegisterSuccessCommand cmd = new RegisterSuccessCommand("info");
+    RegisterSuccessCommand cmd = new RegisterSuccessCommand("info", "username", "password");
     Connection mockConnection = mock(Connection.class);
 
     handler.handleCommand(cmd, mockConnection);

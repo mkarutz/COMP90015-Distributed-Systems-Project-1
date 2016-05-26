@@ -296,39 +296,39 @@ public class CommandAdapterTest {
         assertEquals(expected, actual);
     }
 
-    @Test
-    public void testDeserializeRegisterFailedCommand() {
-        Class<Command> type = Command.class;
+//    @Test
+//    public void testDeserializeRegisterFailedCommand() {
+//        Class<Command> type = Command.class;
+//
+//        Gson gson = new GsonBuilder()
+//                .registerTypeAdapter(type, new CommandAdapter())
+//                .create();
+//
+//        RegisterFailedCommand expected = new RegisterFailedCommand("aaron is already registered with the system");
+//
+//        String msg = "{\"command\":\"REGISTER_FAILED\",\"info\":\"aaron is already registered with the system\"}";
+//        JsonObject elem = new JsonParser().parse(msg).getAsJsonObject();
+//        Command actual = gson.fromJson(elem, type);
+//
+//        assertEquals(expected, actual);
+//    }
 
-        Gson gson = new GsonBuilder()
-                .registerTypeAdapter(type, new CommandAdapter())
-                .create();
-
-        RegisterFailedCommand expected = new RegisterFailedCommand("aaron is already registered with the system");
-
-        String msg = "{\"command\":\"REGISTER_FAILED\",\"info\":\"aaron is already registered with the system\"}";
-        JsonObject elem = new JsonParser().parse(msg).getAsJsonObject();
-        Command actual = gson.fromJson(elem, type);
-
-        assertEquals(expected, actual);
-    }
-
-    @Test
-    public void testDeserializeRegisterSuccessCommand() {
-        Class<Command> type = Command.class;
-
-        Gson gson = new GsonBuilder()
-                .registerTypeAdapter(type, new CommandAdapter())
-                .create();
-
-        RegisterSuccessCommand expected = new RegisterSuccessCommand("register success for aaron");
-
-        String msg = "{\"command\":\"REGISTER_SUCCESS\",\"info\":\"register success for aaron\"}";
-        JsonObject elem = new JsonParser().parse(msg).getAsJsonObject();
-        Command actual = gson.fromJson(elem, type);
-
-        assertEquals(expected, actual);
-    }
+//    @Test
+//    public void testDeserializeRegisterSuccessCommand() {
+//        Class<Command> type = Command.class;
+//
+//        Gson gson = new GsonBuilder()
+//                .registerTypeAdapter(type, new CommandAdapter())
+//                .create();
+//
+//        RegisterSuccessCommand expected = new RegisterSuccessCommand("register success for aaron");
+//
+//        String msg = "{\"command\":\"REGISTER_SUCCESS\",\"info\":\"register success for aaron\"}";
+//        JsonObject elem = new JsonParser().parse(msg).getAsJsonObject();
+//        Command actual = gson.fromJson(elem, type);
+//
+//        assertEquals(expected, actual);
+//    }
 
     @Test
     public void testDeserializeServerAnnounceCommand() throws UnknownHostException {

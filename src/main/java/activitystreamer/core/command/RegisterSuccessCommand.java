@@ -9,8 +9,7 @@ public class RegisterSuccessCommand implements Command {
     private String username;
     private String secret;
 
-    public RegisterSuccessCommand(String info) {
-        this.info = info;
+    public RegisterSuccessCommand() {
     }
 
     public RegisterSuccessCommand(String info, String username, String secret) {

@@ -9,8 +9,7 @@ public class RegisterFailedCommand implements Command {
     private String username;
     private String secret;
 
-    public RegisterFailedCommand(String info) {
-        this.info = info;
+    public RegisterFailedCommand() {
     }
 
     public RegisterFailedCommand(String info, String username, String secret) {

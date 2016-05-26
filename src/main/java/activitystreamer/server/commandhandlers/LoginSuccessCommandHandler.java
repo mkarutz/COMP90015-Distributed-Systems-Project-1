@@ -2,7 +2,7 @@ package activitystreamer.server.commandhandlers;
 
 import activitystreamer.core.command.Command;
 import activitystreamer.core.command.InvalidMessageCommand;
-import activitystreamer.core.command.LockAllowedCommand;
+import activitystreamer.core.command.LoginSuccessCommand;
 import activitystreamer.core.command.RegisterSuccessCommand;
 import activitystreamer.core.commandhandler.ICommandHandler;
 import activitystreamer.core.shared.Connection;
@@ -13,7 +13,7 @@ import com.google.inject.Inject;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-public class RegisterSuccessCommandHandler implements ICommandHandler {
+public class LoginSuccessCommandHandler implements ICommandHandler {
     private Logger log = LogManager.getLogger();
 
     private final UserAuthService userAuthService;
@@ -21,9 +21,9 @@ public class RegisterSuccessCommandHandler implements ICommandHandler {
     private final ConnectionManager connectionManager;
 
     @Inject
-    public RegisterSuccessCommandHandler(UserAuthService userAuthService,
-                                         ServerAuthService serverAuthService,
-                                         ConnectionManager connectionManager) {
+    public LoginSuccessCommandHandler(UserAuthService userAuthService,
+                                      ServerAuthService serverAuthService,
+                                      ConnectionManager connectionManager) {
         this.userAuthService = userAuthService;
         this.serverAuthService = serverAuthService;
         this.connectionManager = connectionManager;
@@ -31,8 +31,8 @@ public class RegisterSuccessCommandHandler implements ICommandHandler {
 
     @Override
     public boolean handleCommand(Command command, Connection conn) {
-        if (command instanceof RegisterSuccessCommand) {
-            RegisterSuccessCommand cmd = (RegisterSuccessCommand) command;
+        if (command instanceof LoginSuccessCommand) {
+            LoginSuccessCommand cmd = (LoginSuccessCommand) command;
 
             if (!serverAuthService.isAuthenticated(conn)) {
                 conn.pushCommand(new InvalidMessageCommand("Not authenticated."));
@@ -46,8 +46,7 @@ public class RegisterSuccessCommandHandler implements ICommandHandler {
                 return true;
             }
 
-            System.out.println("CALLING");
-            userAuthService.registerSuccess(cmd.getUsername(), cmd.getSecret());
+            userAuthService.loginSuccess(cmd.getUsername(), cmd.getSecret());
             return true;
         } else {
             return false;

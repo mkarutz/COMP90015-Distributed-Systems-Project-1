@@ -144,7 +144,7 @@ public class NetworkManagerService implements BroadcastService, ConnectionManage
     @Override
     public synchronized boolean authenticate(Connection conn, String secret) {
         if (Settings.getSecret().equals(secret)) {
-            serverConnections.add(conn);
+            addServerConnection(conn);
             return true;
         }
         return false;
@@ -157,6 +157,7 @@ public class NetworkManagerService implements BroadcastService, ConnectionManage
 
     @Override
     public boolean hasParent() {
+        log.debug("HAS PARENT: " + (parent != null ? "TRUE" : "FALSE"));
         return parent != null;
     }
 
@@ -173,7 +174,10 @@ public class NetworkManagerService implements BroadcastService, ConnectionManage
     @Override
     public synchronized boolean isLegacyServer(Connection connection) {
         // TODO test this
-        return serverConnections.contains(connection) && connection.getSocket() instanceof SSLSocket;
+        log.debug("IS LEGACY SERVER?");
+        log.debug("  serverConnection.contains: " + (serverConnections.contains(connection) ? "TRUE" : "FALSE"));
+        log.debug("  instanceof SSLSocket: " + (connection.getSocket() instanceof SSLSocket ? "TRUE" : "FALSE"));
+        return serverConnections.contains(connection) && !(connection.getSocket() instanceof SSLSocket);
     }
 
     @Override
@@ -189,5 +193,10 @@ public class NetworkManagerService implements BroadcastService, ConnectionManage
     @Override
     public boolean isServerConnection(Connection connection) {
         return serverConnections.contains(connection);
+    }
+
+    @Override
+    public boolean isPendingConnection(Connection connection) {
+        return pendingConnections.contains(connection);
     }
 }

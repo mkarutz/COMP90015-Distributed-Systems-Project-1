@@ -90,18 +90,20 @@ public class LoginCommandHandlerTest {
 
   @Test
   public void ifTheUsernameAndSecretAreCachedAndCorrectTheConnectionMustBeLoggedIn() {
+    ConnectionManager mockConnectionManager = mock(ConnectionManager.class);
+
     UserAuthService authService = new ConcreteUserAuthService(
         mock(RemoteServerStateService.class),
-        mock(ConnectionManager.class),
+        mockConnectionManager,
         mock(BroadcastService.class)
     );
 
     Connection mockConnection = mock(Connection.class);
+    when(mockConnectionManager.isClientConnection(mockConnection)).thenReturn(true);
 
     authService.register("aaron", "harwood", mockConnection);
 
     ServerAuthService mockServerAuthService = mock(NetworkManagerService.class);
-    ConnectionManager mockConnectionManager = mock(ConnectionManager.class);
     RemoteServerStateService mockRemoteServerStateService = mock(ConcreteRemoteServerStateService.class);
 
     LoginCommandHandler handler = new LoginCommandHandler(
@@ -117,6 +119,39 @@ public class LoginCommandHandlerTest {
 
     verify(mockConnection).pushCommand(isA(LoginSuccessCommand.class));
     assertTrue(authService.isLoggedIn(mockConnection));
+  }
+
+  @Test
+  public void ifTheUsernameAndSecretAreCachedAndCorrectDoNotLoginServerConnection() {
+    ConnectionManager mockConnectionManager = mock(ConnectionManager.class);
+
+    UserAuthService authService = new ConcreteUserAuthService(
+        mock(RemoteServerStateService.class),
+        mockConnectionManager,
+        mock(BroadcastService.class)
+    );
+
+    Connection mockConnection = mock(Connection.class);
+    when(mockConnectionManager.isServerConnection(mockConnection)).thenReturn(true);
+
+    authService.register("aaron", "harwood", mockConnection);
+
+    ServerAuthService mockServerAuthService = mock(NetworkManagerService.class);
+    RemoteServerStateService mockRemoteServerStateService = mock(ConcreteRemoteServerStateService.class);
+
+    LoginCommandHandler handler = new LoginCommandHandler(
+        authService,
+        mockServerAuthService,
+        mockRemoteServerStateService,
+        mockConnectionManager
+    );
+
+    LoginCommand command = new LoginCommand("aaron", "harwood");
+
+    handler.handleCommand(command, mockConnection);
+
+    verify(mockConnection).pushCommand(isA(LoginSuccessCommand.class));
+    assertFalse(authService.isLoggedIn(mockConnection));
   }
 
   @Test

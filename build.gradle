@@ -89,6 +89,10 @@ task testSecure(type: Exec, dependsOn: ['serverJar','clientJar','testerJar']){
 	commandLine 'sh', 'scripts/testSecure.sh'
 }
 
+task testRegistration(type: Exec, dependsOn: ['serverJar','clientJar']){
+	commandLine 'sh', 'scripts/testRegistration.sh'
+}
+
 repositories {
     mavenCentral()
 	jcenter()

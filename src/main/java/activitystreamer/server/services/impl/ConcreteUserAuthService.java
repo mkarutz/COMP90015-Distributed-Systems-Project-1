@@ -41,8 +41,8 @@ public class ConcreteUserAuthService implements UserAuthService {
   @Override
   public synchronized void login(String username, String secret, Connection conn) {
     if (!userMap.containsKey(username)) {
-      addPendingLogin(username, secret, conn);
       if (connectionManager.hasParent()) {
+        addPendingLogin(username, secret, conn);
         connectionManager.getParentConnection().pushCommand(new LoginCommand(username, secret));
       } else {
         conn.pushCommand(new LoginFailedCommand("Login failed.", username, secret));
@@ -51,7 +51,9 @@ public class ConcreteUserAuthService implements UserAuthService {
     }
 
     if (userMap.get(username).equals(secret)) {
-      loginConnection(conn, username);
+      if (connectionManager.isPendingConnection(conn)) {
+        loginConnection(conn, username);
+      }
       conn.pushCommand(new LoginSuccessCommand("Login successful.", username, secret));
       return;
     }
@@ -81,10 +83,11 @@ public class ConcreteUserAuthService implements UserAuthService {
   @Override
   public void loginSuccess(String username, String secret) {
     UsernameSecretPair key = new UsernameSecretPair(username, secret);
+    userMap.put(username, secret);
     if (pendingLogins.containsKey(key)) {
       Set<Connection> conns = pendingLogins.get(key);
       for (Connection conn : conns) {
-        if (!connectionManager.isServerConnection(conn)) {
+        if (connectionManager.isPendingConnection(conn)) {
           loginConnection(conn, username);
         }
         conn.pushCommand(new LoginSuccessCommand("Login success.", username, secret));
@@ -104,14 +107,21 @@ public class ConcreteUserAuthService implements UserAuthService {
 
   @Override
   public synchronized boolean register(String username, String secret, Connection replyConnection) {
+    System.out.println("FOO");
     if (userMap.containsKey(username) || pendingRegistrationRequestMap.containsKey(username)) {
+      System.out.println("BAR");
       return false;
     }
 
     if (connectionManager.hasParent()) {
+      System.out.println("BAZ");
+      pendingRegistrationRequestMap.put(
+          username,
+          new PendingRegistrationRequest(secret, replyConnection, connectionManager.getParentConnection())
+      );
       connectionManager.getParentConnection().pushCommand(new RegisterCommand(username, secret));
-      pendingRegistrationRequestMap.put(username, new PendingRegistrationRequest(secret, replyConnection, connectionManager.getParentConnection()));
     } else {
+      System.out.println("BUZ");
       registerUser(username, secret, replyConnection);
     }
 
@@ -137,8 +147,10 @@ public class ConcreteUserAuthService implements UserAuthService {
   @Override
   public void registerSuccess(String username, String secret) {
     if (pendingRegistrationRequestMap.containsKey(username)) {
+      System.out.println("CONTAINS");
       PendingRegistrationRequest registrationRequest = pendingRegistrationRequestMap.get(username);
       if (registrationRequest.getSecret().equals(secret)) {
+        System.out.println("EQUALS");
         registerUser(username, secret, registrationRequest.getDownstreamConnection());
       }
     }
@@ -173,12 +185,14 @@ public class ConcreteUserAuthService implements UserAuthService {
 
   private synchronized void registerUser(String username, String secret, Connection replyConnection) {
     userMap.put(username, secret);
+    System.out.println("REGISTERED");
     if (replyConnection == null) { return; }
+    System.out.println("NOT NULL");
 
     if (connectionManager.isLegacyServer(replyConnection)) {
       replyConnection.pushCommand(new LockAllowedCommand(username, secret, Settings.getId()));
     } else {
-      Command cmd = new RegisterSuccessCommand("Username " + username + " successfully registered");
+      Command cmd = new RegisterSuccessCommand("Username " + username + " successfully registered", username, secret);
       replyConnection.pushCommand(cmd);
     }
   }
