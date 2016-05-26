@@ -17,46 +17,44 @@ public class LockRequestCommandHandler implements ICommandHandler {
     private final UserAuthService userAuthService;
     private final ServerAuthService serverAuthService;
     private final ConnectionManager connectionManager;
-    private final BroadcastService broadcastService;
 
     @Inject
     public LockRequestCommandHandler(UserAuthService userAuthService,
-                                     ServerAuthService serverAuthService,
-                                     ConnectionManager connectionManager,
-                                     BroadcastService broadcastService) {
+                                  ServerAuthService serverAuthService,
+                                  ConnectionManager connectionManager) {
         this.userAuthService = userAuthService;
         this.serverAuthService = serverAuthService;
         this.connectionManager = connectionManager;
-        this.broadcastService = broadcastService;
     }
 
     @Override
     public boolean handleCommand(Command command, Connection conn) {
-        if (command instanceof LockRequestCommand) {
-            LockRequestCommand cmd = (LockRequestCommand) command;
+        if (command instanceof RegisterCommand) {
+            RegisterCommand cmd = (RegisterCommand) command;
 
-            if (cmd.getUsername() == null) {
-                conn.pushCommand(new InvalidMessageCommand("Username must be present."));
-                connectionManager.closeConnection(conn);
-                return true;
-            }
-
-            if (cmd.getSecret() == null) {
-                conn.pushCommand(new InvalidMessageCommand("Secret must be present."));
+            if (userAuthService.isLoggedIn(conn)) {
+                conn.pushCommand(new InvalidMessageCommand("Unexpected register from client."));
                 connectionManager.closeConnection(conn);
                 return true;
             }
 
             if (!serverAuthService.isAuthenticated(conn)) {
-                conn.pushCommand(new InvalidMessageCommand("Not authenticated."));
+                conn.pushCommand(new InvalidMessageCommand("Server not authenticated."));
                 connectionManager.closeConnection(conn);
                 return true;
             }
 
-            broadcastService.broadcastToServers(cmd,conn);
-            // userAuthService.lockRequest(cmd.getUsername(), cmd.getSecret());
-            // change
-            userAuthService.lockRequest(cmd.getUsername(), cmd.getSecret(),cmd.getId());
+            if (!connectionManager.isLegacyServer(conn)) {
+                conn.pushCommand(new InvalidMessageCommand("Invalid message."));
+                connectionManager.closeConnection(conn);
+                return true;
+            }
+
+            if (!userAuthService.register(cmd.getUsername(), cmd.getSecret(), conn)) {
+                conn.pushCommand(new LockDeniedCommand(cmd.getUsername(), cmd.getSecret()));
+                return true;
+            }
+
             return true;
         } else {
             return false;

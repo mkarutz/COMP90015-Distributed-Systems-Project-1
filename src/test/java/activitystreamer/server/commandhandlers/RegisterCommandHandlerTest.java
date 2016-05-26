@@ -148,4 +148,35 @@ public class RegisterCommandHandlerTest {
 
     verify(mockConnection).pushCommand(isA(RegisterSuccessCommand.class));
   }
+
+  @Test
+  public void testOnRegisterIfReplyConnectionIsOldServerSendLockAllowed() {
+    ConnectionManager mockConnectionManager = mock(ConnectionManager.class);
+    when(mockConnectionManager.hasParent()).thenReturn(false);
+    when(mockConnectionManager.isLegacyServer(any(Connection.class))).thenReturn(true);
+
+    RemoteServerStateService mockRSSS = mock(RemoteServerStateService.class);
+    BroadcastService mockBS = mock(BroadcastService.class);
+
+    UserAuthService authService = new ConcreteUserAuthService(mockRSSS, mockConnectionManager, mockBS);
+
+    ServerAuthService mockServerAuthService = mock(NetworkManagerService.class);
+
+    RegisterCommandHandler handler = new RegisterCommandHandler(
+        authService,
+        mockServerAuthService,
+        mockConnectionManager
+    );
+
+    RegisterCommand mockCommand = mock(RegisterCommand.class);
+    when(mockCommand.getUsername()).thenReturn("username");
+    when(mockCommand.getSecret()).thenReturn("password");
+
+    Connection mockConnection = mock(Connection.class);
+
+    handler.handleCommand(mockCommand, mockConnection);
+
+    verify(mockConnection, never()).pushCommand(isA(RegisterSuccessCommand.class));
+    verify(mockConnection, times(1)).pushCommand(isA(LockAllowedCommand.class));
+  }
 }

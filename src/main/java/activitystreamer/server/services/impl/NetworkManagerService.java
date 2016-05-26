@@ -12,6 +12,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.core.jmx.Server;
 
+import javax.net.ssl.SSLSocket;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -167,5 +168,26 @@ public class NetworkManagerService implements BroadcastService, ConnectionManage
     @Override
     public synchronized void setParentConnection(Connection connection) {
         parent = connection;
+    }
+
+    @Override
+    public synchronized boolean isLegacyServer(Connection connection) {
+        // TODO test this
+        return serverConnections.contains(connection) && connection.getSocket() instanceof SSLSocket;
+    }
+
+    @Override
+    public boolean isParentConnection(Connection connection) {
+        return getParentConnection() == connection;
+    }
+
+    @Override
+    public boolean isClientConnection(Connection connection) {
+        return clientConnections.contains(connection);
+    }
+
+    @Override
+    public boolean isServerConnection(Connection connection) {
+        return serverConnections.contains(connection);
     }
 }

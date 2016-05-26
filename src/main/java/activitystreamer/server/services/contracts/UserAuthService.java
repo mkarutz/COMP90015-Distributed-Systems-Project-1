@@ -9,6 +9,8 @@ public interface UserAuthService {
     boolean login(Connection conn, String username, String secret);
     void logout(Connection conn);
     void loginAsAnonymous(Connection conn);
+    void registerSuccess(String username, String secret);
+    void registerFailed(String username, String secret);
     // void lockRequest(String username, String secret);
     // change
     void lockRequest(String username, String secret,String id);

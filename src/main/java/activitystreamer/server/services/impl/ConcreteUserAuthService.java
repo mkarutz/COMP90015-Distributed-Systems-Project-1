@@ -19,9 +19,10 @@ public class ConcreteUserAuthService implements UserAuthService {
   private final ConnectionManager connectionManager;
   private final BroadcastService broadcastService;
 
-  private Map<Connection, String> loggedInUsers;
-  private Map<String, String> userMap;
-  private Map<String, LockRequest> pendingLockRequests;
+  private final Map<Connection, String> loggedInUsers;
+  private final Map<String, String> userMap;
+  private final Map<String, LockRequest> pendingLockRequests;
+  private final Map<String, PendingRegistrationRequest> pendingRegistrationRequestMap;
 
   @Inject
   public ConcreteUserAuthService(RemoteServerStateService serverStateService,
@@ -34,6 +35,7 @@ public class ConcreteUserAuthService implements UserAuthService {
     this.userMap = new HashMap<>();
     this.pendingLockRequests = new HashMap<>();
     this.loggedInUsers = new HashMap<>();
+    this.pendingRegistrationRequestMap = new HashMap<>();
   }
 
   @Override
@@ -59,12 +61,13 @@ public class ConcreteUserAuthService implements UserAuthService {
 
   @Override
   public synchronized boolean register(String username, String secret, Connection replyConnection) {
-    if (userMap.containsKey(username) || pendingLockRequests.containsKey(username)) {
+    if (userMap.containsKey(username) || pendingRegistrationRequestMap.containsKey(username)) {
       return false;
     }
 
     if (connectionManager.hasParent()) {
       connectionManager.getParentConnection().pushCommand(new RegisterCommand(username, secret));
+      pendingRegistrationRequestMap.put(username, new PendingRegistrationRequest(secret, replyConnection, connectionManager.getParentConnection()));
     } else {
       registerUser(username, secret, replyConnection);
     }
@@ -138,12 +141,71 @@ public class ConcreteUserAuthService implements UserAuthService {
     }
   }
 
+  @Override
+  public void registerSuccess(String username, String secret) {
+    if (pendingRegistrationRequestMap.containsKey(username)) {
+      PendingRegistrationRequest registrationRequest = pendingRegistrationRequestMap.get(username);
+      if (registrationRequest.getSecret().equals(secret)) {
+        registerUser(username, secret, registrationRequest.getDownstreamConnection());
+      }
+    }
+  }
+
+  @Override
+  public void registerFailed(String username, String secret) {
+    if (pendingRegistrationRequestMap.containsKey(username)) {
+      PendingRegistrationRequest registrationRequest = pendingRegistrationRequestMap.remove(username);
+      Connection downstreamConnection = registrationRequest.getDownstreamConnection();
+
+      if (!registrationRequest.getSecret().equals(secret)) {
+        return;
+      }
+
+      if (connectionManager.isLegacyServer(downstreamConnection)) {
+        downstreamConnection.pushCommand(new LockDeniedCommand(username, secret));
+      } else {
+        Command cmd = new RegisterFailedCommand("Register failed", username, secret);
+        downstreamConnection.pushCommand(cmd);
+        if (connectionManager.isClientConnection(downstreamConnection)) {
+          connectionManager.closeConnection(downstreamConnection);
+        }
+      }
+    }
+  }
+
   private synchronized void registerUser(String username, String secret, Connection replyConnection) {
     userMap.put(username, secret);
+    if (replyConnection == null) { return; }
 
-    if (replyConnection != null) {
+    if (connectionManager.isLegacyServer(replyConnection)) {
+      replyConnection.pushCommand(new LockAllowedCommand(username, secret, Settings.getId()));
+    } else {
       Command cmd = new RegisterSuccessCommand("Username " + username + " successfully registered");
       replyConnection.pushCommand(cmd);
+    }
+  }
+
+  private static class PendingRegistrationRequest {
+    private String secret;
+    private Connection downstreamConnection;
+    private Connection upstreamConnection;
+
+    public PendingRegistrationRequest(String secret, Connection downstreamConnection, Connection upstreamConnection) {
+      this.secret = secret;
+      this.downstreamConnection = downstreamConnection;
+      this.upstreamConnection = upstreamConnection;
+    }
+
+    public String getSecret() {
+      return secret;
+    }
+
+    public Connection getDownstreamConnection() {
+      return downstreamConnection;
+    }
+
+    public Connection getUpstreamConnection() {
+      return upstreamConnection;
     }
   }
 

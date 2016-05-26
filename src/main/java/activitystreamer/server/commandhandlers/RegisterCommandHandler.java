@@ -45,8 +45,13 @@ public class RegisterCommandHandler implements ICommandHandler {
             }
 
             if (!userAuthService.register(cmd.getUsername(), cmd.getSecret(), conn)) {
-                conn.pushCommand(new RegisterFailedCommand("Username " + cmd.getUsername() + " already exists."));
-                connectionManager.closeConnection(conn);
+                conn.pushCommand(new RegisterFailedCommand("Username " + cmd.getUsername() + " already exists.",
+                    cmd.getUsername(),
+                    cmd.getSecret())
+                );
+                if (!serverAuthService.isAuthenticated(conn)) {
+                    connectionManager.closeConnection(conn);
+                }
                 return true;
             }
 

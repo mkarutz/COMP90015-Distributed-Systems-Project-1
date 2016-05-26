@@ -6,9 +6,17 @@ public class RegisterFailedCommand implements Command {
     private final String command = "REGISTER_FAILED";
     @JsonRequired
     private String info;
+    private String username;
+    private String secret;
 
     public RegisterFailedCommand(String info) {
         this.info = info;
+    }
+
+    public RegisterFailedCommand(String info, String username, String secret) {
+        this.info = info;
+        this.username = username;
+        this.secret = secret;
     }
 
     @Override
@@ -23,5 +31,13 @@ public class RegisterFailedCommand implements Command {
 
     public void setInfo(String info) {
         this.info = info;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public String getSecret() {
+        return secret;
     }
 }

@@ -19,4 +19,9 @@ public interface ConnectionManager extends DisconnectHandler {
     boolean hasParent();
     Connection getParentConnection();
     void setParentConnection(Connection connection);
+
+    boolean isLegacyServer(Connection connection);
+    boolean isParentConnection(Connection connection);
+    boolean isClientConnection(Connection connection);
+    boolean isServerConnection(Connection connection);
 }
