@@ -30,6 +30,8 @@ public class MainCommandProcessor extends CommandProcessor {
         handlers.add(new RegisterCommandHandler(userAuthService, serverAuthService, connectionManager));
         handlers.add(new ServerAnnounceCommandHandler(remoteServerStateService, broadcastService, serverAuthService, connectionManager));
         handlers.add(new LogoutCommandHandler(userAuthService, connectionManager));
+        handlers.add(new RegisterSuccessCommandHandler(userAuthService, serverAuthService, connectionManager));
+        handlers.add(new RegisterFailedCommandHandler(userAuthService, serverAuthService, connectionManager));
     }
 
     @Override

@@ -29,8 +29,8 @@ public class LockRequestCommandHandler implements ICommandHandler {
 
     @Override
     public boolean handleCommand(Command command, Connection conn) {
-        if (command instanceof RegisterCommand) {
-            RegisterCommand cmd = (RegisterCommand) command;
+        if (command instanceof LockRequestCommand) {
+            LockRequestCommand cmd = (LockRequestCommand) command;
 
             if (userAuthService.isLoggedIn(conn)) {
                 conn.pushCommand(new InvalidMessageCommand("Unexpected register from client."));
