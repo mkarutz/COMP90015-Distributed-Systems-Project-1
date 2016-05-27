@@ -19,8 +19,10 @@ import org.apache.logging.log4j.Logger;
 public class ConcreteRemoteServerStateService implements RemoteServerStateService, ConnectionManager.ConnectionCallback {
   Logger log = LogManager.getLogger();
 
-  private final Map<Connection, State> leastLoadedSecureServer = new HashMap<>();
-  private final Map<Connection, State> leastLoadedInsecureServer = new HashMap<>();
+  private final Map<String, State> leastLoadedSecureServer = new HashMap<>();
+  private final Map<String, State> leastLoadedInsecureServer = new HashMap<>();
+
+  private final Map<Connection, Set<String>> idsOnConnection = new HashMap<>();
 
   private final ConnectionManager connectionManager;
 
@@ -33,13 +35,23 @@ public class ConcreteRemoteServerStateService implements RemoteServerStateServic
   public synchronized void updateState(String id, int load, InetAddress hostname, int port,
                                        int secureLoad, InetAddress secureHostname, int securePort,
                                        Connection connection) {
+    addID(connection, id);
+
     if (hostname != null) {
-      leastLoadedInsecureServer.put(connection, new State(load, hostname, port));
+      leastLoadedInsecureServer.put(id, new State(load, hostname, port));
     }
 
     if (secureHostname != null) {
-      leastLoadedSecureServer.put(connection, new State(secureLoad, secureHostname, securePort));
+      leastLoadedSecureServer.put(id, new State(secureLoad, secureHostname, securePort));
     }
+  }
+
+  private void addID(Connection c, String id) {
+    if (!idsOnConnection.containsKey(c)) {
+      idsOnConnection.put(c, new HashSet<String>());
+    }
+
+    idsOnConnection.get(c).add(id);
   }
 
   private void printTable() {
@@ -47,21 +59,21 @@ public class ConcreteRemoteServerStateService implements RemoteServerStateServic
     System.out.println("LOAD = " + connectionManager.getLoad());
 
     System.out.println("Secure Server States");
-    System.out.println("+------+----+----+");
-    System.out.printf("|%-6s|%4s|%4s|\n", "id", "load", "port");
-    System.out.println("+------+----+----+");
-    for (Map.Entry<Connection, State> entry : leastLoadedSecureServer.entrySet()) {
-      System.out.printf("|%-6s|%4s|%4s|\n", entry.getKey().getSocket().getPort(), entry.getValue().getLoad(), entry.getValue().getPort());
-      System.out.println("+------+----+----+");
+    System.out.println("+--------------------------------+----+----+");
+    System.out.printf("|%-32s|%4s|%4s|\n", "id", "load", "port");
+    System.out.println("+--------------------------------+----+----+");
+    for (Map.Entry<String, State> entry : leastLoadedSecureServer.entrySet()) {
+      System.out.printf("|%-32s|%4s|%4s|\n", entry.getKey(), entry.getValue().getLoad(), entry.getValue().getPort());
+      System.out.println("+--------------------------------+----+----+");
     }
 
     System.out.println("\nInsecure Server States");
-    System.out.println("+------+----+----+");
-    System.out.printf("|%-6s|%4s|%4s|\n", "id", "load", "port");
-    System.out.println("+------+----+----+");
-    for (Map.Entry<Connection, State> entry : leastLoadedInsecureServer.entrySet()) {
-      System.out.printf("|%-6s|%4s|%4s|\n", entry.getKey().getSocket().getPort(), entry.getValue().getLoad(), entry.getValue().getPort());
-      System.out.println("+------+----+----+");
+    System.out.println("+--------------------------------+----+----+");
+    System.out.printf("|%-32s|%4s|%4s|\n", "id", "load", "port");
+    System.out.println("+--------------------------------+----+----+");
+    for (Map.Entry<String, State> entry : leastLoadedInsecureServer.entrySet()) {
+      System.out.printf("|%-32s|%4s|%4s|\n", entry.getKey(), entry.getValue().getLoad(), entry.getValue().getPort());
+      System.out.println("+--------------------------------+----+----+");
     }
     System.out.println("\n\n");
   }
@@ -74,8 +86,19 @@ public class ConcreteRemoteServerStateService implements RemoteServerStateServic
 
   @Override
   public void execute(Connection connection) {
-    State secureBackup = leastLoadedSecureServer.remove(connection);
-    State insecureBackup = leastLoadedInsecureServer.remove(connection);
+    Map<String, State> secureBackup = new HashMap<>();
+    Map<String, State> insecureBackup = new HashMap<>();
+
+    if (idsOnConnection.containsKey(connection)) {
+      for (String id : idsOnConnection.get(connection)) {
+        if (leastLoadedSecureServer.containsKey(id)) {
+          secureBackup.put(id, leastLoadedSecureServer.remove(id));
+        }
+        if (leastLoadedInsecureServer.containsKey(id)) {
+          insecureBackup.put(id, leastLoadedInsecureServer.remove(id));
+        }
+      }
+    }
 
     State minSecure = leastLoadedSecure();
     State minInsecure = leastLoadedInsecure();
@@ -100,12 +123,12 @@ public class ConcreteRemoteServerStateService implements RemoteServerStateServic
         secure.getPort()
     ));
 
-    if (secureBackup != null) {
-      leastLoadedSecureServer.put(connection, secureBackup);
+    for (Map.Entry<String, State> entry : secureBackup.entrySet()) {
+      leastLoadedSecureServer.put(entry.getKey(), entry.getValue());
     }
 
-    if (insecureBackup != null) {
-      leastLoadedInsecureServer.put(connection, insecureBackup);
+    for (Map.Entry<String, State> entry : insecureBackup.entrySet()) {
+      leastLoadedInsecureServer.put(entry.getKey(), entry.getValue());
     }
   }
 

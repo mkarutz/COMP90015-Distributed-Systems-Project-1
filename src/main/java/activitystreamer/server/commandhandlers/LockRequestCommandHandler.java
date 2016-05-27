@@ -56,6 +56,7 @@ public class LockRequestCommandHandler implements ICommandHandler {
                 exclude.add(conn);
                 exclude.add(userAuthService.getOriginator(cmd.getUsername(), cmd.getSecret()));
 
+                userAuthService.put(cmd.getUsername(), cmd.getSecret());
                 broadcastService.broadcastToServersExcludingMany(command, exclude);
                 return true;
             }

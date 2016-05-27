@@ -19,4 +19,9 @@ public interface UserAuthService {
     boolean isUserRegistered(String username, String secret);
     boolean isLoggedIn(Connection conn);
     boolean authorise(Connection conn, String username, String secret);
+
+    boolean usernameExists(String username);
+    String getSecret(String username);
+
+    void put(String username, String secret);
 }

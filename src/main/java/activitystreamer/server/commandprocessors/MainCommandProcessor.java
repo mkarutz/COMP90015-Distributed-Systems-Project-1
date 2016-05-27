@@ -22,7 +22,7 @@ public class MainCommandProcessor extends CommandProcessor {
         handlers.add(new AuthenticateCommandHandler(userAuthService, serverAuthService, connectionManager));
         handlers.add(new AuthenticationFailCommandHandler(serverAuthService, connectionManager));
         handlers.add(new LockAllowedCommandHandler());
-        handlers.add(new LockDeniedCommandHandler());
+        handlers.add(new LockDeniedCommandHandler(userAuthService));
         handlers.add(new LockRequestCommandHandler(userAuthService, serverAuthService, connectionManager, broadcastService));
         handlers.add(new LoginCommandHandler(userAuthService, serverAuthService, remoteServerStateService, connectionManager));
         handlers.add(new RegisterCommandHandler(userAuthService, serverAuthService, connectionManager, remoteServerStateService));

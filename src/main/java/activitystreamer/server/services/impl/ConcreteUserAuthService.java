@@ -213,6 +213,21 @@ public class ConcreteUserAuthService implements UserAuthService {
     }
   }
 
+  @Override
+  public boolean usernameExists(String username) {
+    return userMap.containsKey(username);
+  }
+
+  @Override
+  public String getSecret(String username) {
+    return userMap.get(username);
+  }
+
+  @Override
+  public void put(String username, String secret) {
+    userMap.put(username, secret);
+  }
+
   private static class PendingRegistrationRequest {
     private String secret;
     private Connection downstreamConnection;
