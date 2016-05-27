@@ -338,9 +338,9 @@ public class CommandAdapterTest {
                 .registerTypeAdapter(type, new CommandAdapter())
                 .create();
 
-        ServerAnnounceCommand expected = new ServerAnnounceCommand("fmnmpp3ai91qb3gc2bvs14g3ue", 5, InetAddress.getByName("128.250.13.46"), 5370, 5371);
+        ServerAnnounceCommand expected = new ServerAnnounceCommand("fmnmpp3ai91qb3gc2bvs14g3ue", 5, InetAddress.getByName("128.250.13.46"), 5370);
 
-        String msg = "{\"command\":\"SERVER_ANNOUNCE\",\"id\":\"fmnmpp3ai91qb3gc2bvs14g3ue\",\"load\":5,\"hostname\":\"128.250.13.46\",\"port\":5370,\"securePort\":5371}";
+        String msg = "{\"command\":\"SERVER_ANNOUNCE\",\"id\":\"fmnmpp3ai91qb3gc2bvs14g3ue\",\"load\":5,\"hostname\":\"128.250.13.46\",\"port\":5370}";
         JsonObject elem = new JsonParser().parse(msg).getAsJsonObject();
         Command actual = gson.fromJson(elem, type);
 

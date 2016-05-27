@@ -6,8 +6,8 @@ import java.net.InetAddress;
 import java.util.Set;
 
 public interface RemoteServerStateService {
-    void updateState(String id, int load, InetAddress hostname, int port, int securePort);
-    Set<String> getKnownServerIds();
+    void updateState(String id, int load, InetAddress hostname, int port,
+                     int secureLoad, InetAddress secureHostname, int securePort, Connection connection);
     void announce();
-    void loadBalance(Connection connection);
+    boolean loadBalance(Connection connection);
 }

@@ -1,6 +1,5 @@
 package activitystreamer.server.commandhandlers;
 
-import activitystreamer.Server;
 import activitystreamer.core.command.Command;
 import activitystreamer.core.command.InvalidMessageCommand;
 import activitystreamer.core.command.RegisterCommand;
@@ -8,6 +7,7 @@ import activitystreamer.core.command.RegisterFailedCommand;
 import activitystreamer.core.commandhandler.ICommandHandler;
 import activitystreamer.core.shared.Connection;
 import activitystreamer.server.services.contracts.ConnectionManager;
+import activitystreamer.server.services.contracts.RemoteServerStateService;
 import activitystreamer.server.services.contracts.ServerAuthService;
 import activitystreamer.server.services.contracts.UserAuthService;
 import com.google.inject.Inject;
@@ -17,20 +17,27 @@ public class RegisterCommandHandler implements ICommandHandler {
     private final UserAuthService userAuthService;
     private final ServerAuthService serverAuthService;
     private final ConnectionManager connectionManager;
+    private final RemoteServerStateService remoteServerStateService;
 
     @Inject
     public RegisterCommandHandler(UserAuthService userAuthService,
                                   ServerAuthService serverAuthService,
-                                  ConnectionManager connectionManager) {
+                                  ConnectionManager connectionManager,
+                                  RemoteServerStateService remoteServerStateService) {
         this.userAuthService = userAuthService;
         this.serverAuthService = serverAuthService;
         this.connectionManager = connectionManager;
+        this.remoteServerStateService = remoteServerStateService;
     }
 
     @Override
     public boolean handleCommand(Command command, Connection conn) {
         if (command instanceof RegisterCommand) {
             RegisterCommand cmd = (RegisterCommand) command;
+
+            if (remoteServerStateService.loadBalance(conn)) {
+                return true;
+            }
 
             if (userAuthService.isLoggedIn(conn)) {
                 conn.pushCommand(new InvalidMessageCommand("Unexpected register from client."));

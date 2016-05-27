@@ -16,6 +16,7 @@ import activitystreamer.server.services.impl.ConcreteRemoteServerStateService;
 import activitystreamer.server.services.contracts.ConnectionManager;
 import org.junit.Test;
 
+import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
@@ -111,6 +112,8 @@ public class ServerAnnounceCommandHandlerTest {
                 "    \"load\" : 5,\n" +
                 "    \"hostname\" : \"128.250.13.46\",\n" +
                 "    \"port\" : 3570,\n" +
+                "    \"secureLoad\" : \"5\",\n" +
+                "    \"secureHostname\" : \"128.250.13.46\",\n" +
                 "    \"securePort\" : 3571\n" +
                 "}"
         );
@@ -122,7 +125,7 @@ public class ServerAnnounceCommandHandlerTest {
         InetAddress address = InetAddress.getByName("128.250.13.46");
         ServerState state = new ServerState(address, 3570, 5, -1);
 
-        verify(mockRemoteServerStateService).updateState(eq("fmnmpp3ai91qb3gc2bvs14g3ue"), eq(5), eq(address), eq(3570), eq(3571));
+        verify(mockRemoteServerStateService).updateState(eq("fmnmpp3ai91qb3gc2bvs14g3ue"), eq(5), eq(address), eq(3570), eq(5), eq(address), eq(3571), same(mockConnection));
 
         verify(mockConnection, never()).pushCommand(isA(InvalidMessageCommand.class));
         verify(mockConnectionManager,never()).closeConnection(mockConnection);
@@ -161,9 +164,8 @@ public class ServerAnnounceCommandHandlerTest {
         handler.handleCommand(mockCommand, mockConnection);
 
         InetAddress address = InetAddress.getByName("128.250.13.46");
-        ServerState state = new ServerState(address, 3570, 5, -1);
 
-        verify(mockRemoteServerStateService).updateState(eq("fmnmpp3ai91qb3gc2bvs14g3ue"), eq(5), eq(address), eq(3570), eq(-1));
+        verify(mockRemoteServerStateService).updateState(eq("fmnmpp3ai91qb3gc2bvs14g3ue"), eq(5), eq(address), eq(3570), eq(0), isNull(Inet4Address.class), eq(-1), same(mockConnection));
 
         verify(mockConnection, never()).pushCommand(isA(InvalidMessageCommand.class));
         verify(mockConnectionManager,never()).closeConnection(mockConnection);

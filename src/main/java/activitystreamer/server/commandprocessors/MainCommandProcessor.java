@@ -6,9 +6,7 @@ import activitystreamer.core.commandprocessor.CommandProcessor;
 import activitystreamer.core.shared.Connection;
 import activitystreamer.server.commandhandlers.*;
 import activitystreamer.server.services.contracts.*;
-import com.google.inject.Guice;
 import com.google.inject.Inject;
-import com.google.inject.Injector;
 
 public class MainCommandProcessor extends CommandProcessor {
     private final ConnectionManager connectionManager;
@@ -27,7 +25,7 @@ public class MainCommandProcessor extends CommandProcessor {
         handlers.add(new LockDeniedCommandHandler());
         handlers.add(new LockRequestCommandHandler(userAuthService, serverAuthService, connectionManager, broadcastService));
         handlers.add(new LoginCommandHandler(userAuthService, serverAuthService, remoteServerStateService, connectionManager));
-        handlers.add(new RegisterCommandHandler(userAuthService, serverAuthService, connectionManager));
+        handlers.add(new RegisterCommandHandler(userAuthService, serverAuthService, connectionManager, remoteServerStateService));
         handlers.add(new ServerAnnounceCommandHandler(remoteServerStateService, broadcastService, serverAuthService, connectionManager));
         handlers.add(new LogoutCommandHandler(userAuthService, connectionManager));
         handlers.add(new RegisterSuccessCommandHandler(userAuthService, serverAuthService, connectionManager));

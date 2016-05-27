@@ -16,7 +16,7 @@ public class RegisterCommandHandlerTest {
     ServerAuthService mockServerAuthService = mock(NetworkManagerService.class);
 
     ConnectionManager mockConnectionManager = mock(ConnectionManager.class);
-    RegisterCommandHandler handler = new RegisterCommandHandler(mockAuthService, mockServerAuthService, mockConnectionManager);
+    RegisterCommandHandler handler = new RegisterCommandHandler(mockAuthService, mockServerAuthService, mockConnectionManager, mock(RemoteServerStateService.class));
 
     RegisterCommand mockCommand = mock(RegisterCommand.class);
     when(mockCommand.getUsername()).thenReturn(null);
@@ -34,7 +34,7 @@ public class RegisterCommandHandlerTest {
     ServerAuthService mockServerAuthService = mock(NetworkManagerService.class);
 
     ConnectionManager mockConnectionManager = mock(ConnectionManager.class);
-    RegisterCommandHandler handler = new RegisterCommandHandler(mockAuthService, mockServerAuthService, mockConnectionManager);
+    RegisterCommandHandler handler = new RegisterCommandHandler(mockAuthService, mockServerAuthService, mockConnectionManager, mock(RemoteServerStateService.class));
 
     RegisterCommand mockCommand = mock(RegisterCommand.class);
     when(mockCommand.getUsername()).thenReturn("username");
@@ -55,7 +55,7 @@ public class RegisterCommandHandlerTest {
     ServerAuthService mockServerAuthService = mock(NetworkManagerService.class);
 
     ConnectionManager mockConnectionManager = mock(ConnectionManager.class);
-    RegisterCommandHandler handler = new RegisterCommandHandler(mockAuthService, mockServerAuthService, mockConnectionManager);
+    RegisterCommandHandler handler = new RegisterCommandHandler(mockAuthService, mockServerAuthService, mockConnectionManager, mock(RemoteServerStateService.class));
 
     RegisterCommand mockCommand = mock(RegisterCommand.class);
     when(mockCommand.getUsername()).thenReturn("username");
@@ -76,7 +76,7 @@ public class RegisterCommandHandlerTest {
     ServerAuthService mockServerAuthService = mock(NetworkManagerService.class);
 
     ConnectionManager mockConnectionManager = mock(ConnectionManager.class);
-    RegisterCommandHandler handler = new RegisterCommandHandler(mockAuthService, mockServerAuthService, mockConnectionManager);
+    RegisterCommandHandler handler = new RegisterCommandHandler(mockAuthService, mockServerAuthService, mockConnectionManager, mock(RemoteServerStateService.class));
 
     RegisterCommand mockCommand = mock(RegisterCommand.class);
     when(mockCommand.getUsername()).thenReturn("username");
@@ -106,7 +106,8 @@ public class RegisterCommandHandlerTest {
     RegisterCommandHandler handler = new RegisterCommandHandler(
         authService,
         mockServerAuthService,
-        mockConnectionManager
+        mockConnectionManager,
+        mock(RemoteServerStateService.class)
     );
 
     RegisterCommand mockCommand = mock(RegisterCommand.class);
@@ -135,7 +136,8 @@ public class RegisterCommandHandlerTest {
     RegisterCommandHandler handler = new RegisterCommandHandler(
         authService,
         mockServerAuthService,
-        mockConnectionManager
+        mockConnectionManager,
+        mock(RemoteServerStateService.class)
     );
 
     RegisterCommand mockCommand = mock(RegisterCommand.class);
@@ -165,7 +167,8 @@ public class RegisterCommandHandlerTest {
     RegisterCommandHandler handler = new RegisterCommandHandler(
         authService,
         mockServerAuthService,
-        mockConnectionManager
+        mockConnectionManager,
+        mock(RemoteServerStateService.class)
     );
 
     RegisterCommand mockCommand = mock(RegisterCommand.class);

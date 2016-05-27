@@ -136,7 +136,7 @@ public class Server {
         log.info("starting server");
 
         //TODO: remove debugger
-        System.setProperty("javax.net.debug","all");
+//        System.setProperty("javax.net.debug","all");
 
         Injector injector = Guice.createInjector(new ServicesModule());
         Control c = injector.getInstance(Control.class);

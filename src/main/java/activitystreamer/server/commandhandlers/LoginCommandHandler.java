@@ -31,6 +31,10 @@ public class LoginCommandHandler implements ICommandHandler {
         if (command instanceof LoginCommand) {
             LoginCommand loginCommand = (LoginCommand) command;
 
+            if (remoteServerStateService.loadBalance(conn)) {
+                return true;
+            }
+
             if (userAuthService.isLoggedIn(conn)) {
                 conn.pushCommand(new InvalidMessageCommand("Unexpected login from client."));
                 connectionManager.closeConnection(conn);

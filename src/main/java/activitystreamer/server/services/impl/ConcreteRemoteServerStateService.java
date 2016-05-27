@@ -10,98 +10,210 @@ import activitystreamer.server.services.contracts.RemoteServerStateService;
 import activitystreamer.util.Settings;
 
 import java.net.InetAddress;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import com.google.inject.Inject;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-public class ConcreteRemoteServerStateService implements RemoteServerStateService {
+public class ConcreteRemoteServerStateService implements RemoteServerStateService, ConnectionManager.ConnectionCallback {
     Logger log = LogManager.getLogger();
-    private HashMap<String, ServerState> states;
+
+    private final Map<Connection, State> leastLoadedSecureServer = new HashMap<>();
+    private final Map<Connection, State> leastLoadedInsecureServer = new HashMap<>();
 
     private final ConnectionManager connectionManager;
 
     @Inject
     public ConcreteRemoteServerStateService(ConnectionManager connectionManager) {
         this.connectionManager = connectionManager;
-        this.states = new HashMap<>();
     }
 
     @Override
-    public synchronized void updateState(String id, int load, InetAddress hostname, int port, int securePort) {
-        states.put(id, new ServerState(hostname, port, load, securePort));
-    }
-
-    @Override
-    public synchronized Set<String> getKnownServerIds() {
-        Set<String> serverIds = new HashSet<>();
-        for (Map.Entry<String, ServerState> s: this.states.entrySet()) {
-            serverIds.add(s.getKey());
+    public synchronized void updateState(String id, int load, InetAddress hostname, int port,
+                                         int secureLoad, InetAddress secureHostname, int securePort,
+                                         Connection connection) {
+        if (hostname != null) {
+//            if (hostname.equals(connection.getSocket().getLocalAddress()) && port == Settings.getLocalPort()) {
+//                leastLoadedInsecureServer.remove(connection);
+//            } else {
+                leastLoadedInsecureServer.put(connection, new State(load, hostname, port));
+//            }
         }
 
-        return serverIds;
+        if (secureHostname != null) {
+//            if (secureHostname.equals(connection.getSocket().getLocalAddress()) && securePort == Settings.getSecureLocalPort()) {
+//                leastLoadedSecureServer.remove(connection);
+//            } else {
+                leastLoadedSecureServer.put(connection, new State(secureLoad, secureHostname, securePort));
+//            }
+        }
+    }
+
+    private void printTable() {
+        System.out.println("\n\n\n");
+        System.out.println("LOAD = " + connectionManager.getLoad());
+        System.out.println("+----+----+----+");
+        System.out.printf("|%-4s|%4s|%4s|\n", "id", "load", "port");
+        System.out.println("+----+----+----+");
+        for (Map.Entry<Connection, State> entry : leastLoadedSecureServer.entrySet()) {
+            System.out.printf("|%-4s|%4s|%4s|\n", entry.getKey().getSocket().getPort(), entry.getValue().getLoad(), entry.getValue().getPort());
+            System.out.println("+----+----+----+");
+        }
     }
 
     @Override
     public synchronized void announce() {
-        connectionManager.eachServerConnection(new Announcer(connectionManager.getLoad()));
+        printTable();
+        connectionManager.eachServerConnection(this);
     }
 
     @Override
-    public synchronized void loadBalance(Connection connection) {
-        ServerState redirectTo;
+    public void execute(Connection connection) {
+        State secureBackup = leastLoadedSecureServer.remove(connection);
+        State insecureBackup = leastLoadedInsecureServer.remove(connection);
+
+        State minSecure = leastLoadedSecure();
+        State minInsecure = leastLoadedInsecure();
+
+        int load = connectionManager.getLoad();
+
+        State secure = minSecure != null && minSecure.getLoad() < load
+            ? minSecure
+            : new State(load, connection.getSocket().getLocalAddress(), Settings.getSecureLocalPort());
+
+        State insecure = minInsecure != null && minInsecure.getLoad() < load
+            ? minInsecure
+            : new State(load, connection.getSocket().getLocalAddress(), Settings.getLocalPort());
+
+        connection.pushCommand(new ServerAnnounceCommand(
+            Settings.getId(),
+            insecure.getLoad(),
+            insecure.getHostname(),
+            insecure.getPort(),
+            secure.getLoad(),
+            secure.getHostname(),
+            secure.getPort()
+        ));
+
+        if (secureBackup != null) {
+            leastLoadedSecureServer.put(connection, secureBackup);
+        }
+
+        if (insecureBackup != null) {
+            leastLoadedInsecureServer.put(connection, insecureBackup);
+        }
+    }
+
+    private State leastLoadedSecure() {
+        return leastLoadedSecureServer.isEmpty() ? null : Collections.min(leastLoadedSecureServer.values());
+    }
+
+    private State leastLoadedInsecure() {
+        return leastLoadedInsecureServer.isEmpty() ? null : Collections.min(leastLoadedInsecureServer.values());
+    }
+
+    @Override
+    public synchronized boolean loadBalance(Connection connection) {
+        State redirectTo;
         if (connection.getSocket().getLocalPort() == Settings.getSecureLocalPort()) {
             if ((redirectTo = getSecureServerToRedirectTo()) != null) {
                 log.debug("Redirecting Securely!!!!!!!!!!!!!!!");
-                connection.pushCommand(new RedirectCommand(redirectTo.getHostname(), redirectTo.getSecurePort()));
+                connection.pushCommand(new RedirectCommand(redirectTo.getHostname(), redirectTo.getPort()));
                 connectionManager.closeConnection(connection);
+                return true;
             }
         } else {
             if ((redirectTo = getInsecureServerToRedirectTo()) != null) {
                 log.debug("Redirecting Insecurely!!!!!!!!!!!!!!!");
                 connection.pushCommand(new RedirectCommand(redirectTo.getHostname(), redirectTo.getPort()));
                 connectionManager.closeConnection(connection);
+                return true;
             }
         }
+        return false;
     }
 
-    private ServerState getSecureServerToRedirectTo() {
-        for (ServerState serverState: states.values()) {
-            if (serverState.isSecure() && serverState.getLoad() < connectionManager.getLoad() - 1) {
-                return serverState;
-            }
+    private State getSecureServerToRedirectTo() {
+        State state = leastLoadedSecure();
+        if (state != null && state.getLoad() < connectionManager.getLoad()) {
+            return state;
         }
+
         return null;
     }
 
-    private ServerState getInsecureServerToRedirectTo() {
-        for (ServerState serverState: states.values()) {
-            if (serverState.getLoad() < connectionManager.getLoad() - 1) {
-                return serverState;
-            }
+    private State getInsecureServerToRedirectTo() {
+        State state = leastLoadedInsecure();
+        if (state != null && state.getLoad() < connectionManager.getLoad()) {
+            return state;
         }
+
+
+
         return null;
     }
 
-    private class Announcer implements ConnectionManager.ConnectionCallback {
-        private int load;
+    private static class State implements Comparable<State> {
+        private final int load;
+        private final InetAddress hostname;
+        private final int port;
 
-        public Announcer(int load) {
+        public State(int load, InetAddress hostname, int port) {
             this.load = load;
+            this.hostname = hostname;
+            this.port = port;
         }
 
-        public void execute(Connection connection) {
-            connection.pushCommand(new ServerAnnounceCommand(
-                    Settings.getId(),
-                    load,
-                    connection.getSocket().getLocalAddress(),
-                    Settings.getLocalPort(),
-                    Settings.getSecureLocalPort()
-            ));
+        @Override
+        public int compareTo(State state) {
+            return load - state.load;
+        }
+
+        public int getLoad() {
+            return load;
+        }
+
+        public InetAddress getHostname() {
+            return hostname;
+        }
+
+        public int getPort() {
+            return port;
         }
     }
+
+//    private static class Announcer implements ConnectionManager.ConnectionCallback {
+//        private final int load;
+//        private final State leastLoadedSecure;
+//        private final State leastLoadedInsecure;
+//
+//        public Announcer(int load,
+//                         State leastLoadedSecure,
+//                         State leastLoadedInsecure) {
+//            this.load = load;
+//            this.leastLoadedSecure = leastLoadedSecure;
+//            this.leastLoadedInsecure = leastLoadedInsecure;
+//        }
+//
+//        public void execute(Connection connection) {
+//            State secure = leastLoadedSecure != null && leastLoadedSecure.getLoad() < load
+//                ? leastLoadedSecure
+//                : new State(load, connection.getSocket().getLocalAddress(), Settings.getSecureLocalPort());
+//
+//            State insecure = leastLoadedInsecure != null && leastLoadedInsecure.getLoad() < load
+//                ? leastLoadedInsecure
+//                : new State(load, connection.getSocket().getLocalAddress(), Settings.getLocalPort());
+//
+//            connection.pushCommand(new ServerAnnounceCommand(
+//                Settings.getId(),
+//                insecure.getLoad(),
+//                insecure.getHostname(),
+//                insecure.getPort(),
+//                secure.getLoad(),
+//                secure.getHostname(),
+//                secure.getPort()
+//            ));
+//        }
+//    }
 }

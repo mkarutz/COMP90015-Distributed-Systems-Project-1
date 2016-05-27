@@ -1,17 +1,9 @@
 #!/bin/sh
-gnome-terminal -e "java -jar build/libs/ServerLegacy.jar -lp 4035 -d"
-sleep 1
-gnome-terminal -e "java -jar build/libs/ServerLegacy.jar -rh localhost -rp 4035 -d -lp 4135"
-
-gnome-terminal -e "java -jar build/libs/Server.jar -rh localhost -rp 4035 -d -lp 4135 -slp 4136"
-# sleep 1
-# gnome-terminal -e "java -jar build/libs/Server.jar -rh localhost -rp 4135 -d -lp 4235"
+gnome-terminal -t server0 -e "java -jar build/libs/Server.jar -lp 4000 -slp 4001 -d"
 sleep 2
-gnome-terminal -e "java -jar build/libs/Client.jar -rh localhost -rp 4135"
+gnome-terminal -t server1 -e "java -jar build/libs/Server.jar -lp 4010 -slp 4011 -rh localhost -rp 4001 -d -secure"
 sleep 2
-gnome-terminal -e "java -jar build/libs/Client.jar -rh localhost -rp 4135"
+gnome-terminal -t server2 -e "java -jar build/libs/Server.jar -lp 4020 -slp 4021 -rh localhost -rp 4011 -d -secure"
 sleep 2
-gnome-terminal -e "java -jar build/libs/Client.jar -rh localhost -rp 4135"
+gnome-terminal -t server3 -e "java -jar build/libs/Server.jar -lp 4030 -slp 4031 -rh localhost -rp 4021 -d -secure"
 sleep 2
-gnome-terminal -e "java -jar build/libs/Client.jar -rh localhost -rp 4135"
-
