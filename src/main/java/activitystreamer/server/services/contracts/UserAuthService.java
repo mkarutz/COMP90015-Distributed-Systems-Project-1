@@ -3,25 +3,35 @@ package activitystreamer.server.services.contracts;
 import activitystreamer.core.shared.Connection;
 
 public interface UserAuthService {
-    String ANONYMOUS = "anonymous";
+  String ANONYMOUS = "anonymous";
 
-    boolean register(String username, String secret, Connection replyConnection);
-    void login(String username, String secret, Connection conn);
-    void loginFailed(String username, String secret);
-    void loginSuccess(String username, String secret);
-    void logout(Connection conn);
-    void loginAsAnonymous(Connection conn);
-    void registerSuccess(String username, String secret);
-    void registerFailed(String username, String secret);
+  boolean register(String username, String secret, Connection replyConnection);
 
-    Connection getOriginator(String username, String secret);
+  void login(String username, String secret, Connection conn);
 
-    boolean isUserRegistered(String username, String secret);
-    boolean isLoggedIn(Connection conn);
-    boolean authorise(Connection conn, String username, String secret);
+  void loginFailed(String username, String secret);
 
-    boolean usernameExists(String username);
-    String getSecret(String username);
+  void loginSuccess(String username, String secret);
 
-    void put(String username, String secret);
+  void logout(Connection conn);
+
+  void loginAsAnonymous(Connection conn);
+
+  void registerSuccess(String username, String secret);
+
+  void registerFailed(String username, String secret);
+
+  Connection getOriginator(String username, String secret);
+
+  boolean isUserRegistered(String username, String secret);
+
+  boolean isLoggedIn(Connection conn);
+
+  boolean authorise(Connection conn, String username, String secret);
+
+  boolean usernameExists(String username);
+
+  String getSecret(String username);
+
+  void put(String username, String secret);
 }

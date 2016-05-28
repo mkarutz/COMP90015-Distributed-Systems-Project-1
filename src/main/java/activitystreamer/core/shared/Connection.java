@@ -14,124 +14,124 @@ import java.io.*;
 import java.net.Socket;
 
 public class Connection implements Closeable, Runnable {
-    private static final Logger log = LogManager.getLogger();
-    private BufferedReader in;
-    private PrintWriter out;
-    private boolean open = false;
-    private Socket socket;
-    private boolean term = false;
-    private boolean isRunning = true;
+  private static final Logger log = LogManager.getLogger();
+  private BufferedReader in;
+  private PrintWriter out;
+  private boolean open = false;
+  private Socket socket;
+  private boolean term = false;
+  private boolean isRunning = true;
 
-    private CommandSerializer commandSerializer;
-    private CommandDeserializer commandDeserializer;
-    private CommandProcessor processor;
-    private DisconnectHandler disconnectHandler;
+  private CommandSerializer commandSerializer;
+  private CommandDeserializer commandDeserializer;
+  private CommandProcessor processor;
+  private DisconnectHandler disconnectHandler;
 
-    public Connection(Socket socket,
-                      CommandSerializer commandSerializer,
-                      CommandDeserializer commandDeserializer,
-                      CommandProcessor processor,
-                      DisconnectHandler disconnectHandler) throws IOException {
-        this.socket = socket;
-        this.commandSerializer = commandSerializer;
-        this.commandDeserializer = commandDeserializer;
-        this.processor = processor;
-        this.disconnectHandler = disconnectHandler;
+  public Connection(Socket socket,
+                    CommandSerializer commandSerializer,
+                    CommandDeserializer commandDeserializer,
+                    CommandProcessor processor,
+                    DisconnectHandler disconnectHandler) throws IOException {
+    this.socket = socket;
+    this.commandSerializer = commandSerializer;
+    this.commandDeserializer = commandDeserializer;
+    this.processor = processor;
+    this.disconnectHandler = disconnectHandler;
 
-        in = new BufferedReader(new InputStreamReader(new DataInputStream(socket.getInputStream())));
-        out = new PrintWriter(new DataOutputStream(socket.getOutputStream()), true);
-        open = true;
-    }
+    in = new BufferedReader(new InputStreamReader(new DataInputStream(socket.getInputStream())));
+    out = new PrintWriter(new DataOutputStream(socket.getOutputStream()), true);
+    open = true;
+  }
 
-    @Override
-    public void run() {
-        while (!term) {
-            try {
-                Command cmd = pullCommand();
-                log.info("Deserialized command: " + cmd);
-                if (cmd != null) {
-                    processor.processCommandIncoming(this, cmd);
-                }
-            } catch (IOException e) {
-                log.error("I/O exception. Closing connection");
-                disconnectHandler.closeConnection(this);
-                term = true;
-            } catch (CommandParseException e) {
-                log.error("Invalid message. Closing connection.");
-                Command cmd = new InvalidMessageCommand("Invalid message format.");
-                this.pushCommand(cmd);
-                disconnectHandler.closeConnection(this);
-                term = true;
-            }
+  @Override
+  public void run() {
+    while (!term) {
+      try {
+        Command cmd = pullCommand();
+        log.info("Deserialized command: " + cmd);
+        if (cmd != null) {
+          processor.processCommandIncoming(this, cmd);
         }
-        isRunning = false;
+      } catch (IOException e) {
+        log.error("I/O exception. Closing connection");
+        disconnectHandler.closeConnection(this);
+        term = true;
+      } catch (CommandParseException e) {
+        log.error("Invalid message. Closing connection.");
+        Command cmd = new InvalidMessageCommand("Invalid message format.");
+        this.pushCommand(cmd);
+        disconnectHandler.closeConnection(this);
+        term = true;
+      }
     }
-    
-    public void pushCommand(Command cmd) {
-        String message = commandSerializer.serialize(cmd);
-        log.info("Sent message: " + message);
-        this.writeLine(message);
-    }
+    isRunning = false;
+  }
 
-    private Command pullCommand() throws IOException, CommandParseException {
-        String message = this.readLine();
+  public void pushCommand(Command cmd) {
+    String message = commandSerializer.serialize(cmd);
+    log.info("Sent message: " + message);
+    this.writeLine(message);
+  }
 
-        if (message == null) {
-            throw new IOException();
-        }
+  private Command pullCommand() throws IOException, CommandParseException {
+    String message = this.readLine();
 
-        log.info("Received message: " + message);
-        return commandDeserializer.deserialize(message);
-    }
-
-    private String readLine() throws IOException {
-        if (!open) {
-            throw new IOException("Connection is closed.");
-        }
-        return in.readLine();
-    }
-
-    private boolean writeLine(String msg) {
-        if (open) {
-            out.println(msg);
-            out.flush();
-            return true;
-        }
-        return false;
+    if (message == null) {
+      throw new IOException();
     }
 
-    public synchronized void setCommandProcessor(CommandProcessor processor) {
-        this.processor = processor;
-    }
+    log.info("Received message: " + message);
+    return commandDeserializer.deserialize(message);
+  }
 
-    public CommandProcessor getCommandProcessor() {
-        return this.processor;
+  private String readLine() throws IOException {
+    if (!open) {
+      throw new IOException("Connection is closed.");
     }
+    return in.readLine();
+  }
 
-    public boolean getIsRunning() {
-        return isRunning;
+  private boolean writeLine(String msg) {
+    if (open) {
+      out.println(msg);
+      out.flush();
+      return true;
     }
+    return false;
+  }
 
-    @Override
-    public synchronized void close() {
-        if (open) {
-            log.info("closing connection " + Settings.socketAddress(socket));
-            try {
-                open = false;
-                term = true;
-                in.close();
-                out.close();
-            } catch (IOException e) {
-                log.error("received exception closing the connection " + Settings.socketAddress(socket) + ": " + e);
-            }
-        }
-    }
+  public CommandProcessor getCommandProcessor() {
+    return this.processor;
+  }
 
-    public Socket getSocket() {
-        return socket;
-    }
+  public synchronized void setCommandProcessor(CommandProcessor processor) {
+    this.processor = processor;
+  }
 
-    public synchronized boolean isOpen() {
-        return open;
+  public boolean getIsRunning() {
+    return isRunning;
+  }
+
+  @Override
+  public synchronized void close() {
+    if (open) {
+      log.info("closing connection " + Settings.socketAddress(socket));
+      try {
+        open = false;
+        term = true;
+        in.close();
+        out.close();
+      } catch (IOException e) {
+        log.error("received exception closing the connection " + Settings.socketAddress(socket) + ": " + e);
+      }
     }
+  }
+
+  public Socket getSocket() {
+    return socket;
+  }
+
+  public synchronized boolean isOpen() {
+    return open;
+  }
 }

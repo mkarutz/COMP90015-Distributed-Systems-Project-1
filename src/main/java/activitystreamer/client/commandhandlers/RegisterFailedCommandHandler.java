@@ -7,14 +7,14 @@ import activitystreamer.core.shared.Connection;
 
 public class RegisterFailedCommandHandler implements ICommandHandler {
 
-    @Override
-    public boolean handleCommand(Command command, Connection conn) {
-        if (command instanceof RegisterFailedCommand) {
-            RegisterFailedCommand cmd = (RegisterFailedCommand) command;
-            conn.close();
-            return true;
-        } else {
-            return false;
-        }
+  @Override
+  public boolean handleCommand(Command command, Connection conn) {
+    if (command instanceof RegisterFailedCommand) {
+      RegisterFailedCommand cmd = (RegisterFailedCommand) command;
+      conn.close();
+      return true;
+    } else {
+      return false;
     }
+  }
 }

@@ -1,30 +1,24 @@
-
 package activitystreamer.server.services.impl;
 
 import activitystreamer.core.command.RedirectCommand;
 import activitystreamer.core.command.ServerAnnounceCommand;
 import activitystreamer.core.shared.Connection;
-import activitystreamer.server.ServerState;
 import activitystreamer.server.services.contracts.ConnectionManager;
 import activitystreamer.server.services.contracts.RemoteServerStateService;
 import activitystreamer.util.Settings;
-
-import java.net.InetAddress;
-import java.util.*;
-
 import com.google.inject.Inject;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-public class ConcreteRemoteServerStateService implements RemoteServerStateService, ConnectionManager.ConnectionCallback {
-  Logger log = LogManager.getLogger();
+import java.net.InetAddress;
+import java.util.*;
 
+public class ConcreteRemoteServerStateService implements RemoteServerStateService, ConnectionManager.ConnectionCallback {
   private final Map<String, State> leastLoadedSecureServer = new HashMap<>();
   private final Map<String, State> leastLoadedInsecureServer = new HashMap<>();
-
   private final Map<Connection, Set<String>> idsOnConnection = new HashMap<>();
-
   private final ConnectionManager connectionManager;
+  Logger log = LogManager.getLogger();
 
   @Inject
   public ConcreteRemoteServerStateService(ConnectionManager connectionManager) {

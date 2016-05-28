@@ -11,23 +11,23 @@ import java.io.IOException;
 import java.net.Socket;
 
 public class ConnectionFactory {
-    private final CommandSerializer commandSerializer;
-    private final CommandDeserializer commandDeserializer;
-    private final CommandProcessor commandProcessor;
-    private final DisconnectHandler disconnectHandler;
+  private final CommandSerializer commandSerializer;
+  private final CommandDeserializer commandDeserializer;
+  private final CommandProcessor commandProcessor;
+  private final DisconnectHandler disconnectHandler;
 
-    @Inject
-    public ConnectionFactory(CommandSerializer commandSerializer,
-                             CommandDeserializer commandDeserializer,
-                             CommandProcessor commandProcessor,
-                             DisconnectHandler disconnectHandler) {
-        this.commandSerializer = commandSerializer;
-        this.commandDeserializer = commandDeserializer;
-        this.commandProcessor = commandProcessor;
-        this.disconnectHandler = disconnectHandler;
-    }
+  @Inject
+  public ConnectionFactory(CommandSerializer commandSerializer,
+                           CommandDeserializer commandDeserializer,
+                           CommandProcessor commandProcessor,
+                           DisconnectHandler disconnectHandler) {
+    this.commandSerializer = commandSerializer;
+    this.commandDeserializer = commandDeserializer;
+    this.commandProcessor = commandProcessor;
+    this.disconnectHandler = disconnectHandler;
+  }
 
-    public Connection newConnection(Socket socket) throws IOException {
-        return new Connection(socket, commandSerializer, commandDeserializer, commandProcessor, disconnectHandler);
-    }
+  public Connection newConnection(Socket socket) throws IOException {
+    return new Connection(socket, commandSerializer, commandDeserializer, commandProcessor, disconnectHandler);
+  }
 }

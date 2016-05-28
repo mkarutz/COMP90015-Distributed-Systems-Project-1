@@ -4,7 +4,6 @@ import activitystreamer.core.command.*;
 import activitystreamer.core.shared.Connection;
 import activitystreamer.server.services.contracts.BroadcastService;
 import activitystreamer.server.services.contracts.ConnectionManager;
-import activitystreamer.server.services.contracts.RemoteServerStateService;
 import activitystreamer.server.services.contracts.UserAuthService;
 import activitystreamer.util.Settings;
 import com.google.inject.Inject;
@@ -203,7 +202,9 @@ public class ConcreteUserAuthService implements UserAuthService {
 
   private synchronized void registerUser(String username, String secret, Connection replyConnection) {
     userMap.put(username, secret);
-    if (replyConnection == null) { return; }
+    if (replyConnection == null) {
+      return;
+    }
 
     if (connectionManager.isLegacyServer(replyConnection)) {
       replyConnection.pushCommand(new LockAllowedCommand(username, secret, Settings.getId()));

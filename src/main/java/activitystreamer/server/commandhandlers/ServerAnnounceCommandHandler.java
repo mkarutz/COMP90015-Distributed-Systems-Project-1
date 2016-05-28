@@ -14,12 +14,11 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 public class ServerAnnounceCommandHandler implements ICommandHandler {
-  private Logger log = LogManager.getLogger();
-
   private final RemoteServerStateService remoteServerStateService;
   private final BroadcastService broadcastService;
   private final ServerAuthService serverAuthService;
   private final ConnectionManager connectionManager;
+  private Logger log = LogManager.getLogger();
 
   @Inject
   public ServerAnnounceCommandHandler(RemoteServerStateService remoteServerStateService,

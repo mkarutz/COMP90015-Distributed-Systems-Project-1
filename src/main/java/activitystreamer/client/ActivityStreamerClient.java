@@ -1,23 +1,5 @@
 package activitystreamer.client;
 
-import activitystreamer.client.commandprocessors.ServerCommandProcessor;
-import activitystreamer.core.command.Command;
-import activitystreamer.core.command.LoginCommand;
-import activitystreamer.core.command.RegisterCommand;
-import activitystreamer.core.command.transmission.gson.GsonCommandSerializationAdaptor;
-import activitystreamer.core.shared.Connection;
-import activitystreamer.server.commandprocessors.MainCommandProcessor;
-import activitystreamer.server.services.impl.ConcreteRemoteServerStateService;
-import activitystreamer.util.Settings;
-import com.google.gson.JsonObject;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
-import java.io.IOException;
-import java.net.Socket;
-import java.util.ArrayList;
-import java.util.List;
-
 public class ActivityStreamerClient extends Thread {
 //    private final Logger log = LogManager.getLogger();
 //    private final List<ActivityListener> listeners = new ArrayList<>();
