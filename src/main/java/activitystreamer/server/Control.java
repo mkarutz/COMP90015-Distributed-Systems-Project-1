@@ -72,7 +72,7 @@ public class Control implements Runnable, IncomingConnectionHandler {
     if (Settings.getRemoteHostname() != null) {
       try {
         if (Settings.getIsSecure()) {
-          sslContextFactory = new SSLContextFactory(null, null, Settings.getPublicKeyStore(), Settings.getPublicPass());
+          sslContextFactory = new SSLContextFactory(null, null, Settings.getPrivateKeyStore(), Settings.getPrivatePass());
 
           SSLSocketFactory sslsocketfactory = sslContextFactory.getContext().getSocketFactory();
           SSLSocket sslsocket = (SSLSocket) sslsocketfactory.createSocket(Settings.getRemoteHostname(), Settings.getRemotePort());
