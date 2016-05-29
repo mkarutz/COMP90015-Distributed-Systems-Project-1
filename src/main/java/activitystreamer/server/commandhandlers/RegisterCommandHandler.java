@@ -35,12 +35,6 @@ public class RegisterCommandHandler implements ICommandHandler {
     if (command instanceof RegisterCommand) {
       RegisterCommand cmd = (RegisterCommand) command;
 
-      if (connectionManager.isPendingConnection(conn)) {
-        if (remoteServerStateService.loadBalance(conn)) {
-          return true;
-        }
-      }
-
       if (userAuthService.isLoggedIn(conn)) {
         conn.pushCommand(new InvalidMessageCommand("Unexpected register from client."));
         connectionManager.closeConnection(conn);
